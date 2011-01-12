@@ -2,7 +2,7 @@
 Contributors: yipeecaiey
 Requires at least: 2.7
 Tested up to: 3.0.4
-Stable tag: 2.0.7
+Stable tag: 2.0.8
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
