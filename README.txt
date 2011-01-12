@@ -1,8 +1,8 @@
 === eInnov8 WP XML-RPC Notifier ===
 Contributors: yipeecaiey
 Requires at least: 3.0.1
-Tested up to: 3.0.2
-Stable tag: 2.0.6
+Tested up to: 3.0.4
+Stable tag: 2.0.7
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -38,6 +38,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.0.7   2010/12/29  Updates Updated short tags to include WideRecorder, TallRecorder, and MediaUploader
     2.0.6   2010/12/29  Updates Compliance changes for wordpress plugins directory submission
     2.0.5   2010/11/09  Updates Compatibility for WP3 multi site networks
     2.0.4   2010/02/05  Updates Added intelligent text box title for 'Simple Submit Form'.
@@ -60,6 +61,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.0.7 =
+Allow new short tags: [[Load WideRecorder]], [[Load TallRecorder]], and [[Load MediaUploader]]
 
 = 2.0.6 =
 This version will now support automatic upgrades

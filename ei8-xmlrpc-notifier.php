@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: eInnov8 WP XML-RPC Notifier
-Plugin URI: http://dev.ei8t.com/extend/ei8-xmlrpc-notifier
+Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.0.6
+Version: 2.0.7
 Author: Tim Gallaugher
-Author URI: http://www.eInnov8.com/
+Author URI: http://dev.ei8t.com/extend/ei8-xmlrpc-notifier/
 License: GPL2 
 
 Copyright 2010 eInnov8 Marketing  (email : timg@einnov8.com)
@@ -144,16 +144,66 @@ function ei8_add_ping($post_id, $tPing) {
  * FILTER FRONT END DISPLAY
 */
 
+function ei8_xmlrpc_swf_wrap($url,$height,$width) {
+    $html =<<<EOT
+<p><object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="$width" height="$height" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="allowFullScreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="wmode" value="transparent" /><param name="src" value="$url" /><param name="allowfullscreen" value="true" /><embed type="application/x-shockwave-flash" width="$width" height="$height" src="$url" wmode="transparent" allowscriptaccess="always" allowfullscreen="true"></embed></object></p>
+EOT;
+    return $html;
+}
+
+function ei8_xmlrpc_recorder_wrap($type, $vars='') {
+    $service = "http://www.ei8t.com/";
+    $doError = false;
+    if(empty($vars)) $doError = true;
+    switch($type) {
+        case 'mini' :
+            $folder = "swfmini";
+            $height = 355;
+            $width  = 340;
+            break;
+        case 'tall' :
+            $folder = "swftall";
+            $height = 440;
+            $width  = 340;
+            break;
+        case 'wide' :
+            $folder = "swfrec";
+            $height = 360;
+            $width  = 650;
+            break;
+        case 'media' :
+            $folder = "uploader";
+            $height = 300;
+            $width  = 350;
+            break;
+        default :
+            $doError = true;
+    } 
+    if($doError){
+        $showType = ucwords($type);
+        $html = "<p style='color: red; size: 13px; font-weight: bold;'>ERROR LOADING eInnov8 Tech $showType Recorder - please notify website administrator support@einnov8.com</p>";
+    } elseif($type=="media") {
+        parse_str($vars);
+        $url = "{$service}{$folder}/{$a}/{$v}/";
+        $html = "<iframe src ='$url' width='$height' height='$width' frameborder='0'><p>Your browser does not support iframes.</p></iframe>";
+    } else {
+        $url = "{$service}{$folder}/{$vars}";
+        $html = ei8_xmlrpc_swf_wrap($url,$height,$width);
+    }
+    return $html;
+}
+    
+
 function ei8_xmlrpc_filter_tags($content) {
     $wpurl     = get_bloginfo('wpurl');
     $pluginDir = $wpurl . "/wp-content/plugins/ei8-xmlrpc-notifier/";
     $siteType  = ei8_xmlrpc_get_site_type();
 
-    $pubClipLink         = ei8_xmlrpc_get_option('ei8_xmlrpc_pubClip_minirecorder');
-    $pubClipMiniRecorder =<<<EOT
-<p><object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="340" height="355" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="allowFullScreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="wmode" value="transparent" /><param name="src" value="$pubClipLink" /><param name="allowfullscreen" value="true" /><embed type="application/x-shockwave-flash" width="340" height="355" src="$pubClipLink" wmode="transparent" allowscriptaccess="always" allowfullscreen="true"></embed></object></p>
-EOT;
-    if(empty($pubClipLink)) $pubClipMiniRecorder = "<p style='color: red; size: 13px; font-weight: bold;'>ERROR LOADING PubClip Mini Recorder - please notify website administrator</p>";
+    $ei8tVars          = ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars');
+    $ei8tMiniRecorder  = ei8_xmlrpc_recorder_wrap('mini', $ei8tVars);
+    $ei8tTallRecorder  = ei8_xmlrpc_recorder_wrap('tall', $ei8tVars);
+    $ei8tWideRecorder  = ei8_xmlrpc_recorder_wrap('wide', $ei8tVars);
+    $ei8tMediaUploader = ei8_xmlrpc_recorder_wrap('media', $ei8tVars);
 
     if(1==ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha')) {
         $captchaSubmitForm = '<tr>
@@ -225,11 +275,16 @@ EOT;
 EOT;
     if(empty($submitFormLink)) $attachmentSubmitForm = "<p style='color: red; size: 13px; font-weight: bold;'>ERROR LOADING Attachment Submit Form - please notify website administrator</p>";
 
-    $content = str_replace('[[Load PubClip MiniRecorder]]', $pubClipMiniRecorder, $content);
-    $content = str_replace('[[Load MiniRecorder]]', $pubClipMiniRecorder, $content);
+    $content = str_replace('[[Load MiniRecorder]]', $ei8tMiniRecorder, $content);
+    $content = str_replace('[[Load WideRecorder]]', $ei8tWideRecorder, $content);
+    $content = str_replace('[[Load TallRecorder]]', $ei8tTallRecorder, $content);
     $content = str_replace('[[Load Simple Submit Form]]', $simpleSubmitForm, $content);
-    $content = str_replace('[[Load Captcha Submit Form]]', $simpleSubmitForm, $content);
     $content = str_replace('[[Load Attachment Submit Form]]', $attachmentSubmitForm, $content);
+    $content = str_replace('[[Load MediaUploader]]', $ei8tMediaUploader, $content);
+    
+    //deprecated
+    $content = str_replace('[[Load PubClip MiniRecorder]]', $ei8tMiniRecorder, $content);
+    $content = str_replace('[[Load Captcha Submit Form]]', $simpleSubmitForm, $content);
     return $content;
 }
 
@@ -307,8 +362,8 @@ function ei8_xmlrpc_admin_options() {
             $var = 'ei8_xmlrpc_site_type';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
                    
-            $var = 'ei8_xmlrpc_pubClip_minirecorder';
-            ei8_xmlrpc_update_option($var, $_POST[$var]);
+            $var = 'ei8_xmlrpc_recorder_vars';
+            ei8_xmlrpc_update_option($var, ei8_xmlrpc_parse_recorder_vars($_POST[$var]));
             
             $var = 'ei8_xmlrpc_submit_form';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
@@ -400,13 +455,13 @@ function ei8_xmlrpc_admin_options() {
         <tr><td><h3>Admin Specific Settings</h3></td></tr>
         <tr valign="top">
             <th scope="row">Submission Form Tags:</th>
-            <td>[[Load MiniRecorder]]<br>[[Load Simple Submit Form]]<br>[[Load Attachment Submit Form]]</td>
+            <td>[[Load MiniRecorder]]<br>[[Load WideRecorder]]<br>[[Load TallRecorder]]<br>[[Load Simple Submit Form]]<br>[[Load Attachment Submit Form]]<br>[[Load MediaUploader]]</td>
         </tr>
         <tr valign="top">
-            <th scope="row">PubClip Mini Recorder:</th>
+            <th scope="row">Web Recorder Settings:</th>
             <td>
-                <input type="text" name="ei8_xmlrpc_pubClip_minirecorder" size=55 value="<?php echo ei8_xmlrpc_get_option('ei8_xmlrpc_pubClip_minirecorder'); ?>" /><br>
-                <small>ex. http://www.pubclip.com/swfmini/v=8mGCvmv3X&amp;a=d3hQHKcR8DR</small>
+                <input type="text" name="ei8_xmlrpc_recorder_vars" size=55 value="<?php echo ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars'); ?>" /><br>
+                <small>ex. http://www.ei8t.com/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small>
             </td>
         </tr>
         <tr valign="top">
@@ -521,6 +576,22 @@ function ei8_xmlrpc_update_option($id, $value) {
     }
     $wpdb->query($sql);
     $wpdb->flush();
+}
+
+function ei8_xmlrpc_parse_recorder_vars($vars) {
+    //parse as a url if it is one...
+    if(strstr($vars,'http')) {
+        $parts = parse_url($vars);
+        $vars = $parts['path'];
+    }
+    //get down to the last slash
+    if(strstr($vars,'/')) {
+        $parts = explode('/', $vars);
+        $vars = array_pop($parts);
+    }
+    //make sure there is no funny business going on
+    $vars = urldecode(htmlspecialchars_decode($vars));
+    return $vars;
 }
 
 function ei8_xmlrpc_get_site_type() {
@@ -770,7 +841,7 @@ function ei8_xmlrpc_admin_install() {
     $wpdb->flush();
     $errs = 0;
     
-    //first check for old testiboonials settings
+    //first check for old testiboonials settings and update if necessary
     $table2 = $wpdb->prefix . "testiboonials_xmlrpc_options";
     if($wpdb->get_var("SHOW TABLES LIKE '$table2'")==$table2 && $wpdb->get_var("SHOW TABLES LIKE '$table1'") != $table1) {
         ei8_xmlrpc_admin_log("<p>Converting database from older version.</p>",1);
@@ -854,6 +925,13 @@ function ei8_xmlrpc_admin_install() {
         
     } else {
         //ei8_xmlrpc_admin_log("<p>Database is up to date. No updates performed.</p>",1);
+    }
+    
+    //check for deprecated named options and update as necessary
+    if(!(ei8_xmlrpc_get_option('ei8_xmlrpc_pubClip_minirecorder'))) {
+        ei8_xmlrpc_update_option('ei8_xmlrpc_recorder_vars', ei8_xmlrpc_get_option('ei8_xmlrpc_pubClip_minirecorder'));
+        ei8_xmlrpc_update_option('ei8_xmlrpc_pubClip_minirecorder', '');
+        ei8_xmlrpc_admin_log("<p>Updated recorder settings to current version</p>",1);
     }
     
     //make sure xmlrpc user exists and has the right permissions
