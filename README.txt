@@ -1,6 +1,6 @@
 === eInnov8 WP XML-RPC Notifier ===
 Contributors: yipeecaiey
-Requires at least: 3.0.1
+Requires at least: 2.7
 Tested up to: 3.0.4
 Stable tag: 2.0.7
 Tags: eInnov8, xmlrpc
@@ -38,6 +38,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.0.8   2011/01/12  Updates BugFix for wp3 single sites, updated dimensions for TallRecorder
     2.0.7   2010/12/29  Updates Updated short tags to include WideRecorder, TallRecorder, and MediaUploader
     2.0.6   2010/12/29  Updates Compliance changes for wordpress plugins directory submission
     2.0.5   2010/11/09  Updates Compatibility for WP3 multi site networks
