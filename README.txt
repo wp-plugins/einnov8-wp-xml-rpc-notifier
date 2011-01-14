@@ -2,7 +2,7 @@
 Contributors: yipeecaiey
 Requires at least: 2.7
 Tested up to: 3.0.4
-Stable tag: 2.0.8
+Stable tag: 2.0.9
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -38,11 +38,15 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
-    2.0.8   2011/01/12  Updates BugFix for wp3 single sites, updated dimensions for TallRecorder
-    2.0.7   2010/12/29  Updates Updated short tags to include WideRecorder, TallRecorder, and MediaUploader
-    2.0.6   2010/12/29  Updates Compliance changes for wordpress plugins directory submission
-    2.0.5   2010/11/09  Updates Compatibility for WP3 multi site networks
-    2.0.4   2010/02/05  Updates Added intelligent text box title for 'Simple Submit Form'.
+    2.0.9   2011/01/12  UPDATE  Extended preferences fields
+                                Added Twitter post option
+                                Added confirmation on form submit
+                                Bugfix for dynamic plugin directory names
+    2.0.8   2011/01/12  UPDATE  BugFix for wp3 single sites, updated dimensions for TallRecorder
+    2.0.7   2010/12/29  UPDATE  Updated short tags to include WideRecorder, TallRecorder, and MediaUploader
+    2.0.6   2010/12/29  UPDATE  Compliance changes for wordpress plugins directory submission
+    2.0.5   2010/11/09  UPDATE  Compatibility for WP3 multi site networks
+    2.0.4   2010/02/05  UPDATE  Added intelligent text box title for 'Simple Submit Form'.
                                 Removed width for uploaded (embedded) images to remove distortion
                                 Added hspace and vspace for uploaded (embedded) images
     2.0.3   2010/02/05  BUG-FIX Added functionality so 'Attachment Submit Form' creates link to doc instead of embedding

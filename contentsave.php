@@ -74,6 +74,10 @@ if(!ereg("^http",$submitPage)) {
     $doSlash = (ereg("^/",$submitPage)) ? "" : "/" ;
     $submitPage = $wpurl.$doSlash.$submitPage;
 }
+//handle the notifications
+$submitPage .= (ereg("\?",$submitPage)) ? "&" : "?" ;
+$submitPage .= "success=";
+$submitPage .= (!empty($_REQUEST['ei8_xmlrpc_a'])) ? $_REQUEST['ei8_xmlrpc_a']."#".$_REQUEST['ei8_xmlrpc_a'] : "1" ;
 
 $then = gmstrftime("%a, %d %b %Y %H:%M:%S GMT");                            
 header("Expires: $then");                                                   

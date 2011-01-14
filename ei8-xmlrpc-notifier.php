@@ -3,9 +3,9 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.0.8
+Version: 2.0.9
 Author: Tim Gallaugher
-Author URI: http://dev.ei8t.com/extend/ei8-xmlrpc-notifier/
+Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2 
 
 Copyright 2010 eInnov8 Marketing  (email : timg@einnov8.com)
@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //define('WP_DEBUG', true);
 
 // internationalization 
-//load_plugin_textdomain('ei8-xmlrpc-notifier', "/wp-content/plugins/ei8-xmlrpc-notifier/languages/");
+//load_plugin_textdomain('ei8-xmlrpc-notifier', ei8_xmlrpc_get_plugin_dir()."/languages/");
 
 //white list options
 /*function ei8_xmlrpc_register_settings() {
@@ -194,9 +194,15 @@ function ei8_xmlrpc_recorder_wrap($type, $vars='') {
 }
     
 
+function ei8_xmlrpc_get_plugin_dir() {
+    $pathinfo = pathinfo( plugin_basename( __FILE__ ) );
+    $pluginDir = "/wp-content/plugins/" . $pathinfo['dirname'] . '/';
+    return $pluginDir;
+}
+
 function ei8_xmlrpc_filter_tags($content) {
     $wpurl     = get_bloginfo('wpurl');
-    $pluginDir = $wpurl . "/wp-content/plugins/ei8-xmlrpc-notifier/";
+    $pluginDir = $wpurl . ei8_xmlrpc_get_plugin_dir();
     $siteType  = ei8_xmlrpc_get_site_type();
 
     $ei8tVars          = ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars');
@@ -204,6 +210,13 @@ function ei8_xmlrpc_filter_tags($content) {
     $ei8tTallRecorder  = ei8_xmlrpc_recorder_wrap('tall', $ei8tVars);
     $ei8tWideRecorder  = ei8_xmlrpc_recorder_wrap('wide', $ei8tVars);
     $ei8tMediaUploader = ei8_xmlrpc_recorder_wrap('media', $ei8tVars);
+    $confMessage       =<<<EOT
+<div style='border:1px solid #CCC; padding:5px; height: 70px; background-color: #E5EEE1;'>
+    <img src="{$pluginDir}success.png" align="left" style="padding-right: 10px;">
+    <strong>Submission Received</strong><br>
+    Your submission was saved successfully and will be processed shortly.
+</div>
+EOT;
 
     if(1==ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha')) {
         $captchaSubmitForm = '<tr>
@@ -215,7 +228,12 @@ function ei8_xmlrpc_filter_tags($content) {
 
     $submitFormLink   = $pluginDir . "contentsave.php";
     $textBoxTitle     = ($siteType=="flood") ? "Text Box" : "Comment";
+    $aName            = "ei8xmlrpcsimplesubmit";
+    $showConf         = ($_REQUEST['success']==$aName) ? $confMessage : "" ;
+    //$showConf         = $confMessage;
     $simpleSubmitForm =<<<EOT
+<a name="$aName">
+$showConf
 <form action="$submitFormLink" enctype="multipart/form-data" method="post">
 <table class="text" border="0" width="95%">
     <tbody>
@@ -224,7 +242,7 @@ function ei8_xmlrpc_filter_tags($content) {
         <td><input name="title" size="40" type="text" /></td>
     </tr>
     <tr valign="top">
-        <td>{$textBoxTitle}:</td>
+        <td valign="top">{$textBoxTitle}:</td>
         <td><textarea cols="40" rows="10" name="comment"></textarea></td>
     </tr>
     <tr>
@@ -237,7 +255,7 @@ function ei8_xmlrpc_filter_tags($content) {
     </tr>
     <tr>
         <td></td>
-        <th> <input type="hidden" name="fileaction" value="embed_image"><input name="Submit" type="submit" value="Send Now" /> <input onclick="javascript:reset();" type="button" value="Clear Form" /></th>
+        <th> <input type="hidden" name="fileaction" value="embed_image"><input type="hidden" name="ei8_xmlrpc_a" value="$aName"><input name="Submit" type="submit" value="Save" /> <input onclick="javascript:reset();" type="button" value="Cancel" /></th>
     </tr>
     </tbody>
 </table>
@@ -245,7 +263,12 @@ function ei8_xmlrpc_filter_tags($content) {
 EOT;
     if(empty($submitFormLink)) $simpleSubmitForm = "<p style='color: red; size: 13px; font-weight: bold;'>ERROR LOADING Simple Submit Form - please notify website administrator</p>";
 
+    $aName            = "ei8xmlrpcattachmentsubmit";
+    $showConf         = ($_REQUEST['success']==$aName) ? $confMessage : "" ;
+    //$showConf         = $confMessage;
     $attachmentSubmitForm =<<<EOT
+<a name="$aName">
+$showConf
 <form action="$submitFormLink" enctype="multipart/form-data" method="post">
 <table class="text" border="0" width="95%">
     <tbody>
@@ -267,7 +290,7 @@ EOT;
     </tr>
     <tr>
         <td></td>
-        <th> <input type="hidden" name="fileaction" value="attached_doc"><input name="Submit" type="submit" value="Send Now" /> <input onclick="javascript:reset();" type="button" value="Clear Form" /></th>
+        <th> <input type="hidden" name="fileaction" value="attached_doc"><input type="hidden" name="ei8_xmlrpc_a" value="$aName"><input name="Submit" type="submit" value="Save" /> <input onclick="javascript:reset();" type="button" value="Cancel" /></th>
     </tr>
     </tbody>
 </table>
@@ -275,16 +298,49 @@ EOT;
 EOT;
     if(empty($submitFormLink)) $attachmentSubmitForm = "<p style='color: red; size: 13px; font-weight: bold;'>ERROR LOADING Attachment Submit Form - please notify website administrator</p>";
 
+    $twitterSubmitForm =<<<EOT
+<a name="ei8_xmlrpc_twitter_submit_form">
+<form action="#ei8_xmlrpc_twitter_submit_form" enctype="multipart/form-data" method="post">
+<table class="text" border="0" width="95%">
+    <tbody>
+    <tr>
+        <td colspan=2><input type="text" name="ei8_xmlrpc_tweet" size="40" maxlength="148"></td>
+    </tr>
+    $captchaSubmitForm
+    <tr>
+        <td align="center"></td>
+        <td align="center"></td>
+    </tr>
+    <tr>
+        <td></td>
+        <th> <input type="hidden" name="fileaction" value="attached_doc"><input name="Submit" type="submit" value="Send Now" /> <input onclick="javascript:reset();" type="button" value="Clear Form" /></th>
+    </tr>
+    </tbody>
+</table>
+</form>
+<a href="http://twitter.com/share" class="twitter-share-button" data-url="someurl" data-text="test texter" data-count="none">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script
+
+EOT;
+
+    $twitterButton =<<<EOT
+<a href="http://twitter.com/share" class="twitter-share-button" data-text="Enter Your Tweet Here" data-count="none">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+EOT;
+
     $content = str_replace('[[Load MiniRecorder]]', $ei8tMiniRecorder, $content);
     $content = str_replace('[[Load WideRecorder]]', $ei8tWideRecorder, $content);
     $content = str_replace('[[Load TallRecorder]]', $ei8tTallRecorder, $content);
     $content = str_replace('[[Load Simple Submit Form]]', $simpleSubmitForm, $content);
     $content = str_replace('[[Load Attachment Submit Form]]', $attachmentSubmitForm, $content);
+    $content = str_replace('[[Load Twitter Button]]', $twitterButton, $content);
     $content = str_replace('[[Load MediaUploader]]', $ei8tMediaUploader, $content);
     
     //deprecated
+    $content = str_replace('[[Load Web Recorder]]', $ei8tWideRecorder, $content);
     $content = str_replace('[[Load PubClip MiniRecorder]]', $ei8tMiniRecorder, $content);
     $content = str_replace('[[Load Captcha Submit Form]]', $simpleSubmitForm, $content);
+    
+    //started, but not yet finished
+    $content = str_replace('[[Load Twitter Submit Form]]', $twitterSubmitForm, $content);
     return $content;
 }
 
@@ -349,6 +405,7 @@ function ei8_xmlrpc_admin_options() {
     $defaultSettings = ei8_xmlrpc_get_message_defaults($siteType);
     
     if($_POST['action']=="update") {
+        //print_r($_POST);
         $var = 'ei8_xmlrpc_post_status';
         ei8_xmlrpc_update_option($var, $_POST[$var]);
         
@@ -436,48 +493,54 @@ function ei8_xmlrpc_admin_options() {
         <tr valign="top">
             <th scope="row">Post-notification email address:</th>
             <td>
-                <input type="text" name="ei8_xmlrpc_email_notify" value="<?php echo ei8_xmlrpc_get_option('ei8_xmlrpc_email_notify'); ?>" />
+                <input type="text" name="ei8_xmlrpc_email_notify" size=55 value="<?php echo ei8_xmlrpc_get_option('ei8_xmlrpc_email_notify'); ?>" />
             </td>
         </tr>
         <!-- <tr valign="top">
             <th scope="row">Ping this url when an XML-RPC testimonial is received:</th>
             <td>
-                <input type="text" name="ei8_xmlrpc_ping" value="<?php echo ei8_xmlrpc_get_blog_option('ei8_xmlrpc_ping'); ?>" />
+                <input type="text" name="ei8_xmlrpc_ping" size=55 value="<?php echo ei8_xmlrpc_get_blog_option('ei8_xmlrpc_ping'); ?>" />
             </td>
         </tr> -->
 <?php 
     if (current_user_can('level_8')) {  
-        $siteType       = ei8_xmlrpc_get_site_type();
-        $useCaptcha     = ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha');
-        $submitFormLink = ei8_xmlrpc_get_option('ei8_xmlrpc_submit_form');
-        if(empty($submitFormLink)) $submitFormLink = '/submit/' ;
+        $siteType           = ei8_xmlrpc_get_site_type();
+        $useCaptcha         = ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha');
+        $f_submitForm       = 'ei8_xmlrpc_submit_form';
+        $v_submitForm       = ei8_xmlrpc_get_option($f_submitForm);
+        $f_recorderVars     = 'ei8_xmlrpc_recorder_vars'; 
+        $v_recorderVars     = ei8_xmlrpc_get_option($f_recorderVars);
+        if(empty($v_submitForm)) $v_submitForm = '/submit/' ;
 ?> 
         <tr><td><h3>Admin Specific Settings</h3></td></tr>
         <tr valign="top">
             <th scope="row">Submission Form Tags:</th>
-            <td>[[Load MiniRecorder]]<br>[[Load WideRecorder]]<br>[[Load TallRecorder]]<br>[[Load Simple Submit Form]]<br>[[Load Attachment Submit Form]]<br>[[Load MediaUploader]]</td>
+            <td>
+                [[Load MiniRecorder]]<br>
+                [[Load WideRecorder]]<br>
+                [[Load TallRecorder]]<br>
+                [[Load Simple Submit Form]]<br>
+                [[Load Attachment Submit Form]]<br>
+                [[Load Twitter Button]]<br>
+                [[Load MediaUploader]]
+            </td>
         </tr>
         <tr valign="top">
             <th scope="row">Web Recorder Settings:</th>
-            <td>
-                <input type="text" name="ei8_xmlrpc_recorder_vars" size=55 value="<?php echo ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars'); ?>" /><br>
+            <td><?php echo ei8_xmlrpc_form_text($f_recorderVars,$v_recorderVars); ?><br>
                 <small>ex. http://www.ei8t.com/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small>
             </td>
         </tr>
         <tr valign="top">
             <th scope="row">Form-Submit redirect URL:</th>
-            <td>
-                <input type="text" name="ei8_xmlrpc_submit_form" size=35 value="<?php echo $submitFormLink; ?>" /><!-- <br>
+            <td><?php echo ei8_xmlrpc_form_text($f_submitForm,$v_submitForm); ?><!-- <br>
                 <small>This is where the user is sent after a form has been successfully submitted. <br>This CAN but does NOT HAVE TO be the original submit form location<br>
                     ex. /submit/ OR http://domain.com/subfolder/submit/ OR http://domain.com/confirmation/</small> -->
             </td>
         </tr>
         <tr valign="top">
             <th scope="row">Require CAPTCHA on submit forms: </th>
-            <td><select name='ei8_xmlrpc_use_captcha'>
-                    <option value="1" <?php if(1==$useCaptcha) echo "SELECTED"; ?>>Yes</option>
-                    <option value="2" <?php if(1!=$useCaptcha) echo "SELECTED"; ?>>No</option>
-                </select></td>
+            <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_use_captcha',$useCaptcha); ?></td>
         </tr>
         <tr><td><h3>Notification Email Settings</h3></td></tr>        
         <tr valign="top">
@@ -527,12 +590,12 @@ function ei8_xmlrpc_admin_options() {
 }
 
 function ei8_xmlrpc_form_text($var,$val) {
-    $html = '<input type="text" name="'.$var.'" size=35 value="'.$val.'" />';
+    $html = '<input type="text" name="'.$var.'" size=65 value="'.$val.'" />';
     return $html;
 }
 
-function ei8_xmlrpc_form_textarea($var,$val) {
-    $html = '<textarea name="'.$var.'" rows="3" cols="50">'.$val.'</textarea>';
+function ei8_xmlrpc_form_textarea($var,$val,$rows=3) {
+    $html = '<textarea name="'.$var.'" rows="'.$rows.'" cols="50">'.$val.'</textarea>';
     return $html;
 }
 
@@ -929,7 +992,7 @@ function ei8_xmlrpc_admin_install() {
     }
     
     //check for deprecated named options and update as necessary
-    if(!(ei8_xmlrpc_get_option('ei8_xmlrpc_pubClip_minirecorder'))) {
+    if(!(ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars'))) {
         ei8_xmlrpc_update_option('ei8_xmlrpc_recorder_vars', ei8_xmlrpc_get_option('ei8_xmlrpc_pubClip_minirecorder'));
         ei8_xmlrpc_update_option('ei8_xmlrpc_pubClip_minirecorder', '');
         ei8_xmlrpc_admin_log("<p>Updated recorder settings to current version</p>",1);
