@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.0.9
+Version: 2.0.10
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2 
@@ -200,9 +200,25 @@ function ei8_xmlrpc_get_plugin_dir() {
     return $pluginDir;
 }
 
+function ei8_xmlrpc_conf_message($success=true,$title='default',$text='default') {
+    if($title == 'default') $title  = "Submission Received";
+    if($text == 'default')  $text   = "Your submission was saved successfully and will be processed shortly.";
+    
+    $pluginDir = get_bloginfo('wpurl') . ei8_xmlrpc_get_plugin_dir();
+    $confImg   = ($success) ? "success.png" : "error.png";    
+    $title     = ($success) ? "<span style='color:red;'>$title</span>" : $title ;
+    
+    $confMessage =<<<EOT
+<div style='border:1px solid #CCC; padding:5px; height: 70px; background-color: #E5EEE1;'>
+    <img src="{$pluginDir}{$confImg}" align="left" style="padding-right: 10px;">
+    <strong>$title</strong><br>$text
+</div>
+EOT;
+    
+    return $confMessage;
+}
+
 function ei8_xmlrpc_filter_tags($content) {
-    $wpurl     = get_bloginfo('wpurl');
-    $pluginDir = $wpurl . ei8_xmlrpc_get_plugin_dir();
     $siteType  = ei8_xmlrpc_get_site_type();
 
     $ei8tVars          = ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars');
@@ -210,27 +226,19 @@ function ei8_xmlrpc_filter_tags($content) {
     $ei8tTallRecorder  = ei8_xmlrpc_recorder_wrap('tall', $ei8tVars);
     $ei8tWideRecorder  = ei8_xmlrpc_recorder_wrap('wide', $ei8tVars);
     $ei8tMediaUploader = ei8_xmlrpc_recorder_wrap('media', $ei8tVars);
-    $confMessage       =<<<EOT
-<div style='border:1px solid #CCC; padding:5px; height: 70px; background-color: #E5EEE1;'>
-    <img src="{$pluginDir}success.png" align="left" style="padding-right: 10px;">
-    <strong>Submission Received</strong><br>
-    Your submission was saved successfully and will be processed shortly.
-</div>
-EOT;
 
     if(1==ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha')) {
         $captchaSubmitForm = '<tr>
-        <td><img src="'.$pluginDir.'php_captcha.php" alt="" /></td>
+        <td><img src="'.ei8_xmlrpc_get_plugin_dir().'php_captcha.php" alt="" /></td>
         <td>Please enter the code you see: <input id="\&quot;number\&quot;/" name="number" type="text" /></td>
     </tr>';
     } else $captchaSubmitForm = '';
 
 
-    $submitFormLink   = $pluginDir . "contentsave.php";
+    $submitFormLink   = ei8_xmlrpc_get_plugin_dir() . "contentsave.php";
     $textBoxTitle     = ($siteType=="flood") ? "Text Box" : "Comment";
     $aName            = "ei8xmlrpcsimplesubmit";
-    $showConf         = ($_REQUEST['success']==$aName) ? $confMessage : "" ;
-    //$showConf         = $confMessage;
+    $showConf         = ($_REQUEST['success']==$aName) ? ei8_xmlrpc_conf_message() : "" ;
     $simpleSubmitForm =<<<EOT
 <a name="$aName">
 $showConf
@@ -255,7 +263,7 @@ $showConf
     </tr>
     <tr>
         <td></td>
-        <th> <input type="hidden" name="fileaction" value="embed_image"><input type="hidden" name="ei8_xmlrpc_a" value="$aName"><input name="Submit" type="submit" value="Save" /> <input onclick="javascript:reset();" type="button" value="Cancel" /></th>
+        <td> <input type="hidden" name="fileaction" value="embed_image"><input type="hidden" name="ei8_xmlrpc_a" value="$aName"><input name="Submit" type="submit" value="Save" /> <input onclick="javascript:reset();" type="button" value="Cancel" /></td>
     </tr>
     </tbody>
 </table>
@@ -264,8 +272,7 @@ EOT;
     if(empty($submitFormLink)) $simpleSubmitForm = "<p style='color: red; size: 13px; font-weight: bold;'>ERROR LOADING Simple Submit Form - please notify website administrator</p>";
 
     $aName            = "ei8xmlrpcattachmentsubmit";
-    $showConf         = ($_REQUEST['success']==$aName) ? $confMessage : "" ;
-    //$showConf         = $confMessage;
+    $showConf         = ($_REQUEST['success']==$aName) ? ei8_xmlrpc_conf_message() : "" ;
     $attachmentSubmitForm =<<<EOT
 <a name="$aName">
 $showConf
@@ -290,7 +297,7 @@ $showConf
     </tr>
     <tr>
         <td></td>
-        <th> <input type="hidden" name="fileaction" value="attached_doc"><input type="hidden" name="ei8_xmlrpc_a" value="$aName"><input name="Submit" type="submit" value="Save" /> <input onclick="javascript:reset();" type="button" value="Cancel" /></th>
+        <td> <input type="hidden" name="fileaction" value="attached_doc"><input type="hidden" name="ei8_xmlrpc_a" value="$aName"><input name="Submit" type="submit" value="Save" /> <input onclick="javascript:reset();" type="button" value="Cancel" /></td>
     </tr>
     </tbody>
 </table>
@@ -298,13 +305,53 @@ $showConf
 EOT;
     if(empty($submitFormLink)) $attachmentSubmitForm = "<p style='color: red; size: 13px; font-weight: bold;'>ERROR LOADING Attachment Submit Form - please notify website administrator</p>";
 
-    $twitterSubmitForm =<<<EOT
-<a name="ei8_xmlrpc_twitter_submit_form">
-<form action="#ei8_xmlrpc_twitter_submit_form" enctype="multipart/form-data" method="post">
+    $aName = "ei8xmlrpctwitterform";
+    if ($_REQUEST['success']==$aName) {
+        $showConf = ($_REQUEST['errorMessage']) ? ei8_xmlrpc_conf_message(false,'Twitter Error',$_REQUEST['errorMessage']) : ei8_xmlrpc_conf_message(true,'Success','Your twitter status has been updated');
+    } else $showConf = "" ;
+    $twitterForm =<<<EOT
+<style>
+#bar
+{
+background-color:#5fbbde;
+width:0px;
+height:16px;
+}
+#barbox
+{
+float:left;
+height:16px;
+background-color:#FFFFFF;
+width:100px;
+border:solid 2px #000;
+margin-left:3px;
+-webkit-border-radius:5px;-moz-border-radius:5px;
+}
+#count, #counter
+{
+float:left;
+margin-left:8px;
+margin-right:8px;
+font-family:'Georgia', Times New Roman, Times, serif;
+font-size:15px;
+font-weight:bold;
+color:#666666
+}
+
+#character-count {
+//margin-right:300px;
+}
+</style>
+<a name="$aName">
+$showConf
+<form action="$submitFormLink" enctype="multipart/form-data" method="post">
 <table class="text" border="0" width="95%">
     <tbody>
     <tr>
-        <td colspan=2><input type="text" name="ei8_xmlrpc_tweet" size="40" maxlength="148"></td>
+        <td colspan=2>
+            <textarea  name="ei8_xmlrpc_tweet" cols="50" rows="5" id="tweet" ></textarea>
+            
+        </td>
     </tr>
     $captchaSubmitForm
     <tr>
@@ -312,15 +359,49 @@ EOT;
         <td align="center"></td>
     </tr>
     <tr>
-        <td></td>
-        <th> <input type="hidden" name="fileaction" value="attached_doc"><input name="Submit" type="submit" value="Send Now" /> <input onclick="javascript:reset();" type="button" value="Clear Form" /></th>
+        <td colspan=2>
+            <div id="counter">Character count:</div>
+            <div id="barbox"><div id="bar"></div></div>
+            <div id="count">140</div>
+            <input type="hidden" name="ei8_xmlrpc_twitter_post" value="1"><input type="hidden" name="ei8_xmlrpc_a" value="$aName"><input name="Submit" type="submit" value="Tweet" /> <input onclick="javascript:reset();" type="button" value="Clear Form" /></td>
     </tr>
     </tbody>
 </table>
 </form>
-<a href="http://twitter.com/share" class="twitter-share-button" data-url="someurl" data-text="test texter" data-count="none">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function()
+{
+$("#tweet").keyup(function()
+{
+var box=$(this).val();
+var main = box.length *100;
+var value= (main / 140);
+var count= 140 - box.length;
 
+$('#count').html(count);
+if(box.length <= 140)
+{
+$('#bar').css("background-color", "#5fbbde");
+$('#bar').css("width",value+'%');
+}
+else
+{
+$('#bar').css("width",'100%');
+$('#bar').css("background-color", "#f11");
+alert('Character Limit Exceeded!');
+}
+return false;
+});
+
+});
+</script>
 EOT;
+    $twitterToken  = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_token');
+    $twitterSecret = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_secret');
+    
+    
+    if(empty($submitFormLink) OR empty($twitterToken) OR empty($twitterSecret)) $twitterForm = "<p style='color: red; size: 13px; font-weight: bold;'>ERROR LOADING Twitter Form - please notify website administrator</p>";
 
     $twitterButton =<<<EOT
 <a href="http://twitter.com/share" class="twitter-share-button" data-text="Enter Your Tweet Here" data-count="none">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
@@ -332,6 +413,7 @@ EOT;
     $content = str_replace('[[Load Simple Submit Form]]', $simpleSubmitForm, $content);
     $content = str_replace('[[Load Attachment Submit Form]]', $attachmentSubmitForm, $content);
     $content = str_replace('[[Load Twitter Button]]', $twitterButton, $content);
+    $content = str_replace('[[Load Twitter Form]]', $twitterForm, $content);
     $content = str_replace('[[Load MediaUploader]]', $ei8tMediaUploader, $content);
     
     //deprecated
@@ -340,7 +422,6 @@ EOT;
     $content = str_replace('[[Load Captcha Submit Form]]', $simpleSubmitForm, $content);
     
     //started, but not yet finished
-    $content = str_replace('[[Load Twitter Submit Form]]', $twitterSubmitForm, $content);
     return $content;
 }
 
@@ -401,7 +482,7 @@ function ei8_xmlrpc_options_menu() {
 
 function ei8_xmlrpc_admin_options() {
     $postStatus      = ei8_xmlrpc_get_option('ei8_xmlrpc_post_status');
-    $url             = "options-general.php?page=" . plugin_basename( __FILE__ );
+    $ei8AdminUrl     = "options-general.php?page=" . plugin_basename( __FILE__ );
     $defaultSettings = ei8_xmlrpc_get_message_defaults($siteType);
     
     if($_POST['action']=="update") {
@@ -448,21 +529,21 @@ function ei8_xmlrpc_admin_options() {
         
         //force page reload
         if ( !headers_sent() ) {
-			wp_redirect($url);
+			wp_redirect($ei8AdminUrl);
 		} else {
-			$url = admin_url($url);
+			$ei8AdminUrl = admin_url($ei8AdminUrl);
 
 ?>
 
-			<meta http-equiv="Refresh" content="0; URL=<?php echo $url; ?>">
+			<meta http-equiv="Refresh" content="0; URL=<?php echo $ei8AdminUrl; ?>">
 			<script type="text/javascript">
 			<!--
-				document.location.href = "<?php echo $url; ?>"
+				document.location.href = "<?php echo $ei8AdminUrl; ?>"
 			//-->
 			</script>
 			</head>
 			<body>
-			Sorry. Please use this <a href="<?php echo $url; ?>" title="New Post">link</a>.
+			Sorry. Please use this <a href="<?php echo $ei8AdminUrl; ?>" title="New Post">link</a>.
 			</body>
 			</html>
 
@@ -479,7 +560,7 @@ function ei8_xmlrpc_admin_options() {
 	<?php screen_icon(); ?>
 	
     <h2>Preferences:</h2>
-    <form method="post" action="<?php echo $url; ?>">
+    <form method="post" action="<?php echo $ei8AdminUrl; ?>">
     <?php wp_nonce_field('update-options'); ?>
     <table class="form-table">
         <tr valign="top">
@@ -510,6 +591,10 @@ function ei8_xmlrpc_admin_options() {
         $v_submitForm       = ei8_xmlrpc_get_option($f_submitForm);
         $f_recorderVars     = 'ei8_xmlrpc_recorder_vars'; 
         $v_recorderVars     = ei8_xmlrpc_get_option($f_recorderVars);
+        $f_twitterUser      = 'ei8_xmlrpc_twitter_username';
+        $v_twitterUser      = ei8_xmlrpc_get_option($f_twitterUser);
+        $f_twitterPass      = 'ei8_xmlrpc_twitter_password';
+        $v_twitterPass      = ei8_xmlrpc_get_option($f_twitterPass);
         if(empty($v_submitForm)) $v_submitForm = '/submit/' ;
 ?> 
         <tr><td><h3>Admin Specific Settings</h3></td></tr>
@@ -522,6 +607,7 @@ function ei8_xmlrpc_admin_options() {
                 [[Load Simple Submit Form]]<br>
                 [[Load Attachment Submit Form]]<br>
                 [[Load Twitter Button]]<br>
+                [[Load Twitter Form]]<br>
                 [[Load MediaUploader]]
             </td>
         </tr>
@@ -536,6 +622,80 @@ function ei8_xmlrpc_admin_options() {
             <td><?php echo ei8_xmlrpc_form_text($f_submitForm,$v_submitForm); ?><!-- <br>
                 <small>This is where the user is sent after a form has been successfully submitted. <br>This CAN but does NOT HAVE TO be the original submit form location<br>
                     ex. /submit/ OR http://domain.com/subfolder/submit/ OR http://domain.com/confirmation/</small> -->
+            </td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><a name="ei8xmlrpctwittersettings"></a>Twitter Account:</th>
+            <td>
+<?php
+//handle twitter authentication
+
+$twitterToken  = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_token');
+$twitterSecret = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_secret');
+        
+require 'lib/EpiCurl.php';
+require 'lib/EpiOAuth.php';
+require 'lib/EpiTwitter.php';
+require 'lib/secret.php';
+
+$twitterObj = new EpiTwitter($consumer_key, $consumer_secret);
+$twitterObj->setCallBack( get_bloginfo('wpurl') . ei8_xmlrpc_get_plugin_dir() . "twitter_callback.php" );
+
+if($_REQUEST['resetTwitter']) {
+    $twitterToken = $twitterSecret = "";
+	ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', "");
+    ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', "");    
+    echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection reset");
+} elseif($_GET['oauth_token']) {
+	$twitterObj->setToken($_GET['oauth_token']);
+	$token = $twitterObj->getAccessToken();
+	$twitterToken  = $token->oauth_token;
+    $twitterSecret = $token->oauth_token_secret;
+    $twitterObj->setToken($twitterToken, $twitterSecret);
+	$twitterInfo= $twitterObj->get_accountVerify_credentials();
+    //print("<p>TwitterObj: <pre>");
+    //print_r($twitterObj);
+    //print("</pre></p>");
+    //print("<p>TwitterInfo: <pre>");
+    //print_r($twitterInfo);
+    //print("</pre></p>");
+    //exit();
+	ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', $twitterToken);
+    ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', $twitterSecret);
+    echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection established");
+}
+
+//echo ei8_xmlrpc_conf_message(false,$title='DEBUG Twitter connection settings',$text="token:$twitterToken secret:$twitterSecret");
+
+if(empty($twitterToken) || empty($twitterSecret)) {
+	//$token = $twitterObj->getAccessToken();
+  	$url = $twitterObj->getAuthorizationUrl();
+	
+    //print("<p>TwitterObj: <pre>");
+    //print_r($twitterObj);
+    //print("</pre></p>");
+  	//$url .= (strstr($url,'?')) ? "&" : "?" ;
+  	//$url .= "oauth_callback=".urlencode($ei8AdminUrl);
+    echo "<a href='$url'>Authorize an account with Twitter</a>";
+} else {
+    $twitterObj->setToken($twitterToken, $twitterSecret);
+	$twitterInfo= $twitterObj->get_accountVerify_credentials();
+	$twitterInfo->response;
+    		
+	$username = $twitterInfo->screen_name;
+	$profilepic = $twitterInfo->profile_image_url;
+	
+/*    print("<p>TwitterObj: <pre>");
+    print_r($twitterObj);
+    print("</pre></p>");
+    print("<p>TwitterInfo: <pre>");
+    print_r($twitterInfo);
+    print("</pre></p>");
+*/    
+    $resetUrl = $ei8AdminUrl."&resetTwitter=1#ei8xmlrpctwittersettings";
+    echo "<img src='$profilepic' align='left' style='padding-right:10px;'> Screen name: $username <br><small><a href='$resetUrl'>Reset Twitter Credentials</a></small>";
+}
+?>
             </td>
         </tr>
         <tr valign="top">
