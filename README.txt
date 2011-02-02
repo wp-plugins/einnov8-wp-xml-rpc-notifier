@@ -15,6 +15,7 @@ Custom forms for submitting content to the wp xmlrpc server.
     * Manage email notification content when posts are received.
     * Short tags for custom form inclusion within posts 
     * Optional captcha authentication for form submissions
+    * Optional twitter integration for status updates
 
 
 == Supported Languages ==
