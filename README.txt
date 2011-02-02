@@ -2,7 +2,7 @@
 Contributors: yipeecaiey
 Requires at least: 2.7
 Tested up to: 3.0.4
-Stable tag: 2.0.11
+Stable tag: 2.1.0
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -38,6 +38,8 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.1.0   2011/02/02  UPDATE  Bugfix: form submissions from multisites using folders not working
+                                Bugfix: Unneeded admin notifications and updates
     2.0.11  2011/01/25  UPDATE  Allow domains with 4 letter extensions (.info)
     2.0.10  2011/01/18  UPDATE  Add Twitter form option
     2.0.9   2011/01/12  UPDATE  Extended preferences fields

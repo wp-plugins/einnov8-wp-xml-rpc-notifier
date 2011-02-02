@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.0.11
+Version: 2.1.0
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2 
@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //define('WP_DEBUG', true);
 
 // internationalization 
-//load_plugin_textdomain('ei8-xmlrpc-notifier', ei8_xmlrpc_get_plugin_dir()."/languages/");
+//load_plugin_textdomain('ei8-xmlrpc-notifier', ei8_xmlrpc_get_plugin_url()."/languages/");
 
 //white list options
 /*function ei8_xmlrpc_register_settings() {
@@ -200,11 +200,18 @@ function ei8_xmlrpc_get_plugin_dir() {
     return $pluginDir;
 }
 
+
+function ei8_xmlrpc_get_plugin_url() {
+    $wpurl = get_bloginfo('wpurl');
+    return $wpurl . ei8_xmlrpc_get_plugin_dir();
+}
+
+
 function ei8_xmlrpc_conf_message($success=true,$title='default',$text='default') {
     if($title == 'default') $title  = "Submission Received";
     if($text == 'default')  $text   = "Your submission was saved successfully and will be processed shortly.";
     
-    $pluginDir = get_bloginfo('wpurl') . ei8_xmlrpc_get_plugin_dir();
+    $pluginDir = ei8_xmlrpc_get_plugin_url();
     $confImg   = ($success) ? "success.png" : "error.png";    
     $title     = ($success) ? "<span style='color:red;'>$title</span>" : $title ;
     
@@ -229,18 +236,18 @@ function ei8_xmlrpc_filter_tags($content) {
 
     if(1==ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha')) {
         $captchaSubmitForm = '<tr>
-        <td><img src="'.ei8_xmlrpc_get_plugin_dir().'php_captcha.php" alt="" /></td>
+        <td><img src="'.ei8_xmlrpc_get_plugin_url().'php_captcha.php" alt="" /></td>
         <td>Please enter the code you see: <input id="\&quot;number\&quot;/" name="number" type="text" /></td>
     </tr>';
     } else $captchaSubmitForm = '';
 
 
-    $submitFormLink   = ei8_xmlrpc_get_plugin_dir() . "contentsave.php";
+    $submitFormLink   = ei8_xmlrpc_get_plugin_url() . "contentsave.php";
     $textBoxTitle     = ($siteType=="flood") ? "Text Box" : "Comment";
     $aName            = "ei8xmlrpcsimplesubmit";
     $showConf         = ($_REQUEST['success']==$aName) ? ei8_xmlrpc_conf_message() : "" ;
     $simpleSubmitForm =<<<EOT
-<a name="$aName">
+<a name="$aName"></a>
 $showConf
 <form action="$submitFormLink" enctype="multipart/form-data" method="post">
 <table class="text" border="0" width="95%">
@@ -274,7 +281,7 @@ EOT;
     $aName            = "ei8xmlrpcattachmentsubmit";
     $showConf         = ($_REQUEST['success']==$aName) ? ei8_xmlrpc_conf_message() : "" ;
     $attachmentSubmitForm =<<<EOT
-<a name="$aName">
+<a name="$aName"></a>
 $showConf
 <form action="$submitFormLink" enctype="multipart/form-data" method="post">
 <table class="text" border="0" width="95%">
@@ -342,7 +349,7 @@ color:#666666
 //margin-right:300px;
 }
 </style>
-<a name="$aName">
+<a name="$aName"></a>
 $showConf
 <form action="$submitFormLink" enctype="multipart/form-data" method="post">
 <table class="text" border="0" width="95%">
@@ -432,7 +439,7 @@ add_filter( 'the_content', 'ei8_xmlrpc_filter_tags' );
  *BEGIN ADMIN SECTION
 */
 
-//validate data 
+//validate data
 add_action('admin_notices', 'ei8_xmlrpc_validate_data' );
 
 function ei8_xmlrpc_validate_data($input) {
@@ -628,73 +635,73 @@ function ei8_xmlrpc_admin_options() {
             <th scope="row"><a name="ei8xmlrpctwittersettings"></a>Twitter Account:</th>
             <td>
 <?php
-//handle twitter authentication
-
-$twitterToken  = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_token');
-$twitterSecret = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_secret');
+        //handle twitter authentication
         
-require 'lib/EpiCurl.php';
-require 'lib/EpiOAuth.php';
-require 'lib/EpiTwitter.php';
-require 'lib/secret.php';
-
-$twitterObj = new EpiTwitter($consumer_key, $consumer_secret);
-$twitterObj->setCallBack( get_bloginfo('wpurl') . ei8_xmlrpc_get_plugin_dir() . "twitter_callback.php" );
-
-if($_REQUEST['resetTwitter']) {
-    $twitterToken = $twitterSecret = "";
-	ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', "");
-    ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', "");    
-    echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection reset");
-} elseif($_GET['oauth_token']) {
-	$twitterObj->setToken($_GET['oauth_token']);
-	$token = $twitterObj->getAccessToken();
-	$twitterToken  = $token->oauth_token;
-    $twitterSecret = $token->oauth_token_secret;
-    $twitterObj->setToken($twitterToken, $twitterSecret);
-	$twitterInfo= $twitterObj->get_accountVerify_credentials();
-    //print("<p>TwitterObj: <pre>");
-    //print_r($twitterObj);
-    //print("</pre></p>");
-    //print("<p>TwitterInfo: <pre>");
-    //print_r($twitterInfo);
-    //print("</pre></p>");
-    //exit();
-	ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', $twitterToken);
-    ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', $twitterSecret);
-    echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection established");
-}
-
-//echo ei8_xmlrpc_conf_message(false,$title='DEBUG Twitter connection settings',$text="token:$twitterToken secret:$twitterSecret");
-
-if(empty($twitterToken) || empty($twitterSecret)) {
-	//$token = $twitterObj->getAccessToken();
-  	$url = $twitterObj->getAuthorizationUrl();
-	
-    //print("<p>TwitterObj: <pre>");
-    //print_r($twitterObj);
-    //print("</pre></p>");
-  	//$url .= (strstr($url,'?')) ? "&" : "?" ;
-  	//$url .= "oauth_callback=".urlencode($ei8AdminUrl);
-    echo "<a href='$url'>Authorize an account with Twitter</a>";
-} else {
-    $twitterObj->setToken($twitterToken, $twitterSecret);
-	$twitterInfo= $twitterObj->get_accountVerify_credentials();
-	$twitterInfo->response;
-    		
-	$username = $twitterInfo->screen_name;
-	$profilepic = $twitterInfo->profile_image_url;
-	
-/*    print("<p>TwitterObj: <pre>");
-    print_r($twitterObj);
-    print("</pre></p>");
-    print("<p>TwitterInfo: <pre>");
-    print_r($twitterInfo);
-    print("</pre></p>");
-*/    
-    $resetUrl = $ei8AdminUrl."&resetTwitter=1#ei8xmlrpctwittersettings";
-    echo "<img src='$profilepic' align='left' style='padding-right:10px;'> Screen name: $username <br><small><a href='$resetUrl'>Reset Twitter Credentials</a></small>";
-}
+        $twitterToken  = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_token');
+        $twitterSecret = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_secret');
+                
+        require 'lib/EpiCurl.php';
+        require 'lib/EpiOAuth.php';
+        require 'lib/EpiTwitter.php';
+        require 'lib/secret.php';
+        
+        $twitterObj = new EpiTwitter($consumer_key, $consumer_secret);
+        $twitterObj->setCallBack( ei8_xmlrpc_get_plugin_url() . "twitter_callback.php" );
+        
+        if($_REQUEST['resetTwitter']) {
+            $twitterToken = $twitterSecret = "";
+        	ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', "");
+            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', "");    
+            echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection reset");
+        } elseif($_GET['oauth_token']) {
+        	$twitterObj->setToken($_GET['oauth_token']);
+        	$token = $twitterObj->getAccessToken();
+        	$twitterToken  = $token->oauth_token;
+            $twitterSecret = $token->oauth_token_secret;
+            $twitterObj->setToken($twitterToken, $twitterSecret);
+        	$twitterInfo= $twitterObj->get_accountVerify_credentials();
+            //print("<p>TwitterObj: <pre>");
+            //print_r($twitterObj);
+            //print("</pre></p>");
+            //print("<p>TwitterInfo: <pre>");
+            //print_r($twitterInfo);
+            //print("</pre></p>");
+            //exit();
+        	ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', $twitterToken);
+            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', $twitterSecret);
+            echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection established");
+        }
+        
+        //echo ei8_xmlrpc_conf_message(false,$title='DEBUG Twitter connection settings',$text="token:$twitterToken secret:$twitterSecret");
+        
+        if(empty($twitterToken) || empty($twitterSecret)) {
+        	//$token = $twitterObj->getAccessToken();
+          	$url = $twitterObj->getAuthorizationUrl();
+        	
+            //print("<p>TwitterObj: <pre>");
+            //print_r($twitterObj);
+            //print("</pre></p>");
+          	//$url .= (strstr($url,'?')) ? "&" : "?" ;
+          	//$url .= "oauth_callback=".urlencode($ei8AdminUrl);
+            echo "<a href='$url'>Authorize an account with Twitter</a>";
+        } else {
+            $twitterObj->setToken($twitterToken, $twitterSecret);
+        	$twitterInfo= $twitterObj->get_accountVerify_credentials();
+        	$twitterInfo->response;
+            		
+        	$username = $twitterInfo->screen_name;
+        	$profilepic = $twitterInfo->profile_image_url;
+        	
+        /*    print("<p>TwitterObj: <pre>");
+            print_r($twitterObj);
+            print("</pre></p>");
+            print("<p>TwitterInfo: <pre>");
+            print_r($twitterInfo);
+            print("</pre></p>");
+        */    
+            $resetUrl = $ei8AdminUrl."&resetTwitter=1#ei8xmlrpctwittersettings";
+            echo "<img src='$profilepic' align='left' style='padding-right:10px;'> Screen name: $username <br><small><a href='$resetUrl'>Reset Twitter Credentials</a></small>";
+        }
 ?>
             </td>
         </tr>
@@ -845,7 +852,7 @@ function ei8_xmlrpc_get_upload_dir($url='') {
     //if it is still not set, set it manually from where it *should* be
     if(empty($uploadPath) || empty($uploadURL)) {
         $uldir      = "/wp-content/uploads";
-        $uploadURL  = get_bloginfo('wpurl') . $uldir ;
+        $uploadURL  = ei8_xmlrpc_get_home_url() . $uldir ;
         list($uploadPath) = explode("/wp-content",$_SERVER["SCRIPT_FILENAME"]);
         list($uploadPath) = explode("/wp-admin",$uploadPath);
         $uploadPath .= $uldir ;        
@@ -1054,7 +1061,7 @@ function ei8_xmlrpc_admin_install() {
     $table1_sql = "CREATE TABLE `{$table1}` (
         `ID` BIGINT( 20 ) NOT NULL AUTO_INCREMENT,
         `option_name` VARCHAR( 100 ) NOT NULL ,
-        `option_value` VARCHAR( 255 ) NOT NULL,
+        `option_value` TEXT NOT NULL,
         PRIMARY KEY ( `ID` ),
         UNIQUE ( `option_name` )
         );";
@@ -1093,7 +1100,7 @@ function ei8_xmlrpc_admin_install() {
                 $errs += ei8_xmlrpc_admin_query($sql);
                 
                 ei8_xmlrpc_admin_log("<p>Storing new table structure</p>");
-                update_site_option("ei8_xmlrpc_db_sql",$ei8_xmlrpc_db_sql);
+                ei8_xmlrpc_update_option("ei8_xmlrpc_db_sql",$ei8_xmlrpc_db_sql);
                 
                 ei8_xmlrpc_admin_log("<p>Database tables converted</p>",1);
             }
@@ -1110,7 +1117,7 @@ function ei8_xmlrpc_admin_install() {
         
         if($errs<1) {
             ei8_xmlrpc_admin_log("<p>Storing new table structure</p>");
-            update_site_option("ei8_xmlrpc_db_sql",$ei8_xmlrpc_db_sql);
+            ei8_xmlrpc_update_option("ei8_xmlrpc_db_sql",$ei8_xmlrpc_db_sql);
             
             ei8_xmlrpc_admin_log("<p>New database tables installed</p>",1);
         } else {
@@ -1118,13 +1125,16 @@ function ei8_xmlrpc_admin_install() {
         }
 
     //handle upgrades
-    } elseif( ei8_xmlrpc_get_blog_option( "ei8_xmlrpc_db_sql" ) != $ei8_xmlrpc_db_sql ) {
+    } elseif( ei8_xmlrpc_get_option( "ei8_xmlrpc_db_sql" ) != $ei8_xmlrpc_db_sql ) {
         ei8_xmlrpc_admin_log("<p>Previous database version found...performing database upgrade</p>",1);
+        //ei8_xmlrpc_admin_log("<p>CURRENT ei8_xmlrpc_db_sql :: <pre>".ei8_xmlrpc_get_blog_option( "ei8_xmlrpc_db_sql" )."</pre></p>",1);
+        //ei8_xmlrpc_admin_log("<p>CURRENT ei8_xmlrpc_db_sql :: <pre>".ei8_xmlrpc_get_option( "ei8_xmlrpc_db_sql" )."</pre></p>",1);
+        //ei8_xmlrpc_admin_log("<p>NEW ei8_xmlrpc_db_sql :: <pre>{$ei8_xmlrpc_db_sql}</pre></p>",1);
         
         //create table backups
         ei8_xmlrpc_admin_log("<p>Backing up current tables</p>");        
         $table1_bak = $table1."_bak";
-        $errs += ei8_xmlrpc_admin_query( "RENAME TABLE $table1 TO $table1_bak;" );
+        $errs += ei8_xmlrpc_admin_query( "RENAME TABLE $table1 TO {$table1}_bak;" );
         
         //create new tables
         ei8_xmlrpc_admin_log("<p>Creating new tables</p>");
@@ -1132,16 +1142,16 @@ function ei8_xmlrpc_admin_install() {
         
         //copy data from backups
         ei8_xmlrpc_admin_log("<p>Copying old data into new tables</p>");        
-        $errs += ei8_xmlrpc_admin_query( "INSERT INTO $table1 SELECT * FROM $table1_bak;" );
+        $errs += ei8_xmlrpc_admin_query( "INSERT INTO $table1 SELECT * FROM {$table1}_bak;" );
         
         //drop backup tables
         ei8_xmlrpc_admin_log("<p>Dropping backup tables</p>");        
-        $errs += ei8_xmlrpc_admin_query( "DROP TABLE $table1_bak;" );
+        $errs += ei8_xmlrpc_admin_query( "DROP TABLE {$table1}_bak;" );
         
         //update options db_version
         if($errs<1) {
             ei8_xmlrpc_admin_log("<p>Storing new table structure</p>");
-            update_site_option("ei8_xmlrpc_db_sql",$ei8_xmlrpc_db_sql);
+            ei8_xmlrpc_update_option("ei8_xmlrpc_db_sql",$ei8_xmlrpc_db_sql);
             ei8_xmlrpc_admin_log("<p>Database tables updated to current version</p>",1);
         } else {
             ei8_xmlrpc_admin_log("<p class='abq-error'>Errors updating database</p>",1);
@@ -1152,7 +1162,7 @@ function ei8_xmlrpc_admin_install() {
     }
     
     //check for deprecated named options and update as necessary
-    if(!(ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars'))) {
+    if(!(ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars')) && (ei8_xmlrpc_get_option('ei8_xmlrpc_pubClip_minirecorder'))) {
         ei8_xmlrpc_update_option('ei8_xmlrpc_recorder_vars', ei8_xmlrpc_get_option('ei8_xmlrpc_pubClip_minirecorder'));
         ei8_xmlrpc_update_option('ei8_xmlrpc_pubClip_minirecorder', '');
         ei8_xmlrpc_admin_log("<p>Updated recorder settings to current version</p>",1);

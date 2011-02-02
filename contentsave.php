@@ -41,7 +41,7 @@ if(isset($_REQUEST['ei8_xmlrpc_twitter_post'])) {
     } else {
 
         $twitterObj = new EpiTwitter($consumer_key, $consumer_secret);
-        //$twitterObj->setCallBack( get_bloginfo('wpurl') . ei8_xmlrpc_get_option('ei8_xmlrpc_submit_form')."?&errorMessage=Twitter_unknown#ei8xmlrpctwitterform"); 
+        //$twitterObj->setCallBack( ei8_xmlrpc_get_home_url() . ei8_xmlrpc_get_option('ei8_xmlrpc_submit_form')."?&errorMessage=Twitter_unknown#ei8xmlrpctwitterform"); 
         $twitterObj->setToken($twitterToken, $twitterSecret);
     	$twitterInfo= $twitterObj->get_accountVerify_credentials();
     	$twitterInfo->response;
