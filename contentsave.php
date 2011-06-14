@@ -19,6 +19,25 @@ if(ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha')==1 && isset($_REQUEST['Submit
     }
 }
 
+// send 'em back to the submit page
+$submitPage = ei8_xmlrpc_get_option('ei8_xmlrpc_submit_form');
+if(!ereg("^http",$submitPage)) {
+    $doSlash = (ereg("^/",$submitPage)) ? "" : "/" ;
+    $submitPage = $wpurl.$doSlash.$submitPage;
+}
+$submitPage .= (ereg("\?",$submitPage)) ? "" : "?" ;
+
+
+if ( !isset($_SERVER['HTTP_REFERER']) || 
+    (isset($_SERVER["HTTP_HOST"]) && !stristr($_SERVER['HTTP_REFERER'], $_SERVER["HTTP_HOST"]))) {
+    $submitPage .= "&errorMessage=".urlencode("Submissions from this source are not allowed");
+    
+    $then = gmstrftime("%a, %d %b %Y %H:%M:%S GMT");                            
+    header("Expires: $then");                                                   
+    header("Location: ".$submitPage);
+    exit;
+}
+
 //process twitter posts
 if(isset($_REQUEST['ei8_xmlrpc_twitter_post'])) {
     //session_start();
@@ -115,13 +134,14 @@ if(isset($_REQUEST['ei8_xmlrpc_twitter_post'])) {
 }
     
 // send 'em back to the submit page
-$submitPage = ei8_xmlrpc_get_option('ei8_xmlrpc_submit_form');
-if(!ereg("^http",$submitPage)) {
-    $doSlash = (ereg("^/",$submitPage)) ? "" : "/" ;
-    $submitPage = $wpurl.$doSlash.$submitPage;
-}
+//this has been moved up the page to handle unwanted submissions
+//$submitPage = ei8_xmlrpc_get_option('ei8_xmlrpc_submit_form');
+//if(!ereg("^http",$submitPage)) {
+//    $doSlash = (ereg("^/",$submitPage)) ? "" : "/" ;
+//    $submitPage = $wpurl.$doSlash.$submitPage;
+//}
+//$submitPage .= (ereg("\?",$submitPage)) ? "" : "?" ;
 //handle the notifications
-$submitPage .= (ereg("\?",$submitPage)) ? "" : "?" ;
 if($errorMessage) $submitPage .= "&errorMessage=".urlencode($errorMessage);
 $submitPage .= "&success=";
 $submitPage .= (!empty($_REQUEST['ei8_xmlrpc_a'])) ? $_REQUEST['ei8_xmlrpc_a']."#".$_REQUEST['ei8_xmlrpc_a'] : "1" ;

@@ -1,8 +1,8 @@
 === eInnov8 WP XML-RPC Notifier ===
 Contributors: yipeecaiey
 Requires at least: 2.7
-Tested up to: 3.1.0
-Stable tag: 2.1.1
+Tested up to: 3.1.3
+Stable tag: 2.1.2
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -39,6 +39,10 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.1.2   2011/06/14  UPDATE  Require contentsave.php to only process form submissions from the current domain
+                                Create 'eInnov8 Options' main menu option in wp admin
+                                Put 'xmlrpc preferences' under the einnov8 tab 
+                                Allow multiple email addresses for posting notifications
     2.1.1   2011/03/15  UPDATE  Bugfix: resolve authentication conflict with infusionwp plugin
     2.1.0   2011/02/02  UPDATE  Bugfix: form submissions from multisites using folders not working
                                 Bugfix: Unneeded admin notifications and updates

@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.1.1
+Version: 2.1.2
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2 
@@ -133,7 +133,10 @@ function ei8_email_notify($post_id, $tEmail) {
 //    if ( isset($reply_to) )
 //        $message_headers .= $reply_to . "\n";
 
-    @wp_mail($tEmail, $subject, $message, $message_headers);
+    if(strstr($tEmail,',')) {
+        $tEmails = explode(',',$tEmail);
+        foreach($tEmails as $tEmail) @wp_mail(trim($tEmail), $subject, $message, $message_headers);
+    } else @wp_mail($tEmail, $subject, $message, $message_headers);
 }
 
 function ei8_add_ping($post_id, $tPing) {
@@ -445,8 +448,8 @@ add_action('admin_notices', 'ei8_xmlrpc_validate_data' );
 function ei8_xmlrpc_validate_data($input) {
     //validate the email
     $tEmail = ei8_xmlrpc_get_option('ei8_xmlrpc_email_notify');
-    if(!empty($tEmail) && !ei8_isValidEmail($tEmail)) {
-        echo "<div id='akismet-warning' class='error fade'><b>This is not a valid email address.  Please fix or email notifications will not be sent. ($tEmail)</b></div>";
+    if(!empty($tEmail) && !ei8_isValidEmails($tEmail)) {
+        echo "<div id='akismet-warning' class='error fade'><b>At least one of these is not a valid email address.  Please fix or email notifications will not be sent. ($tEmail)</b></div>";
     }
     
     //validate the ping url
@@ -455,6 +458,16 @@ function ei8_xmlrpc_validate_data($input) {
         echo "<div id='akismet-warning' class='error fade'><b>This is not a valid URL to be pinged.  Please fix or ping notifications will not be sent. $tPing</b></div>";
     }
     
+}
+
+function ei8_isValidEmails($email){
+    if(strstr($email,',')) {
+        $emails = explode(',',$email);
+        foreach ($emails as $piece) {
+            if (!ei8_isValidEmail(trim($piece))) return false;
+        }
+        return true;
+    } else return ei8_isValidEmail($email);
 }
 
 function ei8_isValidEmail($email){
@@ -483,9 +496,15 @@ function ei8_xmlrpc_settings_link($links, $file) {
 add_action('admin_menu', 'ei8_xmlrpc_options_menu');
 
 function ei8_xmlrpc_options_menu() {
-    $siteName = ei8_xmlrpc_get_site_type_name($siteType);
-    add_options_page($siteName.' Preferences', 'Preferences', 5, __FILE__, 'ei8_xmlrpc_admin_options');
+    if(!function_exists('ei8_parent_menu')) {
+        function ei8_parent_menu() {
+            add_menu_page('eInnov8 Settings', 'eInnov8 Options', 'activate_plugins', 'einnov8', 'ei8_xmlrpc_admin_options');
+        }
+        ei8_parent_menu();
+    }
+    add_submenu_page( 'einnov8', 'eInnov8 XMLRPC Preferences', 'ei8t-xmlrpc Preferences', 'activate_plugins', __FILE__, 'ei8_xmlrpc_admin_options');
 }
+
 
 function ei8_xmlrpc_admin_options() {
     $postStatus      = ei8_xmlrpc_get_option('ei8_xmlrpc_post_status');
@@ -581,7 +600,7 @@ function ei8_xmlrpc_admin_options() {
         <tr valign="top">
             <th scope="row">Post-notification email address:</th>
             <td>
-                <input type="text" name="ei8_xmlrpc_email_notify" size=55 value="<?php echo ei8_xmlrpc_get_option('ei8_xmlrpc_email_notify'); ?>" />
+                <input type="text" name="ei8_xmlrpc_email_notify" size=55 value="<?php echo ei8_xmlrpc_get_option('ei8_xmlrpc_email_notify'); ?>" /><br><small>(separate multiple email addresses with commas)</small>
             </td>
         </tr>
         <!-- <tr valign="top">
