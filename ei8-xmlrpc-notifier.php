@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.1.3
+Version: 2.1.4
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2 
@@ -508,7 +508,7 @@ function ei8_xmlrpc_options_menu() {
 
 function ei8_xmlrpc_admin_options() {
     $postStatus      = ei8_xmlrpc_get_option('ei8_xmlrpc_post_status');
-    $ei8AdminUrl     = "options-general.php?page=" . plugin_basename( __FILE__ );
+    $ei8AdminUrl     = "admin.php?page=" . plugin_basename( __FILE__ );
     $defaultSettings = ei8_xmlrpc_get_message_defaults($siteType);
     
     if($_POST['action']=="update") {

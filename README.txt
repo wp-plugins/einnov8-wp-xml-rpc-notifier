@@ -2,7 +2,7 @@
 Contributors: yipeecaiey
 Requires at least: 2.7
 Tested up to: 3.2.1
-Stable tag: 2.1.3
+Stable tag: 2.1.4
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -39,6 +39,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.1.4   2011/07/21  UPDATE  Bugfix: fixed admin form submission
     2.1.3   2011/07/19  UPDATE  Bugfix: bug from 2.1.2 that could cause site to crash
     2.1.2   2011/06/14  UPDATE  Require contentsave.php to only process form submissions from the current domain
                                 Create 'eInnov8 Options' main menu option in wp admin
