@@ -2,7 +2,7 @@
 Contributors: yipeecaiey
 Requires at least: 2.7
 Tested up to: 3.2.1
-Stable tag: 2.1.6
+Stable tag: 2.1.7
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -39,6 +39,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.1.7   2011/10/04  UPDATE  Add support for custom post_types
     2.1.6   2011/08/22  UPDATE  Bugfix: twitter callback URL updated
     2.1.5   2011/07/26  UPDATE  Bugfix: duplicate function findexts() in contentsave.php
     2.1.4   2011/07/21  UPDATE  Bugfix: fixed admin form submission

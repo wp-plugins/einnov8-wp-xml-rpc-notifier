@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.1.6
+Version: 2.1.7
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2 
@@ -56,6 +56,10 @@ function ei8_xmlrpc_publish_post($post_id) {
     
     //load the post object 
     $post = get_post($post_id);
+    
+    //update post type
+    $postType = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
+    if(!empty($postType)) set_post_type($post_id, $postType);
     
     //check if email should be sent
     $tEmail = ei8_xmlrpc_get_option('ei8_xmlrpc_email_notify');
@@ -506,14 +510,28 @@ function ei8_xmlrpc_options_menu() {
 }
 
 
+function ei8_get_post_types() {
+    $reg_post_types    = get_post_types();
+    $skip_post_types = array('attachment','revision','nav_menu_item');
+    $post_types = array();
+    foreach($reg_post_types as $post_type) {
+        if(!in_array($post_type,$skip_post_types)) $post_types[] = $post_type;
+    }
+    return $post_types;
+}
+
 function ei8_xmlrpc_admin_options() {
     $postStatus      = ei8_xmlrpc_get_option('ei8_xmlrpc_post_status');
+    $postType        = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
     $ei8AdminUrl     = "admin.php?page=" . plugin_basename( __FILE__ );
     $defaultSettings = ei8_xmlrpc_get_message_defaults($siteType);
     
     if($_POST['action']=="update") {
         //print_r($_POST);
         $var = 'ei8_xmlrpc_post_status';
+        ei8_xmlrpc_update_option($var, $_POST[$var]);
+        
+        $var = 'ei8_xmlrpc_post_type';
         ei8_xmlrpc_update_option($var, $_POST[$var]);
         
         $var = 'ei8_xmlrpc_email_notify';
@@ -581,6 +599,8 @@ function ei8_xmlrpc_admin_options() {
     }
 
     $postStatus      = ei8_xmlrpc_get_option('ei8_xmlrpc_post_status');
+    $postType        = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
+    $post_types      = ei8_get_post_types(); 
 ?>
 <div class="wrap">
 	<?php screen_icon(); ?>
@@ -595,6 +615,17 @@ function ei8_xmlrpc_admin_options() {
                     <option value="" <?php if(empty($postStatus)) echo "SELECTED"; ?>>system default</option>
                     <option value="draft" <?php if('draft'==$postStatus) echo "SELECTED"; ?>>Draft</option>
                     <option value="publish" <?php if('publish'==$postStatus) echo "SELECTED"; ?>>Publish</option>
+                </select></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row">Post type to use: </th>
+            <td><select name='ei8_xmlrpc_post_type'>
+<?php
+foreach ($post_types as $post_type ) {
+    $selected = ($post_type==$postType || (empty($postType) && $post_type=="post")) ? "SELECTED" : "" ;
+    echo "<option value=\"$post_type\" $selected>$post_type</option>";
+}
+?>
                 </select></td>
         </tr>
         <tr valign="top">
@@ -669,16 +700,16 @@ function ei8_xmlrpc_admin_options() {
         
         if($_REQUEST['resetTwitter']) {
             $twitterToken = $twitterSecret = "";
-        	ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', "");
+        	    ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', "");
             ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', "");    
             echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection reset");
         } elseif($_GET['oauth_token']) {
-        	$twitterObj->setToken($_GET['oauth_token']);
-        	$token = $twitterObj->getAccessToken();
-        	$twitterToken  = $token->oauth_token;
+        	    $twitterObj->setToken($_GET['oauth_token']);
+        	    $token = $twitterObj->getAccessToken();
+        	    $twitterToken  = $token->oauth_token;
             $twitterSecret = $token->oauth_token_secret;
             $twitterObj->setToken($twitterToken, $twitterSecret);
-        	$twitterInfo= $twitterObj->get_accountVerify_credentials();
+        	    $twitterInfo= $twitterObj->get_accountVerify_credentials();
             //print("<p>TwitterObj: <pre>");
             //print_r($twitterObj);
             //print("</pre></p>");
@@ -686,7 +717,7 @@ function ei8_xmlrpc_admin_options() {
             //print_r($twitterInfo);
             //print("</pre></p>");
             //exit();
-        	ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', $twitterToken);
+            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', $twitterToken);
             ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', $twitterSecret);
             echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection established");
         }
@@ -694,7 +725,7 @@ function ei8_xmlrpc_admin_options() {
         //echo ei8_xmlrpc_conf_message(false,$title='DEBUG Twitter connection settings',$text="token:$twitterToken secret:$twitterSecret");
         
         if(empty($twitterToken) || empty($twitterSecret)) {
-        	//$token = $twitterObj->getAccessToken();
+        	    //$token = $twitterObj->getAccessToken();
           	$url = $twitterObj->getAuthorizationUrl();
         	
             //print("<p>TwitterObj: <pre>");
@@ -705,19 +736,20 @@ function ei8_xmlrpc_admin_options() {
             echo "<a href='$url'>Authorize an account with Twitter</a>";
         } else {
             $twitterObj->setToken($twitterToken, $twitterSecret);
-        	$twitterInfo= $twitterObj->get_accountVerify_credentials();
-        	$twitterInfo->response;
-            		
-        	$username = $twitterInfo->screen_name;
-        	$profilepic = $twitterInfo->profile_image_url;
+            	$twitterInfo= $twitterObj->get_accountVerify_credentials();
+            	$twitterInfo->response;
+                		
+            	$username = $twitterInfo->screen_name;
+            	$profilepic = $twitterInfo->profile_image_url;
         	
-        /*    print("<p>TwitterObj: <pre>");
+            /*    
+            print("<p>TwitterObj: <pre>");
             print_r($twitterObj);
             print("</pre></p>");
             print("<p>TwitterInfo: <pre>");
             print_r($twitterInfo);
             print("</pre></p>");
-        */    
+            */    
             $resetUrl = $ei8AdminUrl."&resetTwitter=1#ei8xmlrpctwittersettings";
             echo "<img src='$profilepic' align='left' style='padding-right:10px;'> Screen name: $username <br><small><a href='$resetUrl'>Reset Twitter Credentials</a></small>";
         }
