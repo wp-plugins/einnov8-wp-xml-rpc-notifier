@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.1.7
+Version: 2.1.8
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2 
@@ -421,6 +421,72 @@ EOT;
 <a href="http://twitter.com/share" class="twitter-share-button" data-text="Enter Your Tweet Here" data-count="none">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
 EOT;
 
+    //handle any video shortcodes
+    $parts = explode('[ei8 video=', $content);
+    if(count($parts)>1) {
+        $mycontent = "";
+        foreach($parts as $part) {
+            //handle the first part that precedes the video shortcode
+            if(empty($mycontent)) {
+                $mycontent = $part;
+                continue;
+            }
+
+            //now pull out the shortcode from the 'other' part of the content
+            list($working, $other) = explode("]", $part, 2);
+
+            //split up the shortcode into the different values we have to work with
+            $values = explode(" ",$working);
+            $myValues = array();
+            foreach($values as $statement) {
+                //handle the first part that is the video url
+                if(empty($myValues)) {
+                    $myValues['url'] = $statement;
+                    continue;
+                }
+                if(!strstr($statement,"=")) continue; //malformed expression
+                list($name,$val) = explode("=",$statement);
+                $myValues[trim($name)] = trim($val);
+            }
+
+            //handle necessary defaults
+            $myValues['width']  = ei8_coalesce($myValues['width'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_width'), 480);
+            $myValues['height'] = ei8_coalesce($myValues['height'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_height'), 290);
+
+            $final =<<<EOT
+<div style="width: %width%px;">
+  <object width="%width%" height="%height%">
+    <param name="movie" value="%url%"></param>
+    <param name="allowFullScreen" value="true"></param>
+    <param name="allowscriptaccess" value="always"></param>
+    <embed src="%url%" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="%width%" height="%height%"></embed>
+  </object>
+  <div style="align: center;">
+    <a href="http://einnov8.com" style="font-size: 11px; text-decoration: none;">Powered by eInnov8 Marketing</a>
+  </div>
+</div>
+EOT;
+            
+            $final = str_replace("%url%", $myValues['url'], $final);
+            $final = str_replace("%width%", $myValues['width'], $final);
+            $final = str_replace("%height%", $myValues['height'], $final);
+
+            $mycontent .= $final.$other;
+        }
+        $content = $mycontent;
+    }
+
+
+    $content = str_replace('[ei8 MiniRecorder]', $ei8tMiniRecorder, $content);
+    $content = str_replace('[ei8 WideRecorder]', $ei8tWideRecorder, $content);
+    $content = str_replace('[ei8 TallRecorder]', $ei8tTallRecorder, $content);
+    $content = str_replace('[ei8 Simple Submit Form]', $simpleSubmitForm, $content);
+    $content = str_replace('[ei8 Attachment Submit Form]', $attachmentSubmitForm, $content);
+    $content = str_replace('[ei8 Twitter Button]', $twitterButton, $content);
+    $content = str_replace('[ei8 Twitter Form]', $twitterForm, $content);
+    $content = str_replace('[ei8 MediaUploader]', $ei8tMediaUploader, $content);
+
+    //deprecated
     $content = str_replace('[[Load MiniRecorder]]', $ei8tMiniRecorder, $content);
     $content = str_replace('[[Load WideRecorder]]', $ei8tWideRecorder, $content);
     $content = str_replace('[[Load TallRecorder]]', $ei8tTallRecorder, $content);
@@ -429,8 +495,6 @@ EOT;
     $content = str_replace('[[Load Twitter Button]]', $twitterButton, $content);
     $content = str_replace('[[Load Twitter Form]]', $twitterForm, $content);
     $content = str_replace('[[Load MediaUploader]]', $ei8tMediaUploader, $content);
-    
-    //deprecated
     $content = str_replace('[[Load Web Recorder]]', $ei8tWideRecorder, $content);
     $content = str_replace('[[Load PubClip MiniRecorder]]', $ei8tMiniRecorder, $content);
     $content = str_replace('[[Load Captcha Submit Form]]', $simpleSubmitForm, $content);
@@ -441,6 +505,16 @@ EOT;
 
 add_filter( 'the_content', 'ei8_xmlrpc_filter_tags' );
 
+
+function ei8_coalesce() {
+    $args = func_get_args();
+    foreach ($args as $arg) {
+        if (!empty($arg)) {
+            return $arg;
+        }
+    }
+    return $args[0];
+}
 
 /*
  *BEGIN ADMIN SECTION
@@ -658,14 +732,15 @@ foreach ($post_types as $post_type ) {
         <tr valign="top">
             <th scope="row">Submission Form Tags:</th>
             <td>
-                [[Load MiniRecorder]]<br>
-                [[Load WideRecorder]]<br>
-                [[Load TallRecorder]]<br>
-                [[Load Simple Submit Form]]<br>
-                [[Load Attachment Submit Form]]<br>
-                [[Load Twitter Button]]<br>
-                [[Load Twitter Form]]<br>
-                [[Load MediaUploader]]
+                [ei8 video=http://someurl.com width=480 height=290]<br>
+                [ei8 MiniRecorder]<br>
+                [ei8 WideRecorder]<br>
+                [ei8 TallRecorder]<br>
+                [ei8 Simple Submit Form]<br>
+                [ei8 Attachment Submit Form]<br>
+                [ei8 Twitter Button]<br>
+                [ei8 Twitter Form]<br>
+                [ei8 MediaUploader]
             </td>
         </tr>
         <tr valign="top">
