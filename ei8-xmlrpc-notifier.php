@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.1.8
+Version: 2.1.9
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2 
@@ -422,59 +422,7 @@ EOT;
 EOT;
 
     //handle any video shortcodes
-    $parts = explode('[ei8 video=', $content);
-    if(count($parts)>1) {
-        $mycontent = "";
-        foreach($parts as $part) {
-            //handle the first part that precedes the video shortcode
-            if(empty($mycontent)) {
-                $mycontent = $part;
-                continue;
-            }
-
-            //now pull out the shortcode from the 'other' part of the content
-            list($working, $other) = explode("]", $part, 2);
-
-            //split up the shortcode into the different values we have to work with
-            $values = explode(" ",$working);
-            $myValues = array();
-            foreach($values as $statement) {
-                //handle the first part that is the video url
-                if(empty($myValues)) {
-                    $myValues['url'] = $statement;
-                    continue;
-                }
-                if(!strstr($statement,"=")) continue; //malformed expression
-                list($name,$val) = explode("=",$statement);
-                $myValues[trim($name)] = trim($val);
-            }
-
-            //handle necessary defaults
-            $myValues['width']  = ei8_coalesce($myValues['width'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_width'), 480);
-            $myValues['height'] = ei8_coalesce($myValues['height'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_height'), 290);
-
-            $final =<<<EOT
-<div style="width: %width%px;">
-  <object width="%width%" height="%height%">
-    <param name="movie" value="%url%"></param>
-    <param name="allowFullScreen" value="true"></param>
-    <param name="allowscriptaccess" value="always"></param>
-    <embed src="%url%" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="%width%" height="%height%"></embed>
-  </object>
-  <div style="align: center;">
-    <a href="http://einnov8.com" style="font-size: 11px; text-decoration: none;">Powered by eInnov8 Marketing</a>
-  </div>
-</div>
-EOT;
-            
-            $final = str_replace("%url%", $myValues['url'], $final);
-            $final = str_replace("%width%", $myValues['width'], $final);
-            $final = str_replace("%height%", $myValues['height'], $final);
-
-            $mycontent .= $final.$other;
-        }
-        $content = $mycontent;
-    }
+    $content = ei8_xmlrpc_filter_shortcode($content);
 
 
     $content = str_replace('[ei8 MiniRecorder]', $ei8tMiniRecorder, $content);
@@ -514,6 +462,106 @@ function ei8_coalesce() {
         }
     }
     return $args[0];
+}
+
+function ei8_xmlrpc_filter_shortcode($content, $type='') {
+    //filter for standard audio
+    if($type=='audio' || empty($type)) {
+        $parts = explode('[ei8 audio=', $content);
+        if(count($parts)>1) $content = ei8_xmlrpc_parse_shortcode('audio', $parts);
+    }
+
+    //filter for video
+    if($type=='video' || empty($type)) {
+        //filter for standard video
+        $parts = explode('[ei8 video=', $content);
+        if(count($parts)>1) $content = ei8_xmlrpc_parse_shortcode('video', $parts);
+
+        //filter for unspecified url (assume video)
+        $parts = explode('[ei8 url=', $content);
+        if(count($parts)>1) $content = ei8_xmlrpc_parse_shortcode('video', $parts);
+    }
+
+    return $content;
+}
+
+function ei8_xmlrpc_parse_shortcode($type='video', $parts) {
+    $content = "";
+    foreach($parts as $part) {
+        //handle the first part that precedes the shortcode
+        if(empty($content)) {
+            $content = $part;
+            continue;
+        }
+
+        //now pull out the shortcode from the 'other' part of the content
+        list($working, $other) = explode("]", $part, 2);
+
+        //split up the shortcode into the different values we have to work with
+        $values = explode(" ",$working);
+        $myValues = array();
+        foreach($values as $statement) {
+            //handle the first part that is the video url
+            if(empty($myValues)) {
+                $myValues['url'] = $statement;
+                continue;
+            }
+            if(!strstr($statement,"=")) continue; //malformed expression
+            list($name,$val) = explode("=",$statement);
+            $myValues[trim($name)] = trim($val);
+        }
+
+        $final =<<<EOT
+<div style="width: %width%px;">
+<object width="%width%" height="%height%">
+<param name="movie" value="%url%"></param>
+<param name="allowFullScreen" value="true"></param>
+<param name="allowscriptaccess" value="always"></param>
+<embed src="%url%" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="%width%" height="%height%"></embed>
+</object>
+%affiliate%
+</div>
+EOT;
+
+        $showAffiliate =<<<EOT
+    <div style="align: center;">
+        <a href="http://einnov8.com" style="font-size: 11px; text-decoration: none;">Powered by eInnov8 Marketing</a>
+    </div>
+EOT;
+
+        //extract height and width from url
+        //left out because it is not working yet
+        //$urlQueryParts = explode('&', $myValues['url'], 2);
+        //parse_str($urlQueryParts[1], $urlParts);
+
+
+        //handle audio vs video
+        if ($type=='audio') {
+            $dWidth = ei8_coalesce($myValues['width'], $urlParts['w'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_width'), 500);
+            $dHeight = ei8_coalesce($myValues['height'], $urlParts['h'], 20);
+        } else {
+            $dWidth = ei8_coalesce($myValues['width'], $urlParts['w'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_width'), 320);
+            $dHeight = ei8_coalesce($myValues['height'], $urlParts['h'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_height'), 260);
+        }
+
+        //handle necessary defaults
+        $myValues['width']  = $dWidth;
+        $myValues['height'] = $dHeight;
+        $myValues['affiliate'] = (empty($myValues['affiliate'])) ? "" : $showAffiliate ;
+
+        //swap out the place holders with the actual values
+        foreach($myValues as $key=>$val) {
+            $replace = "%".$key."%";
+            $final = str_replace($replace, $val, $final);
+        }
+        //$final = str_replace("%url%", $myValues['url'], $final);
+        //$final = str_replace("%width%", $myValues['width'], $final);
+        //$final = str_replace("%height%", $myValues['height'], $final);
+        //$final = str_replace("%affiliate%", $myValues['affiliate'], $final);
+
+        $content .= $final.$other;
+    }
+    return $content;
 }
 
 /*

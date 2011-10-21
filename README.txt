@@ -2,7 +2,7 @@
 Contributors: yipeecaiey
 Requires at least: 3.0
 Tested up to: 3.2.1
-Stable tag: 2.1.8
+Stable tag: 2.1.9
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -39,8 +39,11 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
-    2.1.8   2011/10/04  UPDATE  Add support for [ei8] shortcodes
-                                Update all [[Load ***]] shortcodes to use [ei8] shortcodes
+    2.1.9   2011/10/20  UPDATE  Add support for [ei8 audio shortcodes]
+                                Add support for [ei8 shortcodes] additional parameters
+                                Add support for [ei8 shortcodes] conditional affiliate link (default off)
+    2.1.8   2011/10/04  UPDATE  Add support for [ei8 shortcodes]
+                                Update all [[Load ***]] shortcodes to use [ei8 shortcodes]
                                 Add support for default value for ei8_xmlrpc_get_option method
     2.1.7   2011/10/04  UPDATE  Add support for custom post_types
     2.1.6   2011/08/22  UPDATE  Bugfix: twitter callback URL updated
