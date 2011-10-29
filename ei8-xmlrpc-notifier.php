@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.1.9
+Version: 2.2.0
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2 
@@ -530,10 +530,8 @@ EOT;
 EOT;
 
         //extract height and width from url
-        //left out because it is not working yet
-        //$urlQueryParts = explode('&', $myValues['url'], 2);
-        //parse_str($urlQueryParts[1], $urlParts);
-
+        $urlQueryParts = explode('&', htmlspecialchars_decode($myValues['url']), 2);
+        parse_str($urlQueryParts[1], $urlParts);
 
         //handle audio vs video
         if ($type=='audio') {
@@ -554,10 +552,6 @@ EOT;
             $replace = "%".$key."%";
             $final = str_replace($replace, $val, $final);
         }
-        //$final = str_replace("%url%", $myValues['url'], $final);
-        //$final = str_replace("%width%", $myValues['width'], $final);
-        //$final = str_replace("%height%", $myValues['height'], $final);
-        //$final = str_replace("%affiliate%", $myValues['affiliate'], $final);
 
         $content .= $final.$other;
     }
