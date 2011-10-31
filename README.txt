@@ -39,7 +39,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
-    2.2.1   2011/10/??  UPDATE  Remove deprecated php code
+    2.2.1   2011/10/30  UPDATE  Remove deprecated php code
                                 Remove multiple admin links
                                 Add [ei8 shortcode] explanation
     2.2.0   2011/10/29  UPDATE  Add support for [ei8 shortcode] additional features
