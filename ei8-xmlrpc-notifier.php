@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.2.0
+Version: 2.2.1
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2 
@@ -591,7 +591,7 @@ function ei8_isValidEmails($email){
 }
 
 function ei8_isValidEmail($email){
-	return eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$", $email);
+	return preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/i", $email);
 }
 
 function ei8_isValidUrl($url){
@@ -616,13 +616,19 @@ function ei8_xmlrpc_settings_link($links, $file) {
 add_action('admin_menu', 'ei8_xmlrpc_options_menu');
 
 function ei8_xmlrpc_options_menu() {
-    if(!function_exists('ei8_parent_menu')) {
+    /*if(!function_exists('ei8_xmlparent_menu')) {
         function ei8_parent_menu() {
-            add_menu_page('eInnov8 Settings', 'eInnov8 Options', 'activate_plugins', 'einnov8', 'ei8_xmlrpc_admin_options');
+            add_menu_page('eInnov8 Settings', 'eInnov8 Options', 'activate_plugins', __FILE__, 'ei8_xmlrpc_admin_options');
         }
         ei8_parent_menu();
-    }
-    add_submenu_page( 'einnov8', 'eInnov8 XMLRPC Preferences', 'ei8t-xmlrpc Preferences', 'activate_plugins', __FILE__, 'ei8_xmlrpc_admin_options');
+    }*/
+    add_menu_page('eInnov8 Settings', 'eInnov8 Options', 'activate_plugins', __FILE__, 'ei8_xmlrpc_admin_options');
+    add_submenu_page( __FILE__, 'eInnov8 Settings', 'ei8t-xmlrpc Preferences', 'activate_plugins', __FILE__, 'ei8_xmlrpc_admin_options');
+    add_submenu_page( __FILE__, 'ei8 shortcodes', '[ei8 shortcodes]', 'activate_plugins', 'ei8-shortcodes', 'ei8_xmlrpc_shortcode_options');
+
+
+	//add_menu_page(THEMENAME . ' Theme Options', THEMENAME . ' Options', 'manage_options', THEMESLUG . 'options', array( &$this, 'engipress_do_overpage' ) );
+	//add_submenu_page(THEMESLUG . 'options', THEMENAME . ' Theme Options', '', 'manage_options', THEMESLUG . 'options', array( &$this, 'engipress_do_overpage' ));
 }
 
 
@@ -634,6 +640,46 @@ function ei8_get_post_types() {
         if(!in_array($post_type,$skip_post_types)) $post_types[] = $post_type;
     }
     return $post_types;
+}
+
+function ei8_xmlrpc_shortcode_options() {
+?>
+<div class="wrap">
+    <?php screen_icon(); ?>
+
+    <h2>Shortcodes Options:</h2>
+    <table class="form-table">
+        <tr><td colspan=2><strong>Shortcodes are tags that can be pasted into any page or post to automatically include formatted content or functionality from ei8t.com.<br>
+            These shortcodes bypass many wordpress mechanisms that can filter or alter pasted html code.</strong></td></tr>
+        <tr valign="top">
+            <th scope="row">Static tags:</th>
+            <td>
+                [ei8 MiniRecorder]<br>
+                [ei8 WideRecorder]<br>
+                [ei8 TallRecorder]<br>
+                [ei8 Simple Submit Form]<br>
+                [ei8 Attachment Submit Form]<br>
+                [ei8 Twitter Button]<br>
+                [ei8 Twitter Form]<br>
+                [ei8 MediaUploader]<br><br>
+            </td>
+        </tr>
+        <tr><td colspan=2><strong>The following are samples of video and audio shortcodes that can be copied from ei8t.com:</strong></td></tr>
+        <tr valign="top">
+            <th scope="row">Video example: </th>
+            <td>
+                [ei8 url=http://www.ei8t.com/swf/9xFKFDWxn2y&w=420&h=335&bm=td&cp=FF6600-800080-FFFF00-000000]<br>
+            </td>
+        </tr>
+        <tr valign="top">
+            <th scope="row">Audio example: (with affiliate link) </th>
+            <td>
+                [ei8 url=http://www.dev.ei8t.com/swf/wq3HXt4Jz&w=500&h=20&bm=td&cp=000000-FFFFFF-000000-000000 affiliate=1]
+            </td>
+        </tr>
+    </table>
+</div>
+<?php
 }
 
 function ei8_xmlrpc_admin_options() {
@@ -771,20 +817,6 @@ foreach ($post_types as $post_type ) {
         if(empty($v_submitForm)) $v_submitForm = '/submit/' ;
 ?> 
         <tr><td><h3>Admin Specific Settings</h3></td></tr>
-        <tr valign="top">
-            <th scope="row">Submission Form Tags:</th>
-            <td>
-                [ei8 video=http://someurl.com width=480 height=290]<br>
-                [ei8 MiniRecorder]<br>
-                [ei8 WideRecorder]<br>
-                [ei8 TallRecorder]<br>
-                [ei8 Simple Submit Form]<br>
-                [ei8 Attachment Submit Form]<br>
-                [ei8 Twitter Button]<br>
-                [ei8 Twitter Form]<br>
-                [ei8 MediaUploader]
-            </td>
-        </tr>
         <tr valign="top">
             <th scope="row">Web Recorder Settings:</th>
             <td><?php echo ei8_xmlrpc_form_text($f_recorderVars,$v_recorderVars); ?><br>
@@ -997,11 +1029,11 @@ function ei8_xmlrpc_get_site_type() {
     $siteType = ei8_xmlrpc_get_option('ei8_xmlrpc_site_type');
     if(empty($siteType)) {
         $domain = $_SERVER['HTTP_HOST'];
-        if(ereg('1tme1',$domain))     $siteType = 'boon';
-        elseif(ereg('1wcf1',$domain)) $siteType = 'flood';
-        elseif(ereg('1vaf1',$domain)) $siteType = 'videoaudio';
-        elseif(ereg('1blg1',$domain)) $siteType = 'soupedup';
-        elseif(ereg('local',$domain)) $siteType = 'flood';
+        if(strstr($domain,'1tme1'))     $siteType = 'boon';
+        elseif(strstr($domain,'1wcf1')) $siteType = 'flood';
+        elseif(strstr($domain,'1vaf1')) $siteType = 'videoaudio';
+        elseif(strstr($domain,'1blg1')) $siteType = 'soupedup';
+        elseif(strstr($domain,'local')) $siteType = 'flood';
         else                          $siteType = 'boon';
     }
     return $siteType;

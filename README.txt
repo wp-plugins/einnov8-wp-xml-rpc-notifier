@@ -2,7 +2,7 @@
 Contributors: yipeecaiey
 Requires at least: 3.0
 Tested up to: 3.2.1
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -39,6 +39,9 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.2.1   2011/10/??  UPDATE  Remove deprecated php code
+                                Remove multiple admin links
+                                Add [ei8 shortcode] explanation
     2.2.0   2011/10/29  UPDATE  Add support for [ei8 shortcode] additional features
     2.1.9   2011/10/20  UPDATE  Add support for [ei8 audio shortcodes]
                                 Add support for [ei8 shortcodes] additional parameters
