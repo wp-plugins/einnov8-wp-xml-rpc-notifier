@@ -39,7 +39,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
-    2.2.1   2011/10/30  UPDATE  Fixed conflict with FeedWordPress plugin
+    2.2.2   2011/10/30  UPDATE  Fixed conflict with FeedWordPress plugin
     2.2.1   2011/10/30  UPDATE  Remove deprecated php code
                                 Remove multiple admin links
                                 Add [ei8 shortcode] explanation
@@ -93,7 +93,7 @@ None, yet!
 
 == Upgrade Notice ==
 
-= 2.2.1 =
+= 2.2.2 =
 Fixed conflict with FeedWordPress plugin
 
 = 2.2.1 =
