@@ -3,15 +3,15 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.2.1
+Version: 2.2.2
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
-License: GPL2 
+License: GPL2
 
 Copyright 2010 eInnov8 Marketing  (email : timg@einnov8.com)
 
 This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License, version 2, as 
+it under the terms of the GNU General Public License, version 2, as
 published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //uncomment this line for testing/debugging purposes
 //define('WP_DEBUG', true);
 
-// internationalization 
+// internationalization
 //load_plugin_textdomain('ei8-xmlrpc-notifier', ei8_xmlrpc_get_plugin_url()."/languages/");
 
 //white list options
@@ -53,26 +53,26 @@ add_action('admin_init', 'ei8_xmlrpc_register_settings');
 //process new posts
 function ei8_xmlrpc_publish_post($post_id) {
     global $wpdb;
-    
-    //load the post object 
+
+    //load the post object
     $post = get_post($post_id);
-    
+
     //update post type
     $postType = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
     if(!empty($postType)) set_post_type($post_id, $postType);
-    
+
     //check if email should be sent
     $tEmail = ei8_xmlrpc_get_option('ei8_xmlrpc_email_notify');
     if(!empty($tEmail)) ei8_email_notify($post_id, $tEmail);
-     
+
     //force status update
     $tStatus = ei8_xmlrpc_get_option('ei8_xmlrpc_post_status');
     if(!empty($tStatus)) ei8_update_post_status($post_id, $tStatus);
-    
+
     //check if ping should be sent
     $tPing = ei8_xmlrpc_get_option('ei8_xmlrpc_ping');
     if(!empty($tPing)) ei8_add_ping($post_id, $tPing);
-    
+
     //exit quietly
    	die();
 }
@@ -90,26 +90,26 @@ function ei8_email_notify($post_id, $tEmail) {
     $siteType   = ei8_xmlrpc_get_site_type();
     $author     = get_userdata($post->post_author);
     $nonce      = wp_create_nonce('my-nonce');
-    
+
     //use this function to populate all message settings...this handles empty variables nicely
     $message_settings = ei8_xmlrpc_get_message_settings();
-    
+
     //begin with message intro
     $message = $message_settings['message_intro'] . "\r\n\r\n";
-    
+
     //build message re publishing status
     $message .= $message_settings['message_post_status_intro'];
     $pStatus = ($tStatus=='draft' || $tStatus=='publish') ? $tStatus : 'unknown';
     $message .= $message_settings['message_post_status_'.$pStatus] . "\r\n\r\n";
-    
+
     //add the thank you message
     $message .= $message_settings['message_thank_you'] . "\r\n\r\n";
-    
+
     //handle quick links if we should
     if($message_settings['message_quick_links_show']==1) {
         $message .= "-------------------------------------\r\n\r\n";
         $message .= $message_settings['message_quick_links_intro'] ."\r\n\r\n";
-    
+
         //$message .= sprintf( __('Preview: %s'), get_permalink($post_id) ) . "\r\n\r\n";
         //$message .= sprintf( __('Edit: %s'), admin_url("post.php?action=edit&post=$post_id") ) . "\r\n\r\n";
         $message .= admin_url("post.php?action=edit&post=$post_id") . "\r\n\r\n";
@@ -118,19 +118,19 @@ function ei8_email_notify($post_id, $tEmail) {
         $siteName = ei8_xmlrpc_get_site_type_name($siteType);
         //if($siteType=="flood") $message .= sprintf( __('Update '.$siteName.' system settings: %s'), admin_url("options-general.php?page=" . plugin_basename( __FILE__ ) ) ) . "\r\n\r\n";
     }
-    
+
     //handle referral text if we should
     if($message_settings['message_referral_show']==1) {
         $message .= "-------------------------------------\r\n\r\n";
         $message .= $message_settings['message_referral_text'] . "\r\n";
     }
-    
+
     //filter custom tags
     $message = str_replace("[[post_title]]",$post->post_title,$message);
-    
+
     $from    = sprintf("From: \"%s\" <%s>", $message_settings['email_from_name'], $message_settings['email_from_addr']);
     $subject = $message_settings['email_subject'];
-    
+
     $message_headers = "$from\n"
         . "Content-Type: text/plain; charset=\"" . ei8_xmlrpc_get_blog_option('blog_charset') . "\"\n";
 
@@ -185,7 +185,7 @@ function ei8_xmlrpc_recorder_wrap($type, $vars='') {
             break;
         default :
             $doError = true;
-    } 
+    }
     if($doError){
         $showType = ucwords($type);
         $html = "<p style='color: red; size: 13px; font-weight: bold;'>ERROR LOADING eInnov8 Tech $showType Recorder - please notify website administrator support@einnov8.com</p>";
@@ -199,7 +199,7 @@ function ei8_xmlrpc_recorder_wrap($type, $vars='') {
     }
     return $html;
 }
-    
+
 
 function ei8_xmlrpc_get_plugin_dir() {
     $pathinfo = pathinfo( plugin_basename( __FILE__ ) );
@@ -217,18 +217,18 @@ function ei8_xmlrpc_get_plugin_url() {
 function ei8_xmlrpc_conf_message($success=true,$title='default',$text='default') {
     if($title == 'default') $title  = "Submission Received";
     if($text == 'default')  $text   = "Your submission was saved successfully and will be processed shortly.";
-    
+
     $pluginDir = ei8_xmlrpc_get_plugin_url();
-    $confImg   = ($success) ? "success.png" : "error.png";    
+    $confImg   = ($success) ? "success.png" : "error.png";
     $title     = ($success) ? "<span style='color:red;'>$title</span>" : $title ;
-    
+
     $confMessage =<<<EOT
 <div style='border:1px solid #CCC; padding:5px; height: 70px; background-color: #E5EEE1;'>
     <img src="{$pluginDir}{$confImg}" align="left" style="padding-right: 10px;">
     <strong>$title</strong><br>$text
 </div>
 EOT;
-    
+
     return $confMessage;
 }
 
@@ -364,7 +364,7 @@ $showConf
     <tr>
         <td colspan=2>
             <textarea  name="ei8_xmlrpc_tweet" cols="50" rows="5" id="tweet" ></textarea>
-            
+
         </td>
     </tr>
     $captchaSubmitForm
@@ -413,18 +413,15 @@ return false;
 EOT;
     $twitterToken  = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_token');
     $twitterSecret = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_secret');
-    
-    
+
+
     if(empty($submitFormLink) OR empty($twitterToken) OR empty($twitterSecret)) $twitterForm = "<p style='color: red; size: 13px; font-weight: bold;'>ERROR LOADING Twitter Form - please notify website administrator</p>";
 
     $twitterButton =<<<EOT
 <a href="http://twitter.com/share" class="twitter-share-button" data-text="Enter Your Tweet Here" data-count="none">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
 EOT;
 
-    //handle any video shortcodes
-    $content = ei8_xmlrpc_filter_shortcode($content);
-
-
+    //actually do the parsing
     $content = str_replace('[ei8 MiniRecorder]', $ei8tMiniRecorder, $content);
     $content = str_replace('[ei8 WideRecorder]', $ei8tWideRecorder, $content);
     $content = str_replace('[ei8 TallRecorder]', $ei8tTallRecorder, $content);
@@ -433,6 +430,9 @@ EOT;
     $content = str_replace('[ei8 Twitter Button]', $twitterButton, $content);
     $content = str_replace('[ei8 Twitter Form]', $twitterForm, $content);
     $content = str_replace('[ei8 MediaUploader]', $ei8tMediaUploader, $content);
+
+    //handle any video shortcodes
+    $content = ei8_xmlrpc_filter_shortcode($content);
 
     //deprecated
     $content = str_replace('[[Load MiniRecorder]]', $ei8tMiniRecorder, $content);
@@ -446,12 +446,12 @@ EOT;
     $content = str_replace('[[Load Web Recorder]]', $ei8tWideRecorder, $content);
     $content = str_replace('[[Load PubClip MiniRecorder]]', $ei8tMiniRecorder, $content);
     $content = str_replace('[[Load Captcha Submit Form]]', $simpleSubmitForm, $content);
-    
+
     //started, but not yet finished
     return $content;
 }
 
-add_filter( 'the_content', 'ei8_xmlrpc_filter_tags' );
+add_filter( 'the_content', 'ei8_xmlrpc_filter_tags', 11111 );
 
 
 function ei8_coalesce() {
@@ -465,6 +465,7 @@ function ei8_coalesce() {
 }
 
 function ei8_xmlrpc_filter_shortcode($content, $type='') {
+    /*
     //filter for standard audio
     if($type=='audio' || empty($type)) {
         $parts = explode('[ei8 audio=', $content);
@@ -476,16 +477,20 @@ function ei8_xmlrpc_filter_shortcode($content, $type='') {
         //filter for standard video
         $parts = explode('[ei8 video=', $content);
         if(count($parts)>1) $content = ei8_xmlrpc_parse_shortcode('video', $parts);
-
-        //filter for unspecified url (assume video)
-        $parts = explode('[ei8 url=', $content);
-        if(count($parts)>1) $content = ei8_xmlrpc_parse_shortcode('video', $parts);
     }
 
-    return $content;
+    //filter for unspecified url (assume video)
+    $parts = explode('[ei8 url=', $content);
+    if(count($parts)>1) $content = ei8_xmlrpc_parse_shortcode('video', $parts);
+
+     */
+
+    return ei8_xmlrpc_parse_shortcode($content, $type);
 }
 
-function ei8_xmlrpc_parse_shortcode($type='video', $parts) {
+function ei8_xmlrpc_parse_shortcode($content,$type='') {
+    $parts = explode('[ei8', $content);
+    $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     foreach($parts as $part) {
         //handle the first part that precedes the shortcode
@@ -497,17 +502,32 @@ function ei8_xmlrpc_parse_shortcode($type='video', $parts) {
         //now pull out the shortcode from the 'other' part of the content
         list($working, $other) = explode("]", $part, 2);
 
+        $working_bak = $working;
+
+        //remove unneeded whitespace, ensure correct formatting of needed whitespace
+        $working = trim($working);
+        $working = htmlspecialchars_decode($working);
+        $working = htmlspecialchars_decode($working);
+        //$working = preg_replace('%\s%',' ',$working);
+        //$working = str_replace('&nbsp;',' ',$working);
+        //$working = str_replace('  ',' ',$working);
+        $working = strip_tags($working);
+        //$working = preg_replace('/(\v|\\n|\\r)/','',$working);
+
         //split up the shortcode into the different values we have to work with
         $values = explode(" ",$working);
+
         $myValues = array();
         foreach($values as $statement) {
             //handle the first part that is the video url
-            if(empty($myValues)) {
-                $myValues['url'] = $statement;
-                continue;
-            }
+            //if(empty($myValues)) {
+            //    $myValues['url'] = $statement;
+            //    continue;
+            //}
             if(!strstr($statement,"=")) continue; //malformed expression
-            list($name,$val) = explode("=",$statement);
+            list($name,$val) = explode("=",$statement,2);
+            if($name=='audio') $type='audio';
+            if($name=="audio" | $name=="video") $name = 'url';
             $myValues[trim($name)] = trim($val);
         }
 
@@ -534,7 +554,7 @@ EOT;
         parse_str($urlQueryParts[1], $urlParts);
 
         //handle audio vs video
-        if ($type=='audio') {
+        if ($type=="audio") {
             $dWidth = ei8_coalesce($myValues['width'], $urlParts['w'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_width'), 500);
             $dHeight = ei8_coalesce($myValues['height'], $urlParts['h'], 20);
         } else {
@@ -554,6 +574,13 @@ EOT;
         }
 
         $content .= $final.$other;
+        /*
+        $content .= "<small>";
+        $content .= "<br>orig:[ei8 $working_bak]";
+        $content .= "<br>final:[ei8 $working]";
+        $content .= "<br>url: ".$myValues['url'];
+        $content .= "</small>";
+        */
     }
     return $content;
 }
@@ -571,13 +598,13 @@ function ei8_xmlrpc_validate_data($input) {
     if(!empty($tEmail) && !ei8_isValidEmails($tEmail)) {
         echo "<div id='akismet-warning' class='error fade'><b>At least one of these is not a valid email address.  Please fix or email notifications will not be sent. ($tEmail)</b></div>";
     }
-    
+
     //validate the ping url
     $tPing = ei8_xmlrpc_get_option('ei8_xmlrpc_ping');
     if(!empty($tPing) && !ei8_isValidUrl($tPing)) {
         echo "<div id='akismet-warning' class='error fade'><b>This is not a valid URL to be pinged.  Please fix or ping notifications will not be sent. $tPing</b></div>";
     }
-    
+
 }
 
 function ei8_isValidEmails($email){
@@ -603,11 +630,11 @@ function ei8_isValidUrl($url){
 //create admin link to settings from main app plugins page
 add_filter( 'plugin_action_links', 'ei8_xmlrpc_settings_link', 10, 2 );
 
-function ei8_xmlrpc_settings_link($links, $file) {  
+function ei8_xmlrpc_settings_link($links, $file) {
     $file_name   = plugin_basename( __FILE__ );
 	if ( $file == $file_name ) {
 		array_unshift( $links, sprintf( '<a href="options-general.php?page=%s">%s</a>', $file_name, __('Settings') ) );
-	}	
+	}
 	return $links;
 }
 
@@ -687,34 +714,34 @@ function ei8_xmlrpc_admin_options() {
     $postType        = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
     $ei8AdminUrl     = "admin.php?page=" . plugin_basename( __FILE__ );
     $defaultSettings = ei8_xmlrpc_get_message_defaults($siteType);
-    
+
     if($_POST['action']=="update") {
         //print_r($_POST);
         $var = 'ei8_xmlrpc_post_status';
         ei8_xmlrpc_update_option($var, $_POST[$var]);
-        
+
         $var = 'ei8_xmlrpc_post_type';
         ei8_xmlrpc_update_option($var, $_POST[$var]);
-        
+
         $var = 'ei8_xmlrpc_email_notify';
         ei8_xmlrpc_update_option($var, $_POST[$var]);
 
         $var = 'ei8_xmlrpc_ping';
         ei8_xmlrpc_update_option($var, $_POST[$var]);
-        
-        if (current_user_can('level_8')) {     
+
+        if (current_user_can('level_8')) {
             $var = 'ei8_xmlrpc_site_type';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
-                   
+
             $var = 'ei8_xmlrpc_recorder_vars';
             ei8_xmlrpc_update_option($var, ei8_xmlrpc_parse_recorder_vars($_POST[$var]));
-            
+
             $var = 'ei8_xmlrpc_submit_form';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
-            
+
             $var = 'ei8_xmlrpc_use_captcha';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
-        
+
             if($_POST['ei8_xmlrpc_reset_to_defaults']==1) {
                 $defaults = ei8_xmlrpc_get_message_defaults();
                 foreach($defaults as $var=>$val) {
@@ -727,12 +754,12 @@ function ei8_xmlrpc_admin_options() {
                 }
             }
         }
-        
+
         $siteName = ei8_xmlrpc_get_site_type_name();
         ei8_xmlrpc_admin_log("<p>Your $siteName preferences have been updated.</p>",1);
-        
+
         //echo "<div id='akismet-warning' class='updated fade'><p>$msg</p></div>";
-        
+
         //force page reload
         if ( !headers_sent() ) {
 			wp_redirect($ei8AdminUrl);
@@ -756,17 +783,17 @@ function ei8_xmlrpc_admin_options() {
 <?php
 		}
 		exit();
-        
-        
+
+
     }
 
     $postStatus      = ei8_xmlrpc_get_option('ei8_xmlrpc_post_status');
     $postType        = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
-    $post_types      = ei8_get_post_types(); 
+    $post_types      = ei8_get_post_types();
 ?>
 <div class="wrap">
 	<?php screen_icon(); ?>
-	
+
     <h2>Preferences:</h2>
     <form method="post" action="<?php echo $ei8AdminUrl; ?>">
     <?php wp_nonce_field('update-options'); ?>
@@ -802,20 +829,20 @@ foreach ($post_types as $post_type ) {
                 <input type="text" name="ei8_xmlrpc_ping" size=55 value="<?php echo ei8_xmlrpc_get_blog_option('ei8_xmlrpc_ping'); ?>" />
             </td>
         </tr> -->
-<?php 
-    if (current_user_can('level_8')) {  
+<?php
+    if (current_user_can('level_8')) {
         $siteType           = ei8_xmlrpc_get_site_type();
         $useCaptcha         = ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha');
         $f_submitForm       = 'ei8_xmlrpc_submit_form';
         $v_submitForm       = ei8_xmlrpc_get_option($f_submitForm);
-        $f_recorderVars     = 'ei8_xmlrpc_recorder_vars'; 
+        $f_recorderVars     = 'ei8_xmlrpc_recorder_vars';
         $v_recorderVars     = ei8_xmlrpc_get_option($f_recorderVars);
         $f_twitterUser      = 'ei8_xmlrpc_twitter_username';
         $v_twitterUser      = ei8_xmlrpc_get_option($f_twitterUser);
         $f_twitterPass      = 'ei8_xmlrpc_twitter_password';
         $v_twitterPass      = ei8_xmlrpc_get_option($f_twitterPass);
         if(empty($v_submitForm)) $v_submitForm = '/submit/' ;
-?> 
+?>
         <tr><td><h3>Admin Specific Settings</h3></td></tr>
         <tr valign="top">
             <th scope="row">Web Recorder Settings:</th>
@@ -835,22 +862,22 @@ foreach ($post_types as $post_type ) {
             <td>
 <?php
         //handle twitter authentication
-        
+
         $twitterToken  = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_token');
         $twitterSecret = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_secret');
-                
+
         require 'lib/EpiCurl.php';
         require 'lib/EpiOAuth.php';
         require 'lib/EpiTwitter.php';
         require 'lib/secret.php';
-        
+
         $twitterObj = new EpiTwitter($consumer_key, $consumer_secret);
         $twitterObj->setCallBack( ei8_xmlrpc_get_plugin_url() . "twitter_callback.php" );
-        
+
         if($_REQUEST['resetTwitter']) {
             $twitterToken = $twitterSecret = "";
         	    ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', "");
-            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', "");    
+            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', "");
             echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection reset");
         } elseif($_GET['oauth_token']) {
         	    $twitterObj->setToken($_GET['oauth_token']);
@@ -870,13 +897,13 @@ foreach ($post_types as $post_type ) {
             ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', $twitterSecret);
             echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection established");
         }
-        
+
         //echo ei8_xmlrpc_conf_message(false,$title='DEBUG Twitter connection settings',$text="token:$twitterToken secret:$twitterSecret");
-        
+
         if(empty($twitterToken) || empty($twitterSecret)) {
         	    //$token = $twitterObj->getAccessToken();
           	$url = $twitterObj->getAuthorizationUrl();
-        	
+
             //print("<p>TwitterObj: <pre>");
             //print_r($twitterObj);
             //print("</pre></p>");
@@ -887,18 +914,18 @@ foreach ($post_types as $post_type ) {
             $twitterObj->setToken($twitterToken, $twitterSecret);
             	$twitterInfo= $twitterObj->get_accountVerify_credentials();
             	$twitterInfo->response;
-                		
+
             	$username = $twitterInfo->screen_name;
             	$profilepic = $twitterInfo->profile_image_url;
-        	
-            /*    
+
+            /*
             print("<p>TwitterObj: <pre>");
             print_r($twitterObj);
             print("</pre></p>");
             print("<p>TwitterInfo: <pre>");
             print_r($twitterInfo);
             print("</pre></p>");
-            */    
+            */
             $resetUrl = $ei8AdminUrl."&resetTwitter=1#ei8xmlrpctwittersettings";
             echo "<img src='$profilepic' align='left' style='padding-right:10px;'> Screen name: $username <br><small><a href='$resetUrl'>Reset Twitter Credentials</a></small>";
         }
@@ -909,7 +936,7 @@ foreach ($post_types as $post_type ) {
             <th scope="row">Require CAPTCHA on submit forms: </th>
             <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_use_captcha',$useCaptcha); ?></td>
         </tr>
-        <tr><td><h3>Notification Email Settings</h3></td></tr>        
+        <tr><td><h3>Notification Email Settings</h3></td></tr>
         <tr valign="top">
             <th scope="row">Website type: </th>
             <td><select name='ei8_xmlrpc_site_type'>
@@ -944,10 +971,10 @@ foreach ($post_types as $post_type ) {
             <th scope="row">Return email text to default settings: </th>
             <td><input type="checkbox" name="ei8_xmlrpc_reset_to_defaults" value="1" onchange="this.form.submit();"></td>
         </tr>
-<?php 
-    } //end admin only options 
+<?php
+    } //end admin only options
 ?>
-    </table>    
+    </table>
     <input type="hidden" name="action" value="update">
     <input type="hidden" name="page_options" value="ei8_xmlrpc_post_status,ei8_xmlrpc_email_notify,ei8_xmlrpc_ping" />
     <p class="submit"><input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p>
@@ -979,7 +1006,7 @@ function ei8_xmlrpc_form_boolean($var,$val) {
 function ei8_xmlrpc_get_blog_option($val) {
     global $wp_version;
     return ($wp_version >= 3) ? get_site_option($val) : get_blog_option($val) ;
-} 
+}
 
 function ei8_xmlrpc_get_option($id) {
     global $wpdb;
@@ -990,7 +1017,7 @@ function ei8_xmlrpc_get_option($id) {
     $result = stripslashes($results[0]->option_value);
     return $result;
 }
-    
+
 function ei8_xmlrpc_update_option($id, $value) {
     global $wpdb;
     $table = $wpdb->prefix . "ei8_xmlrpc_options";
@@ -1046,8 +1073,8 @@ function ei8_xmlrpc_get_upload_dir($url='') {
     //if variables aren't set, try to get it a different way
     if(empty($uploadPath) || empty($uploadURL) ) {
         $uldir      = wp_upload_dir();
-        $uploadPath = $uldir['basedir']; 
-        $uploadURL  = $uldir['baseurl']; 
+        $uploadPath = $uldir['basedir'];
+        $uploadURL  = $uldir['baseurl'];
     }
     //if it is still not set, set it manually from where it *should* be
     if(empty($uploadPath) || empty($uploadURL)) {
@@ -1055,7 +1082,7 @@ function ei8_xmlrpc_get_upload_dir($url='') {
         $uploadURL  = ei8_xmlrpc_get_home_url() . $uldir ;
         list($uploadPath) = explode("/wp-content",$_SERVER["SCRIPT_FILENAME"]);
         list($uploadPath) = explode("/wp-admin",$uploadPath);
-        $uploadPath .= $uldir ;        
+        $uploadPath .= $uldir ;
     }
     //ei8_xmlrpc_admin_log("<p>TROUBLESHOOTING: uploads directory <br>".$uploadPath."</p>",1);
     $uploadPath    .= $uploadDirName ;
@@ -1065,15 +1092,15 @@ function ei8_xmlrpc_get_upload_dir($url='') {
 
 function ei8_xmlrpc_get_login() {
     require_once ( ABSPATH . WPINC . '/registration.php' );
-    
+
     //set username
     $userName = "xmlrpc";
-    
+
     //determine what pass SHOULD be
     $passWord = "";
-    foreach(explode(".",$_SERVER['HTTP_HOST']) AS $part) $passWord = $part.$passWord;  
+    foreach(explode(".",$_SERVER['HTTP_HOST']) AS $part) $passWord = $part.$passWord;
     $passWord = "xmlrpc".$passWord;
-    
+
     //ensure user exists and has the correct password and permissions
     $userID = username_exists( $userName );
     $userInfo = array(
@@ -1084,13 +1111,13 @@ function ei8_xmlrpc_get_login() {
     );
     //check user permissions if user exists
     if($userID) $userData = get_userdata($userID);
-    
-    //only do the update if necessary 
+
+    //only do the update if necessary
     if( !$userID || $userData->user_pass!=$userInfo->user_pass || $userData->user_level!=2 ) wp_update_user( $userInfo );
-    
+
     return array($userName, $passWord);
 }
-    
+
 function ei8_xmlrpc_get_site_type_name($siteType='') {
     if(empty($siteType)) $siteType = ei8_xmlrpc_get_site_type();
     //$siteName = ($siteType=="flood") ? 'webcontentFLOOD' : 'testiBOONials' ;
@@ -1108,7 +1135,7 @@ function ei8_xmlrpc_get_site_type_name($siteType='') {
         default:
             $siteName = "testiBOONials";
     }
-            
+
     return $siteName;
 }
 
@@ -1117,23 +1144,23 @@ function ei8_xmlrpc_get_message_defaults($siteType='') {
     if(empty($siteType)) $siteType = ei8_xmlrpc_get_site_type();
     $siteName = ei8_xmlrpc_get_site_type_name($siteType);
     list($referral_id) = explode('.',$_SERVER['HTTP_HOST']);
-    
+
     if($siteType=="flood") {
         $defaults['email_from_name']             = "Web Content Flood";
         $defaults['email_from_addr']             = "submit@webcontentflood.com";
         $defaults['email_subject']               = "New [Customer Name] Submission";
-        $defaults['message_intro']               = "[Customer Name] has made a new flood submission:        
+        $defaults['message_intro']               = "[Customer Name] has made a new flood submission:
 [[post_title]]";
-        
+
         $defaults['message_post_status_intro']   = "This submission";
-        $defaults['message_post_status_draft']   = " is waiting for review within the customer's WCF account."; 
+        $defaults['message_post_status_draft']   = " is waiting for review within the customer's WCF account.";
         $defaults['message_post_status_publish'] = " has been published to the customer's WCF public page.";
         $defaults['message_post_status_unknown'] = " is available for review within the customer's WCF account.";
-        
+
         $defaults['message_thank_you']           = "Let's \"FLOOD\" it!";
         $defaults['message_quick_links_show']    = 1;
         $defaults['message_quick_links_intro']   = "Here is the link to edit the submission:";
-        $defaults['message_referral_show']       = 0; 
+        $defaults['message_referral_show']       = 0;
         $defaults['message_referral_text']       = "";
     } elseif ($siteType=="boon") {
         $defaults['email_from_name']             = "testiBOONials";
@@ -1141,18 +1168,18 @@ function ei8_xmlrpc_get_message_defaults($siteType='') {
         $defaults['email_subject']               = "New Testimonial Submission";
         $defaults['message_intro']               = "A new testimonial has been submitted with this title:
 [[post_title]]";
-        
+
         $defaults['message_post_status_intro']   = "This testimonial";
-        $defaults['message_post_status_draft']   = " is waiting for review within your testiBOONials account."; 
+        $defaults['message_post_status_draft']   = " is waiting for review within your testiBOONials account.";
         $defaults['message_post_status_publish'] = " has been published to your testiBOONials public page.";
         $defaults['message_post_status_unknown'] = " is available for review within your testiBOONials account.";
-        
+
         $defaults['message_thank_you']           = "Thank you for being a testiBOONials subscriber";
         $defaults['message_quick_links_show']    = 1;
         $defaults['message_quick_links_intro']   = "Here is the link to edit the testimonial:";
-        $defaults['message_referral_show']       = 1; 
-        $defaults['message_referral_text']       = "If you know of others who'd benefit from subscribing to 
-testiBOONials, we'd very much appreciate a referral. 
+        $defaults['message_referral_show']       = 1;
+        $defaults['message_referral_text']       = "If you know of others who'd benefit from subscribing to
+testiBOONials, we'd very much appreciate a referral.
 Just send them to http://testiboonials.com.";
     } elseif ($siteType=="videoaudio") {
         $defaults['email_from_name']             = "Video-Audio Forums";
@@ -1160,17 +1187,17 @@ Just send them to http://testiboonials.com.";
         $defaults['email_subject']               = "New Forum Entry";
         $defaults['message_intro']               = "A new forum entry has been submitted with this title:
 [[post_title]]";
-        
+
         $defaults['message_post_status_intro']   = "This entry";
-        $defaults['message_post_status_draft']   = " is waiting for review within your Video-Audio Forums account."; 
+        $defaults['message_post_status_draft']   = " is waiting for review within your Video-Audio Forums account.";
         $defaults['message_post_status_publish'] = " has been published to your Video-Audio Forums public page.";
         $defaults['message_post_status_unknown'] = " is available for review within your Video-Audio Forums account.";
-        
+
         $defaults['message_thank_you']           = "Thank you for being a Video-Audio Forums subscriber";
         $defaults['message_quick_links_show']    = 1;
         $defaults['message_quick_links_intro']   = "Here is the link to edit the entry:";
-        $defaults['message_referral_show']       = 1; 
-        $defaults['message_referral_text']       = "If you know of others who'd benefit from subscribing to 
+        $defaults['message_referral_show']       = 1;
+        $defaults['message_referral_text']       = "If you know of others who'd benefit from subscribing to
 Video-Audio Forums, we'd very much appreciate a referral.
 Just send them to: http://videoaudioforums.com.";
     } elseif ($siteType=="soupedup") {
@@ -1179,69 +1206,69 @@ Just send them to: http://videoaudioforums.com.";
         $defaults['email_subject']               = "Your New Blog Post";
         $defaults['message_intro']               = "Your Souped-Up Blogs post has been successfully processed:
 [[post_title]]";
-        
+
         $defaults['message_post_status_intro']   = "This post";
-        $defaults['message_post_status_draft']   = " is waiting for review within your Souped-Up Blogs account."; 
+        $defaults['message_post_status_draft']   = " is waiting for review within your Souped-Up Blogs account.";
         $defaults['message_post_status_publish'] = " has been published to your Souped-Up Blogs public page.";
         $defaults['message_post_status_unknown'] = " is available for review within your Souped-Up Blogs account.";
-        
+
         $defaults['message_thank_you']           = "Thank you for being a Souped-Up Blogs subscriber.";
         $defaults['message_quick_links_show']    = 1;
         $defaults['message_quick_links_intro']   = "Here is the link to edit the post:";
-        $defaults['message_referral_show']       = 1; 
-        $defaults['message_referral_text']       = "If you know of others who'd benefit from subscribing to 
+        $defaults['message_referral_show']       = 1;
+        $defaults['message_referral_text']       = "If you know of others who'd benefit from subscribing to
 Souped-Up Blogs, we'd very much appreciate a referral.
 Just send them to: http://soupedupblogs.com.";
     }
 
-/*    
+/*
     $defaults['email_from_name']             = "{$siteName}.com";
     $defaults['email_from_addr']             = "admin@{$siteName}.com";
     $defaults['email_subject']               = "New {$siteName} Post";
     $defaults['message_intro']               = "A new {$postName} was submitted a few minutes ago to your {$siteName} system -- with the following title:
-    
+
 Title: [[post_title]]";
-    
+
     $defaults['message_post_status_intro']   = "According to your {$siteName} system settings, this {$postName}";
-    $defaults['message_post_status_draft']   = " is waiting in Draft status within your {$siteName} account."; 
+    $defaults['message_post_status_draft']   = " is waiting in Draft status within your {$siteName} account.";
     $defaults['message_post_status_publish'] = " will be published immediately to your {$siteName} posting page.";
     $defaults['message_post_status_unknown'] = " is either:
 * Published immediately to your {$siteName} posting page
 * Is waiting in Draft status within your {$siteName} account
 In either case, you can now modify/delete the {$postName} from with-in your {$siteName} account.";
-    
+
     $defaults['message_thank_you']           = "Thank you for being a {$siteName} subscriber.";
     $defaults['message_quick_links_show']    = 1;
     $defaults['message_quick_links_intro']   = "Quick Links:";
-    $defaults['message_referral_show']       = 1; 
+    $defaults['message_referral_show']       = 1;
     $defaults['message_referral_text']       = "Earn $25.00 for each new {$siteName} subscriber who signs up via this link: http://{$siteName}.com/{$referral_id}";
 */
 
-    return $defaults; 
+    return $defaults;
 }
 
 function ei8_xmlrpc_get_message_variables($form='') {
-    $vars = array('email_from_name' => array('text', 'From (name)'), 
-        'email_from_addr' => array('text', 'From (address)'), 
-        'email_subject' => array('text', 'Subject'), 
-        'message_intro' => array('textarea', 'Message intro'), 
-        'message_post_status_intro' => array('textarea', 'Intro to post-status'), 
-        'message_post_status_draft' => array('textarea', 'If status is "Draft"'), 
-        'message_post_status_publish' => array('textarea', 'If status is "Publish"'), 
-        'message_post_status_unknown' => array('textarea', 'If status is "unknown"'), 
-        'message_quick_links_show' => array('boolean', 'Show quick links'), 
-        'message_quick_links_intro' => array('textarea', 'Quick links text'), 
-        'message_thank_you' => array('textarea', 'Thank you text'), 
-        'message_referral_show' => array('boolean', 'Show referral text'), 
+    $vars = array('email_from_name' => array('text', 'From (name)'),
+        'email_from_addr' => array('text', 'From (address)'),
+        'email_subject' => array('text', 'Subject'),
+        'message_intro' => array('textarea', 'Message intro'),
+        'message_post_status_intro' => array('textarea', 'Intro to post-status'),
+        'message_post_status_draft' => array('textarea', 'If status is "Draft"'),
+        'message_post_status_publish' => array('textarea', 'If status is "Publish"'),
+        'message_post_status_unknown' => array('textarea', 'If status is "unknown"'),
+        'message_quick_links_show' => array('boolean', 'Show quick links'),
+        'message_quick_links_intro' => array('textarea', 'Quick links text'),
+        'message_thank_you' => array('textarea', 'Thank you text'),
+        'message_referral_show' => array('boolean', 'Show referral text'),
         'message_referral_text' => array('textarea', 'Referral text'),
       );
-    return (empty($form)) ? array_keys($vars) : $vars ; 
+    return (empty($form)) ? array_keys($vars) : $vars ;
 }
 
 function ei8_xmlrpc_get_message_settings() {
     $vars     = ei8_xmlrpc_get_message_variables();
     $defaults = ei8_xmlrpc_get_message_defaults();
-    
+
     $message_settings = array();
     foreach($vars as $var) {
         $val = ei8_xmlrpc_get_option($var);
@@ -1250,12 +1277,12 @@ function ei8_xmlrpc_get_message_settings() {
     }
     return $message_settings;
 }
-    
-    
+
+
 //handle db table installs and updates
 function ei8_xmlrpc_admin_install() {
     global $wpdb, $wp_version;
-    
+
     $table1 = $wpdb->prefix . "ei8_xmlrpc_options";
 
     $table1_sql = "CREATE TABLE `{$table1}` (
@@ -1268,10 +1295,10 @@ function ei8_xmlrpc_admin_install() {
 
     if($wp_version < 3) require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     $ei8_xmlrpc_db_sql   = $table1_sql ;
-    
+
     $wpdb->flush();
     $errs = 0;
-    
+
     //first check for old testiboonials settings and update if necessary
     $table2 = $wpdb->prefix . "testiboonials_xmlrpc_options";
     if($wpdb->get_var("SHOW TABLES LIKE '$table2'")==$table2 && $wpdb->get_var("SHOW TABLES LIKE '$table1'") != $table1) {
@@ -1280,12 +1307,12 @@ function ei8_xmlrpc_admin_install() {
         if ($wpdb->get_var("SHOW TABLES LIKE '$table1'") != $table1) {
             $sql = "CREATE TABLE $table1 LIKE $table2";
             $errs += ei8_xmlrpc_admin_query($sql);
-            
+
             if($errs<1) {
                 $sql = "SELECT * FROM $table2";
                 $myrows = $wpdb->get_results($sql);
                 foreach($myrows AS $row) {
-                    
+
                 //ei8_xmlrpc_admin_log("<p class='abq-error'>row: $row</p>",1);
                     //list($id,$name,$val) = $row;
                     $id   = $row->ID;
@@ -1298,27 +1325,27 @@ function ei8_xmlrpc_admin_install() {
                 }
                 $sql = "DROP table $table2";
                 $errs += ei8_xmlrpc_admin_query($sql);
-                
+
                 ei8_xmlrpc_admin_log("<p>Storing new table structure</p>");
                 ei8_xmlrpc_update_option("ei8_xmlrpc_db_sql",$ei8_xmlrpc_db_sql);
-                
+
                 ei8_xmlrpc_admin_log("<p>Database tables converted</p>",1);
             }
         } else {
             ei8_xmlrpc_admin_log("<p class='abq-error'>Errors converting database</p>",1);
-        }                
-    
+        }
+
     //handle first time installs
     } elseif($wpdb->get_var("SHOW TABLES LIKE '$table1'") != $table1) {
         ei8_xmlrpc_admin_log("<p>Performing initial database installation.</p>",1);
-            
+
         ei8_xmlrpc_admin_log("<p>Creating new tables</p>");
         $errs += ei8_xmlrpc_admin_query($table1_sql);
-        
+
         if($errs<1) {
             ei8_xmlrpc_admin_log("<p>Storing new table structure</p>");
             ei8_xmlrpc_update_option("ei8_xmlrpc_db_sql",$ei8_xmlrpc_db_sql);
-            
+
             ei8_xmlrpc_admin_log("<p>New database tables installed</p>",1);
         } else {
             ei8_xmlrpc_admin_log("<p class='abq-error'>Errors installing new database tables</p>",1);
@@ -1330,24 +1357,24 @@ function ei8_xmlrpc_admin_install() {
         //ei8_xmlrpc_admin_log("<p>CURRENT ei8_xmlrpc_db_sql :: <pre>".ei8_xmlrpc_get_blog_option( "ei8_xmlrpc_db_sql" )."</pre></p>",1);
         //ei8_xmlrpc_admin_log("<p>CURRENT ei8_xmlrpc_db_sql :: <pre>".ei8_xmlrpc_get_option( "ei8_xmlrpc_db_sql" )."</pre></p>",1);
         //ei8_xmlrpc_admin_log("<p>NEW ei8_xmlrpc_db_sql :: <pre>{$ei8_xmlrpc_db_sql}</pre></p>",1);
-        
+
         //create table backups
-        ei8_xmlrpc_admin_log("<p>Backing up current tables</p>");        
+        ei8_xmlrpc_admin_log("<p>Backing up current tables</p>");
         $table1_bak = $table1."_bak";
         $errs += ei8_xmlrpc_admin_query( "RENAME TABLE $table1 TO {$table1}_bak;" );
-        
+
         //create new tables
         ei8_xmlrpc_admin_log("<p>Creating new tables</p>");
         $errs += ei8_xmlrpc_admin_query($table1_sql);
-        
+
         //copy data from backups
-        ei8_xmlrpc_admin_log("<p>Copying old data into new tables</p>");        
+        ei8_xmlrpc_admin_log("<p>Copying old data into new tables</p>");
         $errs += ei8_xmlrpc_admin_query( "INSERT INTO $table1 SELECT * FROM {$table1}_bak;" );
-        
+
         //drop backup tables
-        ei8_xmlrpc_admin_log("<p>Dropping backup tables</p>");        
+        ei8_xmlrpc_admin_log("<p>Dropping backup tables</p>");
         $errs += ei8_xmlrpc_admin_query( "DROP TABLE {$table1}_bak;" );
-        
+
         //update options db_version
         if($errs<1) {
             ei8_xmlrpc_admin_log("<p>Storing new table structure</p>");
@@ -1356,21 +1383,21 @@ function ei8_xmlrpc_admin_install() {
         } else {
             ei8_xmlrpc_admin_log("<p class='abq-error'>Errors updating database</p>",1);
         }
-        
+
     } else {
         //ei8_xmlrpc_admin_log("<p>Database is up to date. No updates performed.</p>",1);
     }
-    
+
     //check for deprecated named options and update as necessary
     if(!(ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars')) && (ei8_xmlrpc_get_option('ei8_xmlrpc_pubClip_minirecorder'))) {
         ei8_xmlrpc_update_option('ei8_xmlrpc_recorder_vars', ei8_xmlrpc_get_option('ei8_xmlrpc_pubClip_minirecorder'));
         ei8_xmlrpc_update_option('ei8_xmlrpc_pubClip_minirecorder', '');
         ei8_xmlrpc_admin_log("<p>Updated recorder settings to current version</p>",1);
     }
-    
+
     //make sure xmlrpc user exists and has the right permissions
     ei8_xmlrpc_get_login();
-    
+
     //make sure the dir exists and is writable
     $uploadPath = ei8_xmlrpc_get_upload_dir();
     if(!is_dir($uploadPath)) wp_mkdir_p($uploadPath);
@@ -1388,7 +1415,7 @@ function ei8_xmlrpc_admin_install() {
     if(!is_writable($uploadPath)) {
         ei8_xmlrpc_admin_log("<p class='abq-error'>Error: uploads directory is not writable.  <br><font style='color: black;'>Use this command to make it writable: chmod -R 777 $uploadPath</font></p>",1);
     }
-    
+
     //try to make sure xml-rpc is enabled
     update_site_option('enable_xmlrpc',1);
 
@@ -1411,11 +1438,11 @@ function ei8_xmlrpc_admin_log( $msg, $level=2 ) {
 //returns 1 if errors are found, 0 if none
 function ei8_xmlrpc_admin_query($sql) {
     global $wpdb, $ei8_xmlrpc_debug;
-    
+
     //conditionally turn on error reporting
     //NOTE: there has got to be a better way to catch and display sql errors...but I ran out of time...
-    if (isset($ei8_xmlrpc_debug)) $wpdb->show_errors(); 
-       
+    if (isset($ei8_xmlrpc_debug)) $wpdb->show_errors();
+
     return ( $wpdb->query($sql) === FALSE ) ? 1 : 0 ;
 }
 
@@ -1431,7 +1458,7 @@ function ei8_xmlrpc_admin_notices() {
 
 //uncomment this line below to enable verbose install logging & display sql errors
 $ei8_xmlrpc_debug = 1;
-    
+
 add_action('admin_init', 'ei8_xmlrpc_admin_install');
 add_action('admin_notices', 'ei8_xmlrpc_admin_notices');
 
