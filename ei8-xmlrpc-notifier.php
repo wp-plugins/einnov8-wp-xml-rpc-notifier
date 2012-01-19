@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.2.4
+Version: 2.2.5
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -518,21 +518,26 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
         $values = explode(" ",$working);
 
         $myValues = array();
+        $myAlign = "";
         foreach($values as $statement) {
             //handle the first part that is the video url
             //if(empty($myValues)) {
             //    $myValues['url'] = $statement;
             //    continue;
             //}
-            if(!strstr($statement,"=")) continue; //malformed expression
+            if(!strstr($statement,"=")) {
+                if(!isset($myValues['url']));
+                $name = 'url';
+            } //continue; //malformed expression
             list($name,$val) = explode("=",$statement,2);
             if($name=='audio') $type='audio';
             if($name=="audio" | $name=="video") $name = 'url';
-            $myValues[trim($name)] = trim($val);
+            if($name=="align") $myAlign = "style='text-align:".trim($val)."';";
+            else $myValues[trim($name)] = trim($val);
         }
 
         $final =<<<EOT
-<div>
+<div $myAlign>
 <object width="%width%" height="%height%">
 <param name="movie" value="%url%"></param>
 <param name="allowFullScreen" value="true"></param>
@@ -702,6 +707,12 @@ function ei8_xmlrpc_shortcode_options() {
             <th scope="row">Audio example: (with affiliate link) </th>
             <td>
                 [ei8 url=http://www.dev.ei8t.com/swf/wq3HXt4Jz&w=500&h=20&bm=td&cp=000000-FFFFFF-000000-000000 affiliate=1]
+            </td>
+        </tr>
+        <tr valign="top">
+            <th scope="row">Alignment example: (left/center/right)</th>
+            <td>
+                [ei8 url=http://www.dev.ei8t.com/swf/wq3HXt4Jz&w=500&h=20&bm=td&cp=000000-FFFFFF-000000-000000 align=left]
             </td>
         </tr>
     </table>

@@ -2,7 +2,7 @@
 Contributors: yipeecaiey
 Requires at least: 3.0
 Tested up to: 3.3.1
-Stable tag: 2.2.4
+Stable tag: 2.2.5
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -39,6 +39,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.2.5   2012/01/19  UPDATE  Added support for [ei8 shortcode] conditional alignment
     2.2.4   2012/01/19  UPDATE  Removed width from div wrapper for [ei8 shortcode] to allow centering by user
     2.2.3   2012/01/19  UPDATE  Removed width from div wrapper for [ei8 shortcode] to allow centering by user
     2.2.2   2011/10/30  UPDATE  Fixed conflict with FeedWordPress plugin
