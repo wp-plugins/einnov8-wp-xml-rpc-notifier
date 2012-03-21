@@ -2,7 +2,7 @@
 Contributors: yipeecaiey
 Requires at least: 3.0
 Tested up to: 3.3.1
-Stable tag: 2.2.5
+Stable tag: 2.2.6
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -39,6 +39,17 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.2.6   2012/03/21  UPDATE  Added styling to all shortcode elements
+                                Created ei8-xmlrpc-notifier.css that auto loads
+                                Created ei8-xmlrpc-tweet.js that auto loads
+                                Added admin visibility into css
+                                Updated urls to not use _FILE_, instead hardcoded
+                                Updated twitter redirect in case the bootstrap could not be loaded
+                                Added expander shortcode options to show/hide content by clicking on the title
+                                Added JQuery loader
+                                Added Media Uploader css
+                                Changed all textarea titles to "Content"
+                                Changed Attachment Submit Form to use textarea instead of text box
     2.2.5   2012/01/19  UPDATE  Added support for [ei8 shortcode] conditional alignment
     2.2.4   2012/01/19  UPDATE  Removed width from div wrapper for [ei8 shortcode] to allow centering by user
     2.2.3   2012/01/19  UPDATE  Removed width from div wrapper for [ei8 shortcode] to allow centering by user
@@ -94,7 +105,30 @@ None, yet!
     1.0     2009/11/01  NEW     Works for WordPress 2.8
 
 
+
 == Upgrade Notice ==
+
+= 2.2.6 =
+Added styling to all shortcode elements
+Created css that auto loads
+Created js that auto loads
+Added admin visibility into css
+Updated urls to not use _FILE_, instead hardcoded
+Updated twitter redirect in case the bootstrap could not be loaded
+Added expander shortcode options to show/hide content by clicking on the title
+Added JQuery loader
+Added Media Uploader custom css
+Changed all textarea titles to "Content"
+Changed Attachment Submit Form to use textarea instead of text box
+
+= 2.2.5 =
+Added support for [ei8 shortcode] conditional alignment
+
+= 2.2.4 =
+Removed width from div wrapper for [ei8 shortcode] to allow centering by user
+
+= 2.2.3 =
+Removed width from div wrapper for [ei8 shortcode] to allow centering by user
 
 = 2.2.2 =
 Fixed conflict with FeedWordPress plugin

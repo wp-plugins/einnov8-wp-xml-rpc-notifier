@@ -1,0 +1,56 @@
+body {
+    background-color: #FFFFFF;
+    border: 0px;
+    padding: 0px;
+}
+.ei8-form-wrapper {
+    text-align: center;
+    background-color: #f7f7f7;
+    border: 1px solid #cccccc;
+    padding: 15px;
+    border-radius:5px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    width: 450px;
+    margin: auto;
+}
+.ei8-form-line *, .ei8-form-label label {
+    font-family: Tahoma;
+    vertical-align: middle;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 300;
+}
+.ei8-form-line {
+    width: 450px;
+    text-align: left;
+}
+.ei8-form-label {
+    width: 120px;
+    text-align: left;
+    vertical-align: top;
+}
+.ei8-form-label, .ei8-form-field {
+    display: inline-block;
+    text-align: left;
+    font-weight: normal;
+}
+textarea, .ei8-form-field input {
+    width: 300px;
+}
+.uploadifyQueueItem {
+    border: 1px #CCC solid;
+    background-color: #f2f2f2;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius:5px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    width: auto;
+    text-align: left;
+}
+.uploadifyQueueItem div.cancel {}
+.uploadifyQueueItem span.fileName {}
+.uploadifyQueueItem span.percentage {}
+.uploadifyQueueItem div.uploadifyProgress {}
+.uploadifyQueueItem div.uploadifyProgressBar {}

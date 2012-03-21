@@ -1,0 +1,169 @@
+/* These are for the shortcode stylings */
+.ei8-web-recorder, .ei8-form-wrapper {
+    text-align: center;
+    width: 375px;
+    background-color: #f7f7f7;
+    border: 1px solid #cccccc;
+    padding: 15px;
+    border-radius:5px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+}
+.ei8-form-wrapper {
+    width: 450px;
+    margin: auto;
+}
+.ei8-form-iframe {
+    width: 100%;
+    height: 355px;
+}
+.ei8-web-recorder-wide {
+    width: 685px;
+    margin-left: -87px;
+}
+.ei8-form-line *, .ei8-form-label label {
+    font-family: Tahoma;
+    vertical-align: middle;
+}
+.ei8-form-line {
+    width: 450px;
+    text-align: left;
+}
+.ei8-form-label {
+    width: 120px;
+    text-align: left;
+    vertical-align: top;
+}
+.ei8-form-label, .ei8-form-field {
+    display: inline-block;
+    text-align: left;
+}
+.ei8-form-line-spacer {
+    height: 14px;
+}
+textarea {
+    width: 300px;
+}
+.ei8-shortcode-wrapper {
+    margin: auto;
+    width: 70%;
+}
+
+/* These are designated, and could be useful, but no styling is used by default */
+.ei8-web-recorder-mini, .ei8-web-recorder-tall, .ei8-web-recorder-media {}
+.ei8-textarea, .ei8-textarea-updesc, .ei8-textarea-simple-submit, .ei8-textarea-tweet {}
+
+
+
+
+
+
+/* These are used for the twitter form */
+#bar {
+    background-color:#5fbbde;
+    width:0px;
+    height:16px;
+}
+#barbox {
+    float:left;
+    height:16px;
+    background-color:#FFFFFF;
+    width:100px;
+    border:solid 2px #000;
+    margin-left:3px;
+    border-radius: 5px;
+    -webkit-border-radius:5px;
+    -moz-border-radius:5px;
+}
+#count, #counter {
+    float:left;
+    margin-right:8px;
+    /*font-family:'Georgia', Times New Roman, Times, serif;
+    margin-left:8px;
+    font-size:15px;
+    font-weight:bold;
+    color:#666666*/
+}
+#tweet {
+    /*width: 90%;*/
+}
+
+#character-count {
+    /*margin-right:300px;*/
+}
+
+
+
+
+
+
+/* these are for the expander */
+.expand {
+    padding-bottom:.75em
+}
+.expand a {
+    display:block;
+    padding:3px 10px
+}
+.expand a:link, .expand a:visited {
+    background-image:url('arrow-down.gif');
+    background-repeat:no-repeat;
+    background-position:98% 50%;
+    color: #555;
+    background-color: #f7f7f7;
+    border: 1px solid #cccccc;
+    border-radius:5px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+}
+.expand a:hover, .expand a:active, .expand a:focus {
+    text-decoration:underline;
+    color: #555;
+}
+.expand a.open:link, .expand a.open:visited {
+    background-image: url('arrow-up.gif');
+}
+
+
+
+
+
+
+/* this is for the uploader */
+.do_uploads {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.uploadifyQueueItem {
+	font: 11px Verdana, Geneva, sans-serif;
+	border: 2px solid #E5E5E5;
+	background-color: #F5F5F5;
+	margin-top: 5px;
+	padding: 10px;
+    min-width: 200px;
+	max-width: 500px;
+}
+.uploadifyError {
+	border: 2px solid #FBCBBC !important;
+	background-color: #FDE5DD !important;
+}
+.uploadifyQueueItem .cancel {
+	float: right;
+}
+.uploadifyProgress {
+	background-color: #FFFFFF;
+	border-top: 1px solid #808080;
+	border-left: 1px solid #808080;
+	border-right: 1px solid #C5C5C5;
+	border-bottom: 1px solid #C5C5C5;
+	margin-top: 10px;
+	width: 100%;
+}
+.uploadifyProgressBar {
+	background-color: #0099FF;
+	width: 1px;
+	height: 3px;
+}
+
+
