@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.2.6
+Version: 2.2.7
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -782,8 +782,8 @@ function ei8_xmlrpc_options_menu() {
         }
         ei8_parent_menu();
     }*/
-    add_menu_page('eInnov8 Settings', 'eInnov8 Options', 'activate_plugins', 'ei8-xmlrpc-options', 'ei8_xmlrpc_admin_options');
-    add_submenu_page( 'ei8-xmlrpc-options', 'eInnov8 Settings', 'ei8t-xmlrpc Preferences', 'activate_plugins', 'ei8-xmlrpc-options', 'ei8_xmlrpc_admin_options');
+    add_menu_page('eInnov8 Settings', 'eInnov8 Options', 'edit_others_posts', 'ei8-xmlrpc-options', 'ei8_xmlrpc_admin_options');
+    add_submenu_page( 'ei8-xmlrpc-options', 'eInnov8 Settings', 'ei8t-xmlrpc Preferences', 'edit_others_posts', 'ei8-xmlrpc-options', 'ei8_xmlrpc_admin_options');
     add_submenu_page( 'ei8-xmlrpc-options', 'ei8 shortcodes', '[ei8 shortcodes]', 'activate_plugins', 'ei8-shortcodes', 'ei8_xmlrpc_shortcode_options');
     add_submenu_page( 'ei8-xmlrpc-options', 'ei8 css', '[ei8 css]', 'activate_plugins', 'ei8-css', 'ei8_xmlrpc_css_options');
 
@@ -911,7 +911,7 @@ function ei8_xmlrpc_admin_options() {
         $var = 'ei8_xmlrpc_ping';
         ei8_xmlrpc_update_option($var, $_POST[$var]);
 
-        if (current_user_can('level_8')) {
+        if (current_user_can('edit_others_posts')) {
             $var = 'ei8_xmlrpc_site_type';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
 
@@ -1015,7 +1015,7 @@ function ei8_xmlrpc_admin_options() {
             </td>
         </tr> -->
             <?php
-            if (current_user_can('level_8')) {
+            if (current_user_can('edit_others_posts')) {
                 $siteType           = ei8_xmlrpc_get_site_type();
                 $useCaptcha         = ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha');
                 $f_submitForm       = 'ei8_xmlrpc_submit_form';

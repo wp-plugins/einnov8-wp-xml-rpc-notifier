@@ -2,7 +2,7 @@
 Contributors: yipeecaiey
 Requires at least: 3.0
 Tested up to: 3.3.1
-Stable tag: 2.2.6
+Stable tag: 2.2.7
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -39,6 +39,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.2.7   2012/03/22  UPDATE  Changed restrictions to allow Editor access to ei8 preferences page
     2.2.6   2012/03/21  UPDATE  Added styling to all shortcode elements
                                 Created ei8-xmlrpc-notifier.css that auto loads
                                 Created ei8-xmlrpc-tweet.js that auto loads
@@ -107,6 +108,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.2.7 =
+Changed restrictions to allow Editor access to ei8 preferences page
 
 = 2.2.6 =
 Added styling to all shortcode elements
