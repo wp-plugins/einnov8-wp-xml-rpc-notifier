@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.2.7
+Version: 2.2.8
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -184,6 +184,7 @@ function ei8_xmlrpc_recorder_wrap($type, $vars='') {
             $width  = '100%';
             break;
         default :
+            $folder  = $height = $width = '';
             $doError = true;
     }
     if($doError){
@@ -225,13 +226,20 @@ function ei8_xmlrpc_conf_message($success=true,$title='default',$text='default')
     $title     = ($success) ? "<span style='color:red;'>$title</span>" : $title ;
 
     $confMessage =<<<EOT
-<div style='border:1px solid #CCC; padding:5px; height: 70px; background-color: #E5EEE1;'>
-    <img src="{$pluginDir}{$confImg}" align="left" style="padding-right: 10px;">
-    <strong>$title</strong><br>$text
+<div class="ei8-confirmation">
+    <div class="ei8-confirmation-img"><img src="{$pluginDir}{$confImg}"></div>
+    <div class="ei8-confirmation-msg"><strong>$title</strong><br>$text</div>
 </div>
 EOT;
 
     return $confMessage;
+}
+
+function ei8_xmlrpc_do_expand() {
+    /*$expandThis =<<<EOT
+        <script type="text/javascript">expandThis();</script>
+EOT;
+    return $expandThis;*/
 }
 
 function ei8_xmlrpc_filter_tags($content) {
@@ -335,7 +343,7 @@ EOT;
     //$textBoxTitle     = ($siteType=="flood") ? "Text Box" : "Comment";
     $textBoxTitle     = "Content";
     $aName            = "ei8xmlrpcsimplesubmit";
-    $showConf         = ($_REQUEST['success']==$aName) ? ei8_xmlrpc_conf_message() : "" ;
+    $showConf         = ($_REQUEST['success']==$aName) ? ei8_xmlrpc_conf_message().ei8_xmlrpc_do_expand() : "" ;
     $simpleSubmitForm =<<<EOT
 <a name="$aName"></a>
 $showConf
@@ -1130,7 +1138,7 @@ function ei8_xmlrpc_admin_options() {
                     </td>
                 </tr>
                 <tr><td><h3>Notification Email Settings</h3></td></tr>
-                <tr valign="top">
+                <!--<tr valign="top">
                     <th scope="row">Website type: </th>
                     <td><select name='ei8_xmlrpc_site_type'>
                         <option value="boon" <?php if('boon'==$siteType) echo "SELECTED"; ?>><?php echo ei8_xmlrpc_get_site_type_name('boon'); ?></option>
@@ -1138,7 +1146,7 @@ function ei8_xmlrpc_admin_options() {
                         <option value="videoaudio" <?php if('videoaudio'==$siteType) echo "SELECTED"; ?>><?php echo ei8_xmlrpc_get_site_type_name('videoaudio'); ?></option>
                         <option value="soupedup" <?php if('soupedup'==$siteType) echo "SELECTED"; ?>><?php echo ei8_xmlrpc_get_site_type_name('soupedup'); ?></option>
                     </select></td>
-                </tr>
+                </tr>-->
                 <?php
                 $message_variables = ei8_xmlrpc_get_message_variables(1);
                 $message_settings  = ei8_xmlrpc_get_message_settings($siteType);
@@ -1247,6 +1255,8 @@ function ei8_xmlrpc_parse_recorder_vars($vars) {
 }
 
 function ei8_xmlrpc_get_site_type() {
+    return 'flood';
+    /*
     $siteType = ei8_xmlrpc_get_option('ei8_xmlrpc_site_type');
     if(empty($siteType)) {
         $domain = $_SERVER['HTTP_HOST'];
@@ -1258,6 +1268,7 @@ function ei8_xmlrpc_get_site_type() {
         else                          $siteType = 'boon';
     }
     return $siteType;
+    */
 }
 
 function ei8_xmlrpc_get_upload_dir($url='') {
@@ -1313,6 +1324,7 @@ function ei8_xmlrpc_get_login() {
 }
 
 function ei8_xmlrpc_get_site_type_name($siteType='') {
+    $siteType = 'floodgate';
     if(empty($siteType)) $siteType = ei8_xmlrpc_get_site_type();
     //$siteName = ($siteType=="flood") ? 'webcontentFLOOD' : 'testiBOONials' ;
     switch ($siteType) {
@@ -1326,14 +1338,16 @@ function ei8_xmlrpc_get_site_type_name($siteType='') {
             $siteName = "Souped-Up Blogs";
             break;
         case "boon":
-        default:
             $siteName = "testiBOONials";
+        default:
+            $siteName = "Floodgate";
     }
 
     return $siteName;
 }
 
 function ei8_xmlrpc_get_message_defaults($siteType='') {
+    $siteType = 'floodgate';
     $defaults = array();
     if(empty($siteType)) $siteType = ei8_xmlrpc_get_site_type();
     $siteName = ei8_xmlrpc_get_site_type_name($siteType);
@@ -1413,6 +1427,26 @@ Just send them to: http://videoaudioforums.com.";
         $defaults['message_referral_text']       = "If you know of others who'd benefit from subscribing to
 Souped-Up Blogs, we'd very much appreciate a referral.
 Just send them to: http://soupedupblogs.com.";
+    } else {
+
+        $defaults['email_from_name']             = "Floodgate";
+        $defaults['email_from_addr']             = "submit@yoursite.com";
+        $defaults['email_subject']               = "New Floodgate Submission";
+        $defaults['message_intro']               = "A new submission to your website has arrived with this title:
+[[post_title]]";
+
+        $defaults['message_post_status_intro']   = "This submission";
+        $defaults['message_post_status_draft']   = " is waiting for review within the your website administration area.";
+        $defaults['message_post_status_publish'] = " has been published to the your blog.";
+        $defaults['message_post_status_unknown'] = " is available for review within your website administration area.";
+
+        $defaults['message_thank_you']           = "Thank you for using the eInnov8 Marketing Web Content Floodgate system.";
+        $defaults['message_quick_links_show']    = 1;
+        $defaults['message_quick_links_intro']   = "Click on this link (and log in, if necessary) to review, edit and publish this submission:";
+        $defaults['message_referral_show']       = 0;
+        $defaults['message_referral_text']       = "If you know of others who'd benefit from subscribing to
+the eInnov8 Marketing Web Content Floodgate services, we'd very much appreciate a referral.
+Just send them to http://einnov8.com.";
     }
 
     /*

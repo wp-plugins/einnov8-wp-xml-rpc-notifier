@@ -48,6 +48,27 @@ textarea {
     margin: auto;
     width: 70%;
 }
+.ei8-confirmation {
+    border:1px solid #CCC;
+    padding:10px;
+    height: 70px;
+    background-color: #E5EEE1;
+    border-radius:5px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    margin-bottom: 15px;
+}
+.ei8-confirmation-img, .ei8-confirmation-msg {
+    text-align: left;
+    display: inline-block;
+    vertical-align: middle;
+}
+.ei8-confirmation-img {
+    width: 100px;
+}
+.ei8-confirmation-msg {
+    width: 80%;
+}
 
 /* These are designated, and could be useful, but no styling is used by default */
 .ei8-web-recorder-mini, .ei8-web-recorder-tall, .ei8-web-recorder-media {}
@@ -78,21 +99,9 @@ textarea {
 #count, #counter {
     float:left;
     margin-right:8px;
-    /*font-family:'Georgia', Times New Roman, Times, serif;
-    margin-left:8px;
-    font-size:15px;
-    font-weight:bold;
-    color:#666666*/
 }
-#tweet {
-    /*width: 90%;*/
-}
-
-#character-count {
-    /*margin-right:300px;*/
-}
-
-
+#tweet {}
+#character-count {}
 
 
 

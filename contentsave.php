@@ -1,6 +1,8 @@
 <?php  
 /** Include the bootstrap for setting up WordPress environment */
-require('../../../wp-load.php');
+//require('../../../wp-load.php');
+require('/Users/yipeecaiey/www/wordpress/wp-load.php');
+
 //include plugin for function usage
 
 session_start();
@@ -21,11 +23,14 @@ if(ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha')==1 && isset($_REQUEST['Submit
 
 // send 'em back to the submit page
 $submitPage = ei8_xmlrpc_get_option('ei8_xmlrpc_submit_form');
-if(!ereg("^http",$submitPage)) {
-    $doSlash = (ereg("^/",$submitPage)) ? "" : "/" ;
-    $submitPage = $wpurl.$doSlash.$submitPage;
+if(empty($submitPage)) {
+    $submitPage = $_SERVER['HTTP_REFERER'];
+} elseif(!preg_match('#^http#',$submitPage)) {
+    $doSlash = (!preg_match('#^\/#',$submitPage)) ? "/" : "" ;
+    $submitPage = get_bloginfo('wpurl').$doSlash.$submitPage;
 }
-$submitPage .= (ereg("\?",$submitPage)) ? "" : "?" ;
+
+$submitPage .= (strstr($submitPage,"\?")) ? "" : "?" ;
 
 
 if ( !isset($_SERVER['HTTP_REFERER']) || 
