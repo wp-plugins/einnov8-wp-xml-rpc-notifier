@@ -1,7 +1,7 @@
 <?php  
 /** Include the bootstrap for setting up WordPress environment */
-//require('../../../wp-load.php');
-require('/Users/yipeecaiey/www/wordpress/wp-load.php');
+require('../../../wp-load.php');
+//require('/Users/yipeecaiey/www/wordpress/wp-load.php');
 
 //include plugin for function usage
 
