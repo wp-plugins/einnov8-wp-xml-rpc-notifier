@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.2.8
+Version: 2.2.9
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -156,6 +156,49 @@ function ei8_xmlrpc_swf_wrap($url,$height,$width) {
 <p><object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="$width" height="$height" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="allowFullScreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="wmode" value="transparent" /><param name="src" value="$url" /><param name="allowfullscreen" value="true" /><embed type="application/x-shockwave-flash" width="$width" height="$height" src="$url" wmode="transparent" allowscriptaccess="always" allowfullscreen="true"></embed></object></p>
 EOT;
     return $html;
+}
+
+function ei8_xmlrpc_string_to_array($string) {
+    $myVars = array();
+    if(is_array($string)) {
+        foreach($string as $s) {
+            $myVars = array_merge($myVars,ei8_xmlrpc_string_to_array($s));
+        }
+    } elseif(strstr($string,'&')) {
+        $string = html_entity_decode($string);
+        $els = explode('&',$string);
+        foreach($els as $el) {
+            list($name,$val) = explode('=',$el);
+            $myVars[trim($name)] = trim($val);
+        }
+    } elseif(strstr($string,'=')) {
+        list($name,$val) = explode('=',$string);
+        $myVars[trim($name)] = trim($val);
+    }
+    return $myVars;
+}
+
+function ei8_xmlrpcs_parse_recorder_vars($defaultVars='',$overrideVars='') {
+    //make sure the inputs are arrays
+    $dVars    = ei8_xmlrpc_string_to_array($defaultVars);
+    $oVars   = ei8_xmlrpc_string_to_array($overrideVars);
+
+    //merge the two arrays together (with precedence for the overrideVars)
+    $myVars = array_merge($dVars,$oVars);
+/*
+    echo "<p>defaultVars: <pre>"; print_r($defaultVars); echo "</pre></p>";
+    echo "<p>overrideVars: <pre>"; print_r($overrideVars); echo "</pre></p>";
+    echo "<p>dVars: <pre>"; print_r($dVars); echo "</pre></p>";
+    echo "<p>oVars: <pre>"; print_r($oVars); echo "</pre></p>";
+    echo "<p>myVars: <pre>"; print_r($myVars); echo "</pre></p>";
+*/
+
+    //now collapse it all back into a string
+    $stringVars = array();
+    foreach($myVars as $key=>$val) $stringVars[$key] = "$key=$val";
+    $string = implode("&",$stringVars);
+
+    return $string;
 }
 
 function ei8_xmlrpc_recorder_wrap($type, $vars='') {
@@ -541,59 +584,19 @@ function ei8_coalesce() {
     return $args[0];
 }
 
-function ei8_xmlrpc_filter_shortcode($content, $type='') {
-    /*
-    //filter for standard audio
-    if($type=='audio' || empty($type)) {
-        $parts = explode('[ei8 audio=', $content);
-        if(count($parts)>1) $content = ei8_xmlrpc_parse_shortcode('audio', $parts);
-    }
+function ei8_xmlrpc_filter_shortcode($content,$type='') {
 
-    //filter for video
-    if($type=='video' || empty($type)) {
-        //filter for standard video
-        $parts = explode('[ei8 video=', $content);
-        if(count($parts)>1) $content = ei8_xmlrpc_parse_shortcode('video', $parts);
-    }
-
-    //filter for unspecified url (assume video)
-    $parts = explode('[ei8 url=', $content);
-    if(count($parts)>1) $content = ei8_xmlrpc_parse_shortcode('video', $parts);
-
-     */
+    //filter for upload folder overrides
+    $content = ei8_xmlrpc_parse_uploader_shortcode($content);
 
     //filter for expander
     $content = ei8_xmlrpc_parse_expander_shortcode($content);
 
+    //filter for player shortcodes
     return ei8_xmlrpc_parse_shortcode($content, $type);
 }
 
 function ei8_xmlrpc_parse_expander_shortcode($content) {
-    //first separate out the expander content and remove unnecessary tags
-    /*$parts = explode('[ei8 ExpanderBody]',$content);
-    if(count($parts)<=1) return $content;
-    $content = '';
-    foreach($parts as $part) {
-        //handle the part preceding the first instance
-        if ($content=='') {
-            $content = $part;
-            continue;
-        }
-        //split out the end
-        list($body,$other) = explode('[ei8 ExpanderBodyEnd]',$part,1);
-
-        //parse the body
-        $body = str_replace("<p>","<br><br>",$body);
-        $body = str_replace("<div>","<br>",$body);
-        $body = str_replace("</p>","",$body);
-        $body = str_replace("</div>","",$body);
-
-        //put it all back together
-        $content .= '[ei8 ExpanderBody]'.$body.'[ei8 ExpanderBodyEnd]'.$other;
-    }
-    */
-    //now do the expander tag replacement
-
     $expanderTitle     = '<h2 class="expand">';
     $expanderTitleEnd  = '</h2><div class="collapse">';
     $expanderBody      = '';
@@ -615,6 +618,68 @@ function ei8_xmlrpc_parse_expander_shortcode($content) {
     $content = str_replace('[ei8 accordionBodyEnd]', $expanderBodyEnd, $content);
 
 
+    return $content;
+}
+
+function ei8_xmlrpc_parse_uploader_shortcode($content) {
+    $parts = explode('[ei8', $content);
+    $content_bak = $content; //make a copy before we start just in case we need to roll back
+    $content = "";
+    foreach($parts as $part) {
+        //echo "<p>processing part: <pre>$part</pre></p>";
+        //handle the first part that precedes the shortcode
+        if(empty($content)) {
+            $content = $part;
+            continue;
+        }
+
+        //now pull out the shortcode from the 'other' part of the content
+        list($working, $other) = explode("]", $part, 2);
+
+        $working_bak = $working;
+
+        //remove unneeded whitespace
+        $working = trim($working);
+        $working = htmlspecialchars_decode($working);
+        $working = htmlspecialchars_decode($working);
+        $working = strip_tags($working);
+
+        //determine if this is a shortcode we are trying to parse...if not, skip it
+        if (!preg_match('/(MiniRecorder|TallRecorder|WideRecorder|MediaUploader)/',$working)) {
+            //echo "<p>Skipping this part</p>";
+            $content .= '[ei8'.$part;
+            continue;
+        }
+
+        //split up the shortcode into the different values we have to work with
+        $values = explode(" ",$working);
+        //echo "<p>values: <pre>"; print_r($values); echo "</pre></p>";
+
+        $myValues = array();
+        foreach($values as $statement) if(!strstr($statement,"=")) $typeName = $statement; else $myValues[] = $statement;
+
+        $ei8tVars   = ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars');
+        $myVars     = ei8_xmlrpcs_parse_recorder_vars($ei8tVars,$myValues);
+        //echo "<p>typeName: $typeName, myVars: $myVars";
+        switch($typeName) {
+            case 'MiniRecorder':
+                $type = 'mini';
+                break;
+            case 'WideRecorder':
+                $type = 'wide';
+                break;
+            case 'TallRecorder':
+                $type = 'tall';
+                break;
+            case 'MediaUploader':
+            default:
+                $type = 'media';
+                break;
+        }
+        $final      = ei8_xmlrpc_recorder_wrap($type, $myVars);
+
+        $content .= $final.$other;
+    }
     return $content;
 }
 
@@ -844,6 +909,14 @@ function ei8_xmlrpc_shortcode_options() {
                 Some content here...as much as you want!!<br>
                 could even be another or multiple shortcode(s)<br>
                 [ei8 ExpanderBodyEnd]<br><br>
+            </td>
+        </tr>
+        <tr valign="top">
+            <th scope="row">Recorder/Uploader destination folder override examples: </th>
+            <td>
+                <strong>Note: this can be used with the following shortcodes [ei8 MiniRecorder], [ei8 WideRecorder], [ei8 TallRecorder], and [ei8 MediaUploader]</strong><br>
+                [ei8 MiniRecorder v=8hvJLMMDDr9 a=d3JSVK4zFLd]<br>
+                [ei8 TallRecorder v=8hvJLMMDDr9]<br>
             </td>
         </tr>
         <tr><td colspan=2><strong>The following are samples of video and audio shortcodes that can be copied from ei8t.com:</strong></td></tr>

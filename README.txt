@@ -2,7 +2,7 @@
 Contributors: yipeecaiey
 Requires at least: 3.0
 Tested up to: 3.3.1
-Stable tag: 2.2.8
+Stable tag: 2.2.9
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -39,6 +39,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.2.9   2012/03/31  UPDATE  Added support for [ei8 shortcode] recorder/uploader destination folder overrides
     2.2.8   2012/03/30  UPDATE  Local text submission (i.e. simplesubmit) now get redirected to referrer
     2.2.7   2012/03/22  UPDATE  Changed restrictions to allow Editor access to ei8 preferences page
     2.2.6   2012/03/21  UPDATE  Added styling to all shortcode elements
@@ -109,6 +110,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.2.9 =
+Added support for [ei8 shortcode] recorder/uploader destination folder overrides
 
 = 2.2.8 =
 Local text submission (i.e. simplesubmit) now get redirected to referrer
