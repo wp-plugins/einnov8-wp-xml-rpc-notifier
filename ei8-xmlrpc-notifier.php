@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.2.9
+Version: 2.3.0
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -915,8 +915,9 @@ function ei8_xmlrpc_shortcode_options() {
             <th scope="row">Recorder/Uploader destination folder override examples: </th>
             <td>
                 <strong>Note: this can be used with the following shortcodes [ei8 MiniRecorder], [ei8 WideRecorder], [ei8 TallRecorder], and [ei8 MediaUploader]</strong><br>
-                [ei8 MiniRecorder v=8hvJLMMDDr9 a=d3JSVK4zFLd]<br>
-                [ei8 TallRecorder v=8hvJLMMDDr9]<br>
+                [ei8 MiniRecorder v=8hvJLMMDDr9&a=d3JSVK4zFLd] <i>(simple copy and paste from ei8t)</i><br>
+                [ei8 MiniRecorder v=8hvJLMMDDr9 a=d3JSVK4zFLd] <i>(separated video and audio statements)</i><br>
+                [ei8 TallRecorder v=8hvJLMMDDr9] <i>(only override the video...audio follows default settings)</i><br>
             </td>
         </tr>
         <tr><td colspan=2><strong>The following are samples of video and audio shortcodes that can be copied from ei8t.com:</strong></td></tr>

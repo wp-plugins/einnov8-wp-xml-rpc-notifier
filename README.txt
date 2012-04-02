@@ -39,6 +39,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.3.0   2012/04/01  UPDATE  Added more documentation for recorder/uploader destination folder overrides
     2.2.9   2012/03/31  UPDATE  Added support for [ei8 shortcode] recorder/uploader destination folder overrides
     2.2.8   2012/03/30  UPDATE  Local text submission (i.e. simplesubmit) now get redirected to referrer
     2.2.7   2012/03/22  UPDATE  Changed restrictions to allow Editor access to ei8 preferences page
@@ -110,6 +111,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.3.0 =
+Added more documentation for recorder/uploader destination folder overrides
 
 = 2.2.9 =
 Added support for [ei8 shortcode] recorder/uploader destination folder overrides
