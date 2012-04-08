@@ -2,7 +2,7 @@
 Contributors: yipeecaiey
 Requires at least: 3.0
 Tested up to: 3.3.1
-Stable tag: 2.2.9
+Stable tag: 2.3.1
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -39,6 +39,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.3.1   2012/04/08  UPDATE  Removed all references to uploadify for security reasons
     2.3.0   2012/04/01  UPDATE  Added more documentation for recorder/uploader destination folder overrides
     2.2.9   2012/03/31  UPDATE  Added support for [ei8 shortcode] recorder/uploader destination folder overrides
     2.2.8   2012/03/30  UPDATE  Local text submission (i.e. simplesubmit) now get redirected to referrer
@@ -111,6 +112,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.3.1 =
+Removed all references to uploadify for security reasons
 
 = 2.3.0 =
 Added more documentation for recorder/uploader destination folder overrides

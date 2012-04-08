@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.3.0
+Version: 2.3.1
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -296,83 +296,6 @@ function ei8_xmlrpc_filter_tags($content) {
 
     $ei8tPluginUrl     = ei8_xmlrpc_get_plugin_url();
 
-    /*$ei8tMediaUploader .=<<<EOT
-    <div class="ei8-form-wrapper">
-        <div id="fileQueue"></div>
-        <div class="ei8-form-line">
-            <div class="ei8-form-label">Title:</div>
-            <div class="ei8-form-field"><input name="uptitle" size="40" type="text" /></div>
-        </div>
-        <div class="ei8-form-line">
-            <div class="ei8-form-label">Description:</div>
-            <div class="ei8-form-field"><textarea class="ei8-textarea-updesc" name="updesc"></textarea></div>
-        </div>
-        <div class="ei8-form-line">
-            <div class="ei8-form-line-double">
-                <input type="file" name="uploadifier" id="uploadifier" />
-                <a href="javascript:jQuery('#uploadifier').uploadifyClearQueue()" class="cancel_uploads">Cancel All Uploads</a>
-            </div>
-        </div>
-    </div>
-<script type="text/javascript">
-// <![CDATA[
-var XSID = "ntqugkag33elpk6jaspb8mhkd5";
-$(document).ready(function() {
-    // prepare file upload script
-    $("#uploadifier").uploadify({
-        'uploader'       : 'http://dev.ei8t.com/js/uploadify/uploadify.swf',
-        'script'         : 'http://ei8t.com/upload/4wQsh8rhWBg/8hjGy83Hj3D/',
-        'cancelImg'      : 'http://dev.ei8t.com/js/uploadify/cancel.png',
-        'folder'         : 'uploads',
-        'queueID'        : 'fileQueue',
-        'multi'          : true,
-        'auto'           : false,
-        'scriptData'	 : {'uptitle': $('#uptitle').val(), 'updesc' : $('#updesc').val()},
-        'onSelect'       : function(event, data) {
-            var t=setTimeout("prepender()",100);
-        }
-    });
-
-	// change the title
-	$('#uptitle').change(function() {
-		$('#uploadifier').uploadifySettings('scriptData', {'uptitle' : $(this).val()});
-	});
-
-	// change the description
-	$('#updesc').change(function() {
-		$('#uploadifier').uploadifySettings('scriptData', {'updesc' : $(this).val()});
-	});
-});
-
-function prepender() {
-    var htmlStr = "<span>Title: " + $('#uptitle').val() + "</span><br><span>Description: " + $('#updesc').val() + "</span>";
-    $('div.uploadifyQueueItem:last').append(htmlStr);
-    $('#uptitle').val("");
-    $('#updesc').val("");
-}
-// ]]>
-</script>
-
-EOT;
-*/
-/*
-
-,
-        'onError'     : function (event,ID,fileObj,errorObj) {
-            alert(errorObj.type + ' Error: ' + errorObj.info);
-        },
-        'onAllComplete'  : function(event, data) {
-            $('#uptitle').val = "";
-            $('#updesc').val = "";
-            alert('Uploading Complete!<br>' +
-			'Total uploaded: ' + data.filesUploaded + '<br>' +
-			'Total errors: ' + data.errors + '<br>');
-        }
-
-
-
- */
-
     if(1==ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha')) {
         $ident = "ei8-captcha-".date("U");
         $captchaSubmitForm = '<div class="ei8-form-line">
@@ -533,25 +456,13 @@ function ei8_enqueue_scripts() {
     wp_deregister_script( 'jquery' );
     wp_register_script( 'jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js');
     wp_enqueue_script( 'jquery' );
-
-    //wp_deregister_script( 'swfobject' );
-    //wp_register_script( 'swfobject', 'http://ei8t.com/js/uploadify/swfobject.js');
-    //wp_register_script( 'swfobject', '/uploadify/swfobject.js');
-    //wp_enqueue_script( 'swfobject' );
-
+    
     //now load the local js
     wp_register_script( 'ei8-tweet-script', ei8_plugins_url('/ei8-xmlrpc-tweet.js') );
     wp_enqueue_script( 'ei8-tweet-script' );
 
     wp_register_script( 'ei8-xmlrpc-notifier', ei8_plugins_url('/ei8-xmlrpc-notifier.js') );
     wp_enqueue_script( 'ei8-xmlrpc-notifier' );
-
-    //wp_register_script( 'ei8-jquery', ei8_plugins_url('/uploadify/jquery-1.4.2.min.js') );
-    //wp_enqueue_script( 'ei8-jquery' );
-
-    //wp_register_script( 'ei8-uploadify', 'http://ei8t.com/js/uploadify/jquery.uploadify.v2.1.0.min.js');
-    //wp_enqueue_script( 'ei8-uploadify' );
-
 }
 add_action('wp_enqueue_scripts', 'ei8_enqueue_scripts');
 
@@ -1725,35 +1636,35 @@ function ei8_xmlrpc_admin_install() {
     update_site_option('enable_xmlrpc',1);
 
 /*
-    //make sure the uploadify script is copied to the webroot
+    //make sure the uploader script is copied to the webroot
     $webRoot        = ei8_get_web_root();
-    $uploadifyPath  = $webRoot."uploadify/";
-    $uploadifySrc   = $webRoot . "wp-content/plugins/einnov8-wp-xml-rpc-notifier/uploadify/";
-    $createDir = (!is_dir($uploadifyPath)) ? false : true ;
+    $uploaderPath  = $webRoot."uploader/";
+    $uploaderSrc   = $webRoot . "wp-content/plugins/einnov8-wp-xml-rpc-notifier/uploader/";
+    $createDir = (!is_dir($uploaderPath)) ? false : true ;
     $dirError  = false;
-    if(!is_dir($uploadifyPath))  wp_mkdir_p($uploadifyPath);
-    if(!is_dir($uploadifyPath)) {
+    if(!is_dir($uploaderPath))  wp_mkdir_p($uploaderPath);
+    if(!is_dir($uploaderPath)) {
         @chmod($webRoot, 0777);
-        @mkdir($uploadifyPath, 0777);
+        @mkdir($uploaderPath, 0777);
     }
-    if(!is_dir($uploadifyPath)) @mkdir($uploadifyPath);
-    if(!is_dir($uploadifyPath)) {
-        ei8_xmlrpc_admin_log("<p class='abq-error'>Error: uploadify directory cannot be created.  <br><span style='color: black;'>Use this command to create the directory: mkdir $uploadifyPath</span></p>",1);
+    if(!is_dir($uploaderPath)) @mkdir($uploaderPath);
+    if(!is_dir($uploaderPath)) {
+        ei8_xmlrpc_admin_log("<p class='abq-error'>Error: uploader directory cannot be created.  <br><span style='color: black;'>Use this command to create the directory: mkdir $uploaderPath</span></p>",1);
         $dirError = true;
     }
-    if(!$dirError && !is_writable($uploadifyPath)) @chmod($uploadifyPath, 0777);
-    if(!$dirError && !is_writable($uploadifyPath)) {
-        ei8_xmlrpc_admin_log("<p class='abq-error'>Error: uploadify directory is not writable.  <br><span style='color: black;'>Use this command to make it writable: chmod -R 777 $uploadifyPath</span></p>",1);
+    if(!$dirError && !is_writable($uploaderPath)) @chmod($uploaderPath, 0777);
+    if(!$dirError && !is_writable($uploaderPath)) {
+        ei8_xmlrpc_admin_log("<p class='abq-error'>Error: uploader directory is not writable.  <br><span style='color: black;'>Use this command to make it writable: chmod -R 777 $uploaderPath</span></p>",1);
         $dirError = true;
     }
 
     //if there are any db updates or if the dir didn't exist...copy the files from the source
     if($dirError!==true) {
-        $cmd = sprintf('cp -a %s %s',$uploadifySrc."*",$uploadifyPath);
+        $cmd = sprintf('cp -a %s %s',$uploaderSrc."*",$uploaderPath);
         $result = shell_exec($cmd);
         //echo "<p><br>CMD:$cmd<br>result:$result</p>";
         if($result!='') {
-            ei8_xmlrpc_admin_log("<p class='abq-error'>Error: cannot copy uploadify source files to the uploadify dir.  <br><span style='color: black;'>Use this command to copy the files: $cmd</span></p>",1);
+            ei8_xmlrpc_admin_log("<p class='abq-error'>Error: cannot copy uploader source files to the uploader dir.  <br><span style='color: black;'>Use this command to copy the files: $cmd</span></p>",1);
         }
     }
 */

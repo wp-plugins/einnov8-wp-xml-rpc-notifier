@@ -38,19 +38,3 @@ body {
 textarea, .ei8-form-field input {
     width: 300px;
 }
-.uploadifyQueueItem {
-    border: 1px #CCC solid;
-    background-color: #f2f2f2;
-    margin-bottom: 20px;
-    padding: 15px;
-    border-radius:5px;
-    -moz-border-radius:5px;
-    -webkit-border-radius:5px;
-    width: auto;
-    text-align: left;
-}
-.uploadifyQueueItem div.cancel {}
-.uploadifyQueueItem span.fileName {}
-.uploadifyQueueItem span.percentage {}
-.uploadifyQueueItem div.uploadifyProgress {}
-.uploadifyQueueItem div.uploadifyProgressBar {}
