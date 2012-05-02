@@ -1,8 +1,8 @@
 === eInnov8 WP XML-RPC Notifier ===
 Contributors: yipeecaiey
 Requires at least: 3.0
-Tested up to: 3.3.1
-Stable tag: 2.3.1
+Tested up to: 3.3.2
+Stable tag: 2.3.2
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -39,6 +39,8 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.3.2   2012/05/02  UPDATE  Updated css to allow for default styling of embedded player
+                                Added additional shortcode parsing options for embedded player
     2.3.1   2012/04/08  UPDATE  Removed all references to uploadify for security reasons
     2.3.0   2012/04/01  UPDATE  Added more documentation for recorder/uploader destination folder overrides
     2.2.9   2012/03/31  UPDATE  Added support for [ei8 shortcode] recorder/uploader destination folder overrides
@@ -112,6 +114,10 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.3.2 =
+Updated css to allow for default styling of embedded player
+Added additional shortcode parsing options for embedded player
 
 = 2.3.1 =
 Removed all references to uploadify for security reasons

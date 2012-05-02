@@ -1,3 +1,27 @@
+/* These are for the embedded content */
+.ei8-embedded-content {
+    /* text-align: center; */
+}
+.ei8-affiliate {
+    width: 200px;
+    margin: auto;
+    text-align: center;
+}
+.ei8-affiliate a {
+    font-size: 11px;
+    text-decoration: none;
+}
+.ei8-align-center {
+    text-align: center;
+}
+.ei8-align-left {
+    text-align: left;
+}
+.ei8-align-right {
+    text-align: right;
+}
+
+
 /* These are for the shortcode stylings */
 .ei8-web-recorder, .ei8-form-wrapper {
     text-align: center;

@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.3.1
+Version: 2.3.2
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -629,8 +629,10 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
         //split up the shortcode into the different values we have to work with
         $values = explode(" ",$working);
 
-        $myValues = array();
-        $myAlign = "";
+        $myValues = array(
+            'class' => 'ei8-embedded-content',
+        );
+        $myAlign = '';
         foreach($values as $statement) {
             //handle the first part that is the video url
             //if(empty($myValues)) {
@@ -644,45 +646,49 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
             list($name,$val) = explode("=",$statement,2);
             if($name=='audio') $type='audio';
             if($name=="audio" | $name=="video") $name = 'url';
-            if($name=="align") $myAlign = "style='text-align:".trim($val)."';";
+            //if($name=="align") $myAlign = "style='text-align:".trim($val)."';";
+            if($name=='class') continue;
+            //elseif($name=="align") $myAlign = trim($val);
             else $myValues[trim($name)] = trim($val);
         }
 
+        //set up the code with placeholders
         $final =<<<EOT
-<div $myAlign>
-<object width="%width%" height="%height%">
-<param name="movie" value="%url%"></param>
-<param name="allowFullScreen" value="true"></param>
-<param name="allowscriptaccess" value="always"></param>
-<embed src="%url%" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="%width%" height="%height%"></embed>
-</object>
-%affiliate%
+<div class='%class%'>
+    <object width="%width%" height="%height%">
+        <param name="movie" value="%url%"></param>
+        <param name="allowFullScreen" value="true"></param>
+        <param name="allowscriptaccess" value="always"></param>
+        <embed src="%url%" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="%width%" height="%height%"></embed>
+    </object>
+    %affiliate%
 </div>
 EOT;
 
         $showAffiliate =<<<EOT
-    <div style="align: center;">
-        <a href="http://einnov8.com" style="font-size: 11px; text-decoration: none;">Powered by eInnov8 Marketing</a>
+    <div class='ei8-affiliate'>
+        <a href="http://einnov8.com">Powered by eInnov8 Marketing</a>
     </div>
 EOT;
 
-        //extract height and width from url
+        //extract height and width from url (and potentially align)
         $urlQueryParts = explode('&', htmlspecialchars_decode($myValues['url']), 2);
         parse_str($urlQueryParts[1], $urlParts);
 
-        //handle audio vs video
-        if ($type=="audio") {
-            $dWidth = ei8_coalesce($myValues['width'], $urlParts['w'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_width'), 500);
-            $dHeight = ei8_coalesce($myValues['height'], $urlParts['h'], 20);
-        } else {
-            $dWidth = ei8_coalesce($myValues['width'], $urlParts['w'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_width'), 320);
-            $dHeight = ei8_coalesce($myValues['height'], $urlParts['h'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_height'), 260);
-        }
+        //handle audio vs video default dimensions
+        $dWidth = ($type=="audio") ? 500 : 320 ;
+        $dHeight = ($type=="audio") ? 20 : ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_height'), 260);
 
         //handle necessary defaults
-        $myValues['width']  = $dWidth;
-        $myValues['height'] = $dHeight;
-        $myValues['affiliate'] = (empty($myValues['affiliate'])) ? "" : $showAffiliate ;
+        $myValues['width']  = ei8_coalesce($myValues['width'], $urlParts['width'], $urlParts['w'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_width'), $dWidth);
+        $myValues['height'] = ei8_coalesce($myValues['height'], $urlParts['height'], $urlParts['h'], $dHeight);
+        //$myValues['affiliate'] = (empty($myValues['affiliate'])) ? "" : $showAffiliate ;
+        $myValues['affiliate'] = (ei8_coalesce($myValues['affiliate'],$urlParts['affiliate'])) ? '' : $showAffiliate;
+
+        //handle alignment
+        $dAlign = trim(ei8_coalesce($myValues['align'],$urlParts['align'],''));
+        if($dAlign!='') $myValues['class'] .= " ei8-align-$dAlign";
+        //$myAlign = ($dAlign=='') ? '' : "style='text-align:$dAlign';";
 
         //swap out the place holders with the actual values
         foreach($myValues as $key=>$val) {
