@@ -1,8 +1,8 @@
 === eInnov8 WP XML-RPC Notifier ===
 Contributors: yipeecaiey
 Requires at least: 3.0
-Tested up to: 3.3.2
-Stable tag: 2.3.3
+Tested up to: 3.4.2
+Stable tag: 2.3.4
 Tags: eInnov8, xmlrpc
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -39,6 +39,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.3.4   2012/09/06  UPDATE  Added ability to set default alignment for all ei8t media
     2.3.3   2012/08/30  UPDATE  Bugfix: fix video flag to show affiliate info to toggle correctly
     2.3.2   2012/05/02  UPDATE  Updated css to allow for default styling of embedded player
                                 Added additional shortcode parsing options for embedded player
@@ -115,6 +116,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.3.4 =
+Added ability to set default alignment for all ei8t media
 
 = 2.3.3 =
 Bugfix: fix video flag to show affiliate info to toggle correctly

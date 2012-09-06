@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.3.3
+Version: 2.3.4
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -629,8 +629,13 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
         //split up the shortcode into the different values we have to work with
         $values = explode(" ",$working);
 
+        $mediaAlign      = ei8_xmlrpc_get_option('ei8_xmlrpc_media_align');
+        $mediaClass      = 'ei8-embedded-content';
+        if($mediaAlign!='') $mediaClass .= '-'.$mediaAlign;
+
+
         $myValues = array(
-            'class' => 'ei8-embedded-content',
+            'class' => $mediaClass,
         );
         $myAlign = '';
         foreach($values as $statement) {
@@ -654,7 +659,7 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
 
         //set up the code with placeholders
         $final =<<<EOT
-<div class='%class%'>
+<div class='%class%' style="width:%width%px">
     <object width="%width%" height="%height%">
         <param name="movie" value="%url%"></param>
         <param name="allowFullScreen" value="true"></param>
@@ -875,8 +880,8 @@ function ei8_xmlrpc_css_options() {
     <h2>CSS Options:</h2>
     <table class="form-table">
         <tr><td colspan=2><strong>Shortcodes now use css stylings to allow for greater compatibility within each website.<br>
-            You can look at the included css and overwrite any of the styles as you see fit.<br>
-            DO NOT MAKE ANY CHANGES TO THE INCLUDED CSS FILE OR YOUR CHANGES WILL BE OVERWRITTEN WITH THE NEXT PLUGIN UPDATE<br>
+            You can look at the included css and overwrite any of the styles as you see fit by updating the css files within your chosen theme.<br><br>
+            DO NOT MAKE ANY CHANGES TO THE INCLUDED PLUGIN CSS FILES OR YOUR CHANGES WILL BE OVERWRITTEN WITH THE NEXT PLUGIN UPDATE<br>
             <a href="<?php echo ei8_plugins_url('/ei8-xmlrpc-notifier.css'); ?>" target="_blank">Click here to access the included css.</a></strong></td>
         </tr>
         <tr><td colspan=2>Additionally, the media uploader ([ei8 MediaUploader]) is loaded in an iFrame directly from ei8t.com<br>
@@ -893,6 +898,7 @@ function ei8_xmlrpc_css_options() {
 function ei8_xmlrpc_admin_options() {
     $postStatus      = ei8_xmlrpc_get_option('ei8_xmlrpc_post_status');
     $postType        = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
+    $mediaAlign      = ei8_xmlrpc_get_option('ei8_xmlrpc_media_align');
     $ei8AdminUrl     = "admin.php?page=ei8-xmlrpc-options";
     $defaultSettings = ei8_xmlrpc_get_message_defaults($siteType);
 
@@ -924,6 +930,9 @@ function ei8_xmlrpc_admin_options() {
             ei8_xmlrpc_update_option($var, $_POST[$var]);
 
             $var = 'ei8_xmlrpc_file_uploader_css';
+            ei8_xmlrpc_update_option($var, $_POST[$var]);
+
+            $var = 'ei8_xmlrpc_media_align';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
 
             if($_POST['ei8_xmlrpc_reset_to_defaults']==1) {
@@ -974,6 +983,9 @@ function ei8_xmlrpc_admin_options() {
     $postStatus      = ei8_xmlrpc_get_option('ei8_xmlrpc_post_status');
     $postType        = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
     $post_types      = ei8_get_post_types();
+    $mediaAlign      = ei8_xmlrpc_get_option('ei8_xmlrpc_media_align');
+    $align_options   = array('left','center','right');
+
     ?>
 <div class="wrap">
     <?php ei8_screen_icon(); ?>
@@ -1127,6 +1139,17 @@ function ei8_xmlrpc_admin_options() {
                     <td><?php echo ei8_xmlrpc_form_text($f_uploaderCSS,$v_uploaderCSS); ?><br>
                         <small>ex. http://www.einnov8.com/css/media_uploader.css</small>
                     </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Default media alignment:</th>
+                    <td><select name='ei8_xmlrpc_media_align'>
+                        <?php
+                        foreach ($align_options as $align ) {
+                            $selected = ($align==$mediaAlign || (empty($mediaAlign) && $align=="left")) ? "SELECTED" : "" ;
+                            echo "<option value=\"$align\" $selected>$align</option>";
+                        }
+                        ?>
+                        </select></td>
                 </tr>
                 <tr><td><h3>Notification Email Settings</h3></td></tr>
                 <!--<tr valign="top">

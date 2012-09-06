@@ -1,6 +1,15 @@
 /* These are for the embedded content */
 .ei8-embedded-content {
-    /* text-align: center; */
+    /*text-align: center;*/
+}
+.ei8-embedded-content-center {
+    margin:auto;
+}
+.ei8-embedded-content-left {
+    margin-right:auto;
+}
+.ei8-embedded-content-right {
+    margin-left:auto;
 }
 .ei8-affiliate {
     width: 200px;
