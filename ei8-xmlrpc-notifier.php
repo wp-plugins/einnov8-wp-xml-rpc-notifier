@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.3.5
+Version: 2.3.6
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -503,6 +503,9 @@ function ei8_xmlrpc_filter_shortcode($content,$type='') {
     //filter for expander
     $content = ei8_xmlrpc_parse_expander_shortcode($content);
 
+    //filter out html comment tags around shortcodes (used in syndication)
+    $content = ei8_xmlrpc_parse_commented_shortcode($content);
+
     //filter for player shortcodes
     return ei8_xmlrpc_parse_shortcode($content, $type);
 }
@@ -594,6 +597,36 @@ function ei8_xmlrpc_parse_uploader_shortcode($content) {
     return $content;
 }
 
+function ei8_xmlrpc_parse_commented_shortcode($content) {
+    $parts = explode('<!--[ei8', $content);
+    $content_bak = $content; //make a copy before we start just in case we need to roll back
+    $content = "";
+    foreach($parts as $part) {
+        //handle the first part that precedes the shortcode
+        if(empty($content)) {
+            $content = $part;
+            continue;
+        }
+
+        //now pull out the shortcode from the 'other' part of the content
+        list($working, $other) = explode("]-->", $part, 2);
+
+        $content .= "[ei8".$working."]".$other;
+    }
+    return $content;
+}
+
+
+
+
+
+//you have pre filtered the commented out shortcodes...now you have to create the commented out shortcodes
+
+
+
+
+
+
 function ei8_xmlrpc_parse_shortcode($content,$type='') {
     $parts = explode('[ei8', $content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
@@ -607,6 +640,8 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
 
         //now pull out the shortcode from the 'other' part of the content
         list($working, $other) = explode("]", $part, 2);
+
+        $shortcode = "<!--[ei8".$working."]-->";
 
         $working_bak = $working;
 
@@ -701,7 +736,7 @@ EOT;
             $final = str_replace($replace, $val, $final);
         }
 
-        $content .= $final.$other;
+        $content .= $shortcode.$final.$other;
         /*
         $content .= "<small>";
         $content .= "<br>orig:[ei8 $working_bak]";
