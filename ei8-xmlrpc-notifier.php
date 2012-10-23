@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.3.6
+Version: 2.3.7
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -232,7 +232,7 @@ function ei8_xmlrpc_recorder_wrap($type, $vars='') {
     }
     if($doError){
         $showType = ucwords($type);
-        $html = "<p style='color: red; size: 13px; font-weight: bold;'>ERROR LOADING eInnov8 Tech $showType Recorder - please notify website administrator support@einnov8.com</p>";
+        $html = "<p style='color: #ff0000; size: 13px; font-weight: bold;'>ERROR LOADING eInnov8 Tech $showType Recorder - please notify website administrator support@einnov8.com</p>";
     } elseif($type=="media") {
         parse_str($vars);
         $css = urlencode(ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_file_uploader_css'), ei8_plugins_url('/ei8-file-uploader.css')));
@@ -617,16 +617,6 @@ function ei8_xmlrpc_parse_commented_shortcode($content) {
 }
 
 
-
-
-
-//you have pre filtered the commented out shortcodes...now you have to create the commented out shortcodes
-
-
-
-
-
-
 function ei8_xmlrpc_parse_shortcode($content,$type='') {
     $parts = explode('[ei8', $content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
@@ -716,8 +706,8 @@ EOT;
         parse_str($urlQueryParts[1], $urlParts);
 
         //handle audio vs video default dimensions
-        $dWidth = ($type=="audio") ? 500 : 320 ;
-        $dHeight = ($type=="audio") ? 20 : ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_height'), 260);
+        $dWidth = ($type=="audio") ? ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_width_audio'), 500) : ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_width_video'), 320) ;
+        $dHeight = ($type=="audio") ? ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_height_audio'), 20) : ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_height_video'), 260);
 
         //handle necessary defaults
         $myValues['width']  = ei8_coalesce($myValues['width'], $urlParts['width'], $urlParts['w'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_width'), $dWidth);
@@ -970,6 +960,17 @@ function ei8_xmlrpc_admin_options() {
             $var = 'ei8_xmlrpc_media_align';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
 
+/*
+             * $var = 'ei8_xmlrpc_default_width_audio';
+            $val = $_POST[$var];
+            if(intval($val)<1) $val = '';
+            ei8_xmlrpc_update_option($var, $val);
+
+            $var = 'ei8_xmlrpc_default_width_video';
+            $val = $_POST[$var];
+            if(intval($val)<1) $val = '';
+            ei8_xmlrpc_update_option($var, $val);
+*/
             if($_POST['ei8_xmlrpc_reset_to_defaults']==1) {
                 $defaults = ei8_xmlrpc_get_message_defaults();
                 foreach($defaults as $var=>$val) {
@@ -1068,6 +1069,7 @@ function ei8_xmlrpc_admin_options() {
                 $v_submitForm       = ei8_xmlrpc_get_option($f_submitForm);
                 $f_recorderVars     = 'ei8_xmlrpc_recorder_vars';
                 $v_recorderVars     = ei8_xmlrpc_get_option($f_recorderVars);
+
                 $f_twitterUser      = 'ei8_xmlrpc_twitter_username';
                 $v_twitterUser      = ei8_xmlrpc_get_option($f_twitterUser);
                 $f_twitterPass      = 'ei8_xmlrpc_twitter_password';
@@ -1075,6 +1077,17 @@ function ei8_xmlrpc_admin_options() {
                 $f_uploaderCSS      = 'ei8_xmlrpc_file_uploader_css';
                 $v_uploaderCSS      = ei8_xmlrpc_get_option($f_uploaderCSS);
                 if(empty($v_submitForm)) $v_submitForm = '/submit/' ;
+
+                //default heights and widths for video and audio playback using ei8 shortcodes
+                $f_defaultWidthAudio    = 'ei8_xmlrpc_default_width_audio';
+                $v_defaultWidthAudio    = ei8_coalesce(ei8_xmlrpc_get_option($f_defaultWidthAudio), 500);
+                //$f_defaultHeightAudio   = 'ei8_xmlrpc_default_height_audio';
+                //$v_defaultHeightAudio   = ei8_coalesce(ei8_xmlrpc_get_option($f_defaultHeightAudio), 20);
+                $f_defaultWidthVideo    = 'ei8_xmlrpc_default_width_video';
+                $v_defaultWidthVideo    = ei8_coalesce(ei8_xmlrpc_get_option($f_defaultWidthVideo), 320);
+                //$f_defaultHeightVideo   = 'ei8_xmlrpc_default_height_video';
+                //$v_defaultHeightVideo   = ei8_coalesce(ei8_xmlrpc_get_option($f_defaultHeightVideo), 260);
+
                 ?>
                 <tr><td><h3>Admin Specific Settings</h3></td></tr>
                 <tr valign="top">
@@ -1186,6 +1199,14 @@ function ei8_xmlrpc_admin_options() {
                         ?>
                         </select></td>
                 </tr>
+                <!--<tr valign="top">
+                    <th scope="row">Default shortcode video width:</th>
+                    <td><?php echo ei8_xmlrpc_form_text($f_defaultWidthVideo,$v_defaultWidthVideo); ?></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Default shortcode audio width:</th>
+                    <td><?php echo ei8_xmlrpc_form_text($f_defaultWidthAudio,$v_defaultWidthAudio); ?></td>
+                </tr>-->
                 <tr><td><h3>Notification Email Settings</h3></td></tr>
                 <!--<tr valign="top">
                     <th scope="row">Website type: </th>
@@ -1240,7 +1261,7 @@ function ei8_xmlrpc_form_text($var,$val) {
 
 function ei8_xmlrpc_form_textarea($var,$val,$rows='') {
     $showRows = ($rows=='') ? '' : 'rows="'.$rows.'"';
-    $html = '<textarea class="ei8-textarea" name="'.$var.'" '.$showRows.'>'.$val.'</textarea>';
+    $html = '<textarea class="ei8-textarea" cols=65 name="'.$var.'" '.$showRows.'>'.$val.'</textarea>';
     return $html;
 }
 
@@ -1376,7 +1397,9 @@ function ei8_xmlrpc_get_login() {
 }
 
 function ei8_xmlrpc_get_site_type_name($siteType='') {
-    $siteType = 'floodgate';
+    //overrride siteType
+    $siteType = 'floodtech';
+
     if(empty($siteType)) $siteType = ei8_xmlrpc_get_site_type();
     //$siteName = ($siteType=="flood") ? 'webcontentFLOOD' : 'testiBOONials' ;
     switch ($siteType) {
@@ -1481,24 +1504,22 @@ Souped-Up Blogs, we'd very much appreciate a referral.
 Just send them to: http://soupedupblogs.com.";
     } else {
 
-        $defaults['email_from_name']             = "Floodgate";
-        $defaults['email_from_addr']             = "submit@yoursite.com";
-        $defaults['email_subject']               = "New Floodgate Submission";
-        $defaults['message_intro']               = "A new submission to your website has arrived with this title:
+        $defaults['email_from_name']             = "Website Name";
+        $defaults['email_from_addr']             = "submit@sitename.com";
+        $defaults['email_subject']               = "New Floodtech Submission";
+        $defaults['message_intro']               = "A new Floodtech submission has arrived at your website with this title:
 [[post_title]]";
 
         $defaults['message_post_status_intro']   = "This submission";
         $defaults['message_post_status_draft']   = " is waiting for review within the your website administration area.";
-        $defaults['message_post_status_publish'] = " has been published to the your blog.";
+        $defaults['message_post_status_publish'] = " has been published as a post on your website.";
         $defaults['message_post_status_unknown'] = " is available for review within your website administration area.";
 
-        $defaults['message_thank_you']           = "Thank you for using the eInnov8 Marketing Web Content Floodgate system.";
+        $defaults['message_thank_you']           = "Thank you for being a customer of eInnov8 Marketing.";
         $defaults['message_quick_links_show']    = 1;
         $defaults['message_quick_links_intro']   = "Click on this link (and log in, if necessary) to review, edit and publish this submission:";
-        $defaults['message_referral_show']       = 0;
-        $defaults['message_referral_text']       = "If you know of others who'd benefit from subscribing to
-the eInnov8 Marketing Web Content Floodgate services, we'd very much appreciate a referral.
-Just send them to http://einnov8.com.";
+        $defaults['message_referral_show']       = 1;
+        $defaults['message_referral_text']       = "Learn more about us at http://einnov8.com.";
     }
 
     /*
