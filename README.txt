@@ -2,7 +2,7 @@
 Contributors: yipeecaiey
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 2.3.8
+Stable tag: 2.3.9
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+    2.3.9   2012/10/26  UPDATE  Autolink urls within content received via xmlrpc
     2.3.8   2012/10/23  UPDATE  Updated twitter API library
     2.3.7   2012/10/22  UPDATE  Add default video width to website settings **TAGGED OUT**
                                 update email default settings
@@ -123,6 +124,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.3.9 =
+Autolink urls within content received via xmlrpc
 
 = 2.3.8 =
 Updated twitter API library
