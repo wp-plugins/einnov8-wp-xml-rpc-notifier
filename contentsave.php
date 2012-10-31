@@ -128,12 +128,12 @@ if(isset($_REQUEST['ei8_xmlrpc_twitter_post'])) {
     
     // make the call to the xmlrpc server to save the post
     $content['title'] = $title;   
-    $content['description'] = $mailcontent;  
+    $content['description'] = "&nbsp;".$mailcontent;  
     if (!$client->query('metaWeblog.newPost','', $userName, $passWord, $content, $poststatus)) {
        //there is an error being returned by the IXR_Client when a post status is set to publish
        //only because there is no response being returned from the server, even though the post is accepted
        //so for now it seems safe to ignore this particular error
-       if($client->getErrorCode() != -32700)  
+       if($client->getErrorCode() != -32300)  
            die('An error occurred - '.$client->getErrorCode().":".$client->getErrorMessage());  
     }
 }
