@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.3.10
+Version: 2.3.11
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -50,20 +50,12 @@ function ei8_xmlrpc_register_settings() {
 add_action('admin_init', 'ei8_xmlrpc_register_settings');
 */
 
-
-
 //process new posts
 function ei8_xmlrpc_publish_post($post_id) {
     global $wpdb;
 
     //load the post object
     $post = get_post($post_id);
-
-    //autolink urls found in post
-    $myPost = array();
-    $myPost['ID'] = $post_id;
-    $myPost['post_content'] = ei8_autolink_safe($post->post_content);
-    wp_update_post($myPost);
 
     //update post type
     $postType = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
@@ -154,107 +146,6 @@ function ei8_email_notify($post_id, $tEmail) {
 function ei8_add_ping($post_id, $tPing) {
     add_ping($post_id, $tPing);
 }
-
-
-function ei8_autolink_safe($content) {
-    //make sure we only run this once
-    $stamp = "<!-- PARSED BY ei8_autolink_safe() -->";
-    if (strstr($content,$stamp)) return $content;
-
-    $parts = explode('<', $content);
-    $content = "";
-    foreach($parts as $part) {
-        //echo "<p>processing part: <pre>$part</pre></p>";
-        //handle the first part that precedes the shortcode
-        if(empty($content)) {
-            $content = ei8_autolink_no_shortcodes($part);
-        } else {
-            //pull out the shortcode from the 'other' part of the content
-            list($tag, $working) = explode(">", $part, 2);
-            $content .= '<'.$tag.'>'.ei8_autolink_no_shortcodes($working);
-        }
-    }
-    return $stamp.$content;
-}
-
-function ei8_autolink_no_shortcodes($content) {
-    $parts = explode('[ei8', $content);
-    $content_bak = $content; //make a copy before we start just in case we need to roll back
-    $content = "";
-    foreach($parts as $part) {
-        //echo "<p>processing part: <pre>$part</pre></p>";
-        //handle the first part that precedes the shortcode
-        if(empty($content)) {
-            $content = ei8_autolink($part);
-        } else {
-            //pull out the shortcode from the 'other' part of the content
-            list($shortcode, $working) = explode("]", $part, 2);
-            $content .= '[ei8'.$shortcode.']'.ei8_autolink($working);
-        }
-    }
-    return $content;
-}
-
-function ei8_autolink( &$text, $target='_blank', $nofollow=true )
-{
-    //for some reason this is getting called repeatedly...so skip if it has already been called
-    //$stamp = "<!-- PARSED BY ei8_autolink() -->";
-    //if (strstr($text,$stamp)) return $text;
-
-    //$text = htmlentities($text);
-    // grab anything that looks like a URL...
-    $urls  =  ei8_autolink_find_URLS( $text );
-    if( !empty($urls) ) // i.e. there were some URLS found in the text
-    {
-        array_walk( $urls, 'ei8_autolink_create_html_tags', array('target'=>$target, 'nofollow'=>$nofollow) );
-        $text  =  strtr( $text, $urls );
-    }
-    $text = ei8_autolink_make_complete_URLS($text);
-    //$text = $stamp.$text;
-    return $text;
-}
-
-function ei8_autolink_find_URLS( $text )
-{
-    // build the patterns
-    $scheme         =       '(http:\/\/|https:\/\/)';
-    $www            =       'www\.';
-    $ip             =       '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}';
-    $subdomain      =       '[-a-z0-9_]+\.';
-    $name           =       '[a-z][-a-z0-9]+\.';
-    $tld            =       '[a-z]+(\.[a-z]{2,2})?';
-    $the_rest       =       '\/?[a-z0-9._\/~#&=;%+?-]+[a-z0-9\/#=?]{1,1}';
-    $pattern        =       "$scheme?(?(1)($ip|($subdomain)?$name$tld)|($www$name$tld))$the_rest";
-
-    $pattern        =       '/'.$pattern.'/is';
-    $c              =       preg_match_all( $pattern, $text, $m );
-    unset( $text, $scheme, $www, $ip, $subdomain, $name, $tld, $the_rest, $pattern );
-    if( $c )
-    {
-        return( array_flip($m[0]) );
-    }
-    return( array() );
-}
-
-function ei8_autolink_make_complete_URLS( $text )
-{
-    $text = str_replace('href="', 'href="http://', $text);
-    $text = str_replace('href="http://http', 'href="http', $text);
-    return $text;
-}
-
-function ei8_autolink_create_html_tags( &$value, $key, $other=null )
-{
-    $target = $nofollow = null;
-    if( is_array($other) )
-    {
-        $target      =  ( $other['target']   ? " target=\"$other[target]\"" : null );
-        // see: http://www.google.com/googleblog/2005/01/preventing-comment-spam.html
-        $nofollow    =  ( $other['nofollow'] ? ' rel="nofollow"'            : null );
-    }
-    $value = "<a href=\"$key\"$target$nofollow>$key</a>";
-} 
-
 
 /*
  * FILTER FRONT END DISPLAY
