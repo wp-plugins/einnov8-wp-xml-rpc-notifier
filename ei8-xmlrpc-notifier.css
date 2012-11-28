@@ -72,8 +72,9 @@
     display: inline-block;
     text-align: left;
 }
-.ei8-form-field input {
+.ei8-form-field input[type=submit], .ei8-form-field input[type=file], .ei8-form-field input[type=button] {
     background-color: #5F5F5F;
+    color: #EEEEEE;
 }
 .ei8-form-line-spacer {
     height: 14px;
