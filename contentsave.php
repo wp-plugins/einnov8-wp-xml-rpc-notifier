@@ -90,6 +90,9 @@ if(isset($_REQUEST['ei8_xmlrpc_twitter_post'])) {
     $uploadPath    = ei8_xmlrpc_get_upload_dir() ;
     $uploadURL     = ei8_xmlrpc_get_upload_dir(1) ;
     $wpurl         = get_bloginfo('wpurl');
+    $mediaAlign    = 'align'.ei8_xmlrpc_get_option('ei8_xmlrpc_media_align');
+    if($mediaAlign=='align') $mediaAlign = 'alignleft';
+    $mediaClass = $mediaAlign." ei8-embedded-content";
     list($userName, $passWord) = ei8_xmlrpc_get_login();
     
     //set the default status to "published" so that it triggers the xmlrpc-notifier
@@ -109,10 +112,40 @@ if(isset($_REQUEST['ei8_xmlrpc_twitter_post'])) {
     
     // grab the uploaded file and grab the extension 
     // we'll tack it back on after generating a unique but clean file name
-    $fileExt  = findexts($_FILES['uploadedfile']['name']); 
-    $fileName = rand () ;
-    $theFile = $fileName.".".$fileExt;
-    
+//    $fileExt  = findexts($_FILES['uploadedfile']['name']);
+//    $fileName = rand () ;
+//    $theFile = $fileName.".".$fileExt;
+//    $fileName  = $_FILES['uploadedfile']['name'];
+//    $theFile   = rand() . "." . findexts($fileName);
+
+    //grab the uploaded file name
+    $fileName   = $_FILES['uploadedfile']['name'];
+    //change to lowercase
+    $fileName   = strtolower($fileName);
+    //get the file extension
+    $fileParts  = explode('.',$fileName);
+    $fileExt    = array_pop($fileParts);
+    $fileName   = implode('.',$fileParts);
+    //remove any spaces in the file name
+    $fileName   = str_replace(" ", "_",$fileName);
+
+    //ensure a unique filename
+    $i          = 0;
+    $fileUnique = "";
+    while(file_exists($uploadPath.$fileName.$fileUnique.".".$fileExt)) {
+        $i++;
+        $fileUnique = "_".str_pad($i,2,"0",STR_PAD_LEFT);
+    }
+    $theFile = $fileName.$fileUnique.".".$fileExt;
+
+/*    echo "<p>";
+    echo "<p>fileName: $fileName</p>";
+    echo "<p>fileUnique: $fileUnique</p>";
+    echo "<p>fileExt: $fileExt</p>";
+    echo "<pre>"; print_r($_FILES['uploadedfile']); echo "</pre>";
+    echo "</p>";
+    exit();
+*/
     // save the file
     move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $uploadPath.$theFile);
     
@@ -120,21 +153,23 @@ if(isset($_REQUEST['ei8_xmlrpc_twitter_post'])) {
     if(!empty($fileExt)) {
         if($_REQUEST['fileaction']=="attached_doc") {
             $mailcontent = $mailcontent.'<br><a href="'.$uploadURL.$theFile.'" target="_blank">'.$theFile.'</a>';
-        } else { 
-            $mailcontent = "<img src=\"".$uploadURL.$theFile."\" height=\"135\" hspace=\"10\" vspace=\"5\" align=\"left\" valign=\"middle\"><br>".$mailcontent;
+        } else {
+            $mailcontent = "<img src=\"".$uploadURL.$theFile."\" height=\"135\" class=\"".$mediaClass."\"><br>".$mailcontent;
         }
     } 
     
     
     // make the call to the xmlrpc server to save the post
-    $content['title'] = $title;   
-    $content['description'] = $mailcontent;  
+    $content['title'] = $title;
+    //$content['description'] = $mailcontent;
+    $content['description'] = "&nbsp;".$mailcontent;
     if (!$client->query('metaWeblog.newPost','', $userName, $passWord, $content, $poststatus)) {
        //there is an error being returned by the IXR_Client when a post status is set to publish
        //only because there is no response being returned from the server, even though the post is accepted
        //so for now it seems safe to ignore this particular error
-       if($client->getErrorCode() != -32700)  
-           die('An error occurred - '.$client->getErrorCode().":".$client->getErrorMessage());  
+       //if($client->getErrorCode() != -32700)
+       if($client->getErrorCode() != -32300 && $client->getErrorCode() != -32700)
+           die('An error occurred - '.$client->getErrorCode().":".$client->getErrorMessage());
     }
 }
     

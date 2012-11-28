@@ -1,6 +1,7 @@
 /* These are for the embedded content */
 .ei8-embedded-content {
     /*text-align: center;*/
+    padding: 5px 10px;
 }
 .ei8-embedded-content-center {
     margin:auto;
