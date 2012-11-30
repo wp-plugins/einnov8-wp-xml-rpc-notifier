@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 2.4.1
+Stable tag: 2.4.2
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	2.4.2   2012/11/29  BUG-FIX	Fixed error inhibiting proper publishing and post type assignments of new posts
 	2.4.1   2012/11/28  UPDATE	Update submit forms submit button color
 	2.4.0   2012/11/28  UPDATE	Fold back in changes from v2.3.9
 	                            updated submission confirmation success/error text color
@@ -132,6 +133,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.4.2 =
+Fixed error inhibiting proper publishing and post type assignments of new posts
 
 = 2.4.1 =
 Update submit forms submit button color
