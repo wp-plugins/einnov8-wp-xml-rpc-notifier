@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.4.2
+Version: 2.4.3
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -910,11 +910,13 @@ function ei8_xmlrpc_options_menu() {
         }
         ei8_parent_menu();
     }*/
-    add_menu_page('eInnov8 Settings', 'eInnov8 Options', 'edit_others_posts', 'ei8-xmlrpc-options', 'ei8_xmlrpc_admin_options');
-    add_submenu_page( 'ei8-xmlrpc-options', 'eInnov8 Settings', 'ei8t-xmlrpc Preferences', 'edit_others_posts', 'ei8-xmlrpc-options', 'ei8_xmlrpc_admin_options');
-    add_submenu_page( 'ei8-xmlrpc-options', 'ei8 shortcodes', '[ei8 shortcodes]', 'activate_plugins', 'ei8-shortcodes', 'ei8_xmlrpc_shortcode_options');
-    add_submenu_page( 'ei8-xmlrpc-options', 'ei8 css', '[ei8 css]', 'activate_plugins', 'ei8-css', 'ei8_xmlrpc_css_options');
-
+    $hideOptions = ei8_xmlrpc_get_option('ei8_xmlrpc_hide_admin_options');
+    if(empty($hideOptions) || current_user_can('edit_users')) {
+        add_menu_page('eInnov8 Settings', 'eInnov8 Options', 'edit_others_posts', 'ei8-xmlrpc-options', 'ei8_xmlrpc_admin_options');
+        add_submenu_page( 'ei8-xmlrpc-options', 'eInnov8 Settings', 'ei8t-xmlrpc Preferences', 'edit_others_posts', 'ei8-xmlrpc-options', 'ei8_xmlrpc_admin_options');
+        add_submenu_page( 'ei8-xmlrpc-options', 'ei8 shortcodes', '[ei8 shortcodes]', 'activate_plugins', 'ei8-shortcodes', 'ei8_xmlrpc_shortcode_options');
+        add_submenu_page( 'ei8-xmlrpc-options', 'ei8 css', '[ei8 css]', 'activate_plugins', 'ei8-css', 'ei8_xmlrpc_css_options');
+    }
 
     //add_menu_page(THEMENAME . ' Theme Options', THEMENAME . ' Options', 'manage_options', THEMESLUG . 'options', array( &$this, 'engipress_do_overpage' ) );
     //add_submenu_page(THEMESLUG . 'options', THEMENAME . ' Theme Options', '', 'manage_options', THEMESLUG . 'options', array( &$this, 'engipress_do_overpage' ));
@@ -1068,6 +1070,9 @@ function ei8_xmlrpc_admin_options() {
             $var = 'ei8_xmlrpc_media_align';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
 
+            $var = 'ei8_xmlrpc_hide_admin_options';
+            ei8_xmlrpc_update_option($var, $_POST[$var]);
+
 /*
              * $var = 'ei8_xmlrpc_default_width_audio';
             $val = $_POST[$var];
@@ -1124,6 +1129,7 @@ function ei8_xmlrpc_admin_options() {
 
     }
 
+    $hideAdmin       = ei8_xmlrpc_get_option('ei8_xmlrpc_hide_admin_options');
     $postStatus      = ei8_xmlrpc_get_option('ei8_xmlrpc_post_status');
     $postType        = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
     $post_types      = ei8_get_post_types();
@@ -1198,6 +1204,13 @@ function ei8_xmlrpc_admin_options() {
 
                 ?>
                 <tr><td><h3>Admin Specific Settings</h3></td></tr>
+            <tr valign="top">
+                <th scope="row">Show eInnov8 Options:</th>
+                <td><select name='ei8_xmlrpc_hide_admin_options'>
+                    <option value="" <?php if(empty($hideAdmin)) echo "SELECTED"; ?>>visible to ALL(Authors, Editors, & Administrators)</option>
+                    <option value="admin" <?php if(!empty($hideAdmin)) echo "SELECTED"; ?>>visible only to Administrators</option>
+                    </select></td>
+            </tr>
                 <tr valign="top">
                     <th scope="row">Web Recorder Settings:</th>
                     <td><?php echo ei8_xmlrpc_form_text($f_recorderVars,$v_recorderVars); ?><br>
