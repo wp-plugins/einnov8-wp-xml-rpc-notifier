@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 2.4.3
+Stable tag: 2.4.4
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Manage notification and display settings for posts received via xmlrpc.
@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	2.4.4   2012/12/04  BUG-FIX	Removed use of wp 'alignleft' styling for media alignment
 	2.4.3   2012/12/03  UPDATE	Added toggle accessibility of eInnov8 Options tab
 	2.4.2   2012/11/29  BUG-FIX	Fixed error inhibiting proper publishing and post type assignments of new posts
 	2.4.1   2012/11/28  UPDATE	Update submit forms submit button color
@@ -134,6 +135,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.4.4 =
+Removed use of wp 'alignleft' styling for media alignment
 
 = 2.4.3 =
 Added toggle accessibility of eInnov8 Options tab
