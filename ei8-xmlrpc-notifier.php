@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 WP XML-RPC Notifier
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: Custom settings for posts received via XML-RPC.
-Version: 2.4.4
+Version: 2.4.5
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -74,10 +74,8 @@ function ei8_xmlrpc_publish_post($post_id) {
     if(!empty($tPing)) ei8_add_ping($post_id, $tPing);
 
     //autolink urls found in post
-    $myPost = array();
-    $myPost['ID'] = $post_id;
-    $myPost['post_content'] = ei8_autolink_safe($post->post_content);
-    wp_update_post($myPost);
+    $tContent = ei8_autolink_safe($post->post_content);
+    if(!empty($tContent)) ei8_update_post_content($post_id, $tContent);
 
     //exit quietly
     die();
@@ -87,6 +85,11 @@ add_action('xmlrpc_publish_post', 'ei8_xmlrpc_publish_post');
 function ei8_update_post_status($post_id, $tStatus) {
     global $wpdb;
     $wpdb->query( "UPDATE $wpdb->posts SET post_status = '$tStatus' WHERE ID = '$post_id'" );
+}
+
+function ei8_update_post_content($post_id, $tContent) {
+    global $wpdb;
+    $wpdb->query( "UPDATE $wpdb->posts SET post_content = '$tContent' WHERE ID = '$post_id'" );
 }
 
 function ei8_email_notify($post_id, $tEmail) {
@@ -156,8 +159,8 @@ function ei8_add_ping($post_id, $tPing) {
 
 function ei8_autolink_safe($content) {
     //make sure we only run this once
-    $stamp = "<!-- PARSED BY ei8_autolink_safe() -->";
-    if (strstr($content,$stamp)) return $content;
+    //$stamp = "<!-- PARSED BY ei8_autolink_safe() -->";
+    //if (strstr($content,$stamp)) return $content;
 
     $parts = explode('<', $content);
     $content = "";
@@ -172,7 +175,8 @@ function ei8_autolink_safe($content) {
             $content .= '<'.$tag.'>'.ei8_autolink_no_shortcodes($working);
         }
     }
-    return $stamp.$content;
+    return $content;
+    //return $stamp.$content;
 }
 
 function ei8_autolink_no_shortcodes($content) {
