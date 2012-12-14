@@ -1,10 +1,8 @@
 <?php
-/*
- *BEGIN ADMIN SECTION
-*/
+//BEGIN ADMIN SECTION
 
-var $optionP = 'ei8-xmlrpc-options';
-var $optionE = 'ei8-xmlrpc-email-options';
+$optionP = 'ei8-xmlrpc-options';
+$optionE = 'ei8-xmlrpc-email-options';
 
 //validate data
 add_action('admin_notices', 'ei8_xmlrpc_validate_data' );
@@ -92,7 +90,7 @@ function ei8_get_post_types() {
 }
 
 function ei8_xmlrpc_shortcode_options() {
-    ?>
+?>
 <div class="wrap">
     <?php ei8_screen_icon(); ?>
 
@@ -165,7 +163,7 @@ function ei8_screen_icon($icon='') {
 }
 
 function ei8_xmlrpc_css_options() {
-    ?>
+?>
 <div class="wrap">
 
     <?php ei8_screen_icon(); ?>
@@ -255,7 +253,7 @@ function ei8_xmlrpc_admin_options() {
         } else {
             $ei8AdminUrl = admin_url($ei8AdminUrl);
 
-            ?>
+?>
 
         <meta http-equiv="Refresh" content="0; URL=<?php echo $ei8AdminUrl; ?>">
         <script type="text/javascript">
@@ -269,7 +267,7 @@ function ei8_xmlrpc_admin_options() {
         </body>
         </html>
 
-        <?php
+<?php
         }
         exit();
 
@@ -283,7 +281,7 @@ function ei8_xmlrpc_admin_options() {
     $mediaAlign      = ei8_xmlrpc_get_option('ei8_xmlrpc_media_align');
     $align_options   = array('left','center','right');
 
-    ?>
+?>
 <div class="wrap">
     <?php ei8_screen_icon(); ?>
 
@@ -322,7 +320,7 @@ function ei8_xmlrpc_admin_options() {
                 <input type="text" name="ei8_xmlrpc_ping" size=55 value="<?php echo ei8_xmlrpc_get_blog_option('ei8_xmlrpc_ping'); ?>" />
             </td>
         </tr> -->
-            <?php
+<?php
             if (current_user_can('edit_others_posts')) {
                 $siteType           = ei8_xmlrpc_get_site_type();
                 $useCaptcha         = ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha');
@@ -349,8 +347,8 @@ function ei8_xmlrpc_admin_options() {
                 //$f_defaultHeightVideo   = 'ei8_xmlrpc_default_height_video';
                 //$v_defaultHeightVideo   = ei8_coalesce(ei8_xmlrpc_get_option($f_defaultHeightVideo), 260);
 
-                ?>
-                <tr><td><h3>Admin Specific Settings</h3></td></tr>
+?>
+            <tr><td><h3>Admin Specific Settings</h3></td></tr>
             <tr valign="top">
                 <th scope="row">Show eInnov8 Options:</th>
                 <td><select name='ei8_xmlrpc_hide_admin_options'>
@@ -374,7 +372,7 @@ function ei8_xmlrpc_admin_options() {
                 <tr valign="top">
                     <th scope="row"><a name="ei8xmlrpctwittersettings"></a>Twitter Account:</th>
                     <td>
-                        <?php
+<?php
                         //handle twitter authentication
 
                         $twitterToken  = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_token');
@@ -447,7 +445,7 @@ function ei8_xmlrpc_admin_options() {
                             $resetUrl = $ei8AdminUrl."&resetTwitter=1#ei8xmlrpctwittersettings";
                             echo "<img src='$profilepic' align='left' style='padding-right:10px;'> Screen name: $username <br><small><a href='$resetUrl'>Reset Twitter Credentials</a></small>";
                         }
-                        ?>
+?>
                     </td>
                 </tr>
                 <tr valign="top">
@@ -463,12 +461,12 @@ function ei8_xmlrpc_admin_options() {
                 <tr valign="top">
                     <th scope="row">Default media alignment:</th>
                     <td><select name='ei8_xmlrpc_media_align'>
-                        <?php
+<?php
                         foreach ($align_options as $align ) {
                             $selected = ($align==$mediaAlign || (empty($mediaAlign) && $align=="left")) ? "SELECTED" : "" ;
                             echo "<option value=\"$align\" $selected>$align</option>";
                         }
-                        ?>
+?>
                         </select></td>
                 </tr>
                 <!--<tr valign="top">
@@ -479,9 +477,9 @@ function ei8_xmlrpc_admin_options() {
                     <th scope="row">Default shortcode audio width:</th>
                     <td><?php echo ei8_xmlrpc_form_text($f_defaultWidthAudio,$v_defaultWidthAudio); ?></td>
                 </tr>-->
-                <?php
+<?php
             } //end admin only options
-            ?>
+?>
         </table>
         <input type="hidden" name="action" value="update">
         <input type="hidden" name="page_options" value="ei8_xmlrpc_post_status,ei8_xmlrpc_email_notify,ei8_xmlrpc_ping" />
@@ -515,26 +513,22 @@ function ei8_xmlrpc_email_options() {
             wp_redirect($ei8AdminUrl);
         } else {
             $ei8AdminUrl = admin_url($ei8AdminUrl);
-
 ?>
+          <meta http-equiv="Refresh" content="0; URL=<?php echo $ei8AdminUrl; ?>">
+            <script type="text/javascript">
+                <!--
+                document.location.href = "<?php echo $ei8AdminUrl; ?>"
+                //-->
+            </script>
+            </head>
+            <body>
+                Sorry. Please use this <a href="<?php echo $ei8AdminUrl; ?>" title="New Post">link</a>.
+            </body>
+            </html>
 
-        <meta http-equiv="Refresh" content="0; URL=<?php echo $ei8AdminUrl; ?>">
-        <script type="text/javascript">
-            <!--
-            document.location.href = "<?php echo $ei8AdminUrl; ?>"
-            //-->
-        </script>
-        </head>
-        <body>
-        Sorry. Please use this <a href="<?php echo $ei8AdminUrl; ?>" title="New Post">link</a>.
-        </body>
-        </html>
-
-        <?php
+<?php
         }
         exit();
-
-
     }
 ?>
 <div class="wrap">
