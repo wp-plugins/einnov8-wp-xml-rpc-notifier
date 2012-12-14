@@ -1,13 +1,13 @@
-=== eInnov8 WP XML-RPC Notifier ===
+=== eInnov8 FLOODtech Integrator ===
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.0
-Tested up to: 3.4.2
-Stable tag: 2.4.5
+Tested up to: 3.5
+Stable tag: 2.5.0
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
+Custom integration with ei8t.com
 Manage notification and display settings for posts received via xmlrpc.
 Custom forms for submitting content to the wp xmlrpc server.
-Integration with ei8t.com
 
 == Description ==
 
@@ -40,6 +40,9 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	2.5.0   2012/12/13  UPDATE	Rename plugin
+	                            Refactor plugin code and files
+	                            Separated email notification preferences from standard options
 	2.4.5   2012/12/05  BUG-FIX	Updated autolink post update method that was causing an infinite loop
 	                            Removed autolink stamp as it is no longer necessary
 	2.4.4   2012/12/04  BUG-FIX	Removed use of wp 'alignleft' styling for media alignment
@@ -137,6 +140,11 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.5.0 =
+Rename plugin
+Refactor plugin code and files
+Separated email notification preferences from standard options
 
 = 2.4.5 =
 Updated autolink post update method that was causing an infinite loop
