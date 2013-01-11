@@ -1,8 +1,8 @@
-=== eInnov8 FLOODtech Integrator ===
+=== eInnov8 FLOODtech Plugin ===
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 2.5.0
+Stable tag: 2.5.1
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -40,6 +40,8 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	2.5.1   2012/12/30  UPDATE	Require captcha for all local forms
+	                            Update file upload requirements
 	2.5.0   2012/12/13  UPDATE	Rename plugin
 	                            Refactor plugin code and files
 	                            Separated email notification preferences from standard options
@@ -140,6 +142,10 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.5.1 =
+Require captcha for all local forms
+Update file upload requirements
 
 = 2.5.0 =
 Rename plugin

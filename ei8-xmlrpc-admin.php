@@ -217,8 +217,8 @@ function ei8_xmlrpc_admin_options() {
             $var = 'ei8_xmlrpc_submit_form';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
 
-            $var = 'ei8_xmlrpc_use_captcha';
-            ei8_xmlrpc_update_option($var, $_POST[$var]);
+            //$var = 'ei8_xmlrpc_use_captcha';
+            //ei8_xmlrpc_update_option($var, $_POST[$var]);
 
             $var = 'ei8_xmlrpc_file_uploader_css';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
@@ -323,7 +323,7 @@ function ei8_xmlrpc_admin_options() {
 <?php
             if (current_user_can('edit_others_posts')) {
                 $siteType           = ei8_xmlrpc_get_site_type();
-                $useCaptcha         = ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha');
+                //$useCaptcha         = ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha');
                 $f_submitForm       = 'ei8_xmlrpc_submit_form';
                 $v_submitForm       = ei8_xmlrpc_get_option($f_submitForm);
                 $f_recorderVars     = 'ei8_xmlrpc_recorder_vars';
@@ -448,10 +448,10 @@ function ei8_xmlrpc_admin_options() {
 ?>
                     </td>
                 </tr>
-                <tr valign="top">
+                <!--<tr valign="top">
                     <th scope="row">Require CAPTCHA on submit forms: </th>
                     <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_use_captcha',$useCaptcha); ?></td>
-                </tr>
+                </tr>-->
                 <tr valign="top">
                     <th scope="row">Media uploader custom css:</th>
                     <td><?php echo ei8_xmlrpc_form_text($f_uploaderCSS,$v_uploaderCSS); ?><br>

@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: eInnov8 FLOODtech Integrator
+Plugin Name: eInnov8 FLOODtech Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Floodtech system at ei8t.com as well as the wp native xml-rpc functionality.
-Version: 2.5.0
+Version: 2.5.1
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -390,13 +390,13 @@ function ei8_xmlrpc_filter_tags($content) {
 
     $ei8tPluginUrl     = ei8_xmlrpc_get_plugin_url();
 
-    if(1==ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha')) {
+    //if(1==ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha')) {
         $ident = "ei8-captcha-".date("U");
         $captchaSubmitForm = '<div class="ei8-form-line">
         <div class="ei8-form-label"><img src="'.ei8_xmlrpc_get_plugin_url().'php_captcha.php" alt="" class="ei8-captcha-image" /></div>
         <div class="ei8-form-field"><label>Please enter the code you see: </label><input id="\&quot;number\&quot;/" name="number" type="text" /></div>
     </div>';
-    } else $captchaSubmitForm = '';
+    //} else $captchaSubmitForm = '';
 
 
     $submitFormLink   = ei8_xmlrpc_get_plugin_url() . "contentsave.php";
