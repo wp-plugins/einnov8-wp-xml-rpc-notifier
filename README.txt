@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 2.5.1
+Stable tag: 2.5.2
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	2.5.2   2013/01/16  BUG-FIX	Eliminate false errors for local forms without files uploaded
 	2.5.1   2012/12/30  UPDATE	Require captcha for all local forms
 	                            Update file upload requirements
 	2.5.0   2012/12/13  UPDATE	Rename plugin
@@ -142,6 +143,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.5.2 =
+Eliminate false errors for local forms without files uploaded
 
 = 2.5.1 =
 Require captcha for all local forms

@@ -198,7 +198,7 @@ if(isset($_REQUEST['ei8_xmlrpc_twitter_post'])) {
     );
 
     //only do this if there is an uploaded file to be tested
-    if(!empty($_REQUEST['fileaction'])) {
+    if(!empty($fileExt)) {
         $myFileTypes = $validFileExts['image'];
         if($_REQUEST['fileaction']=="attached_doc") $myFileTypes = array_merge($myFileTypes,$validFileExts['doc']);
 
