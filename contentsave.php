@@ -301,7 +301,7 @@ if($errorMessage) $submitPage .= "&errorMessage=".urlencode($errorMessage);
 $submitPage .= "&success=";
 $submitPage .= (!empty($_REQUEST['ei8_xmlrpc_a'])) ? $_REQUEST['ei8_xmlrpc_a']."#".$_REQUEST['ei8_xmlrpc_a'] : "1" ;
 
-die("for testing purposes...dieing here");
+//die("for testing purposes...dieing here");
 
 $then = gmstrftime("%a, %d %b %Y %H:%M:%S GMT");                            
 header("Expires: $then");                                                   
