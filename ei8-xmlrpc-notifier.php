@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 FLOODtech Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Floodtech system at ei8t.com as well as the wp native xml-rpc functionality.
-Version: 2.5.2
+Version: 2.5.3
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -29,14 +29,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 //include admin settings and functions
-//if ( is_admin() ) {
+//if ( is_admin()) { //tagged out because contentsave.php uses some of these methods
     include_once( dirname(__FILE__) . '/ei8-xmlrpc-admin.php' );
 //}
 
 //process new posts
 function ei8_xmlrpc_publish_post($post_id) {
-    global $wpdb;
-
     //load the post object
     $post = get_post($post_id);
 
@@ -72,7 +70,14 @@ function ei8_update_post_status($post_id, $tStatus) {
 
 function ei8_update_post_content($post_id, $tContent) {
     global $wpdb;
-    $wpdb->query( "UPDATE $wpdb->posts SET post_content = '$tContent' WHERE ID = '$post_id'" );
+    $wpdb->query(
+        $wpdb->prepare("UPDATE $wpdb->posts SET post_content = '%s' WHERE ID = '%s'",
+            $tContent,
+            $post_id
+        )
+    );
+    //$wpdb->query( "UPDATE $wpdb->posts SET post_content = '$tContent' WHERE ID = '$post_id'" );
+    //$wpdb->query($sql);
 }
 
 function ei8_email_notify($post_id, $tEmail) {
@@ -144,6 +149,7 @@ function ei8_autolink_safe($content) {
     //make sure we only run this once
     //$stamp = "<!-- PARSED BY ei8_autolink_safe() -->";
     //if (strstr($content,$stamp)) return $content;
+    //return $stamp.$content;
 
     $parts = explode('<', $content);
     $content = "";
@@ -237,7 +243,8 @@ function ei8_autolink_create_html_tags( &$value, $key, $other=null )
         // see: http://www.google.com/googleblog/2005/01/preventing-comment-spam.html
         $nofollow    =  ( $other['nofollow'] ? ' rel="nofollow"'            : null );
     }
-    $value = "<a href=\"$key\"$target$nofollow>$key</a>";
+    $value = (stristr($key,'youtube.com') || stristr($key,'youtu.be')) ? "\n$key\n" : "<a href=\"$key\"$target$nofollow>$key</a>";
+    //$value = "<a href=\"$key\"$target$nofollow>$key</a>";
 }
 
 

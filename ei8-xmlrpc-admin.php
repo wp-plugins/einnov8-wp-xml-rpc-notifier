@@ -626,10 +626,18 @@ function ei8_xmlrpc_update_option($id, $value) {
     $option_id = $results[0]->ID;
     $value = addslashes($value);
     if(!empty($option_id)) {
-        $sql = "UPDATE $table SET option_value='$value' WHERE ID='$option_id'";
+        $sql = $wpdb->prepare(
+            "UPDATE $table SET option_value='%s' WHERE ID='%s'",
+            $value,
+            $option_id
+        );
     } else {
-        $sql = "INSERT INTO $table SET option_name='$id', option_value='$value'
-    ON DUPLICATE KEY UPDATE option_value='$value'";
+        $sql = $wpdb->prepare(
+            "INSERT INTO $table SET option_name='%s', option_value='%s' ON DUPLICATE KEY UPDATE option_value='%s'",
+            $id,
+            $value,
+            $value
+        );
     }
     $wpdb->query($sql);
     $wpdb->flush();

@@ -267,10 +267,18 @@ if(isset($_REQUEST['ei8_xmlrpc_twitter_post'])) {
     
     
     // make the call to the xmlrpc server to save the post
-    $content['title'] = $title;
+    /*$content['title'] = $title;
     //$content['description'] = $mailcontent;
     $content['description'] = "&nbsp;".$mailcontent;
-    if (!$client->query('metaWeblog.newPost','', $userName, $passWord, $content, $poststatus)) {
+    $content['description'] = ei8_autolink_safe($content['description']);*/
+    $content['post_title'] = $title;
+    //$content['description'] = $mailcontent;
+    $content['post_content'] = "&nbsp;".$mailcontent;
+    //$content['post_content'] = ei8_autolink_safe($content['post_content']);
+    global $current_site;
+    $content['post_status'] = 'publish';
+    //if (!$client->query('metaWeblog.newPost','', $userName, $passWord, $content, $poststatus)) {
+    if (!$client->query('wp.newPost',$current_site->blog_id, $userName, $passWord, $content)) {
        //there is an error being returned by the IXR_Client when a post status is set to publish
        //only because there is no response being returned from the server, even though the post is accepted
        //so for now it seems safe to ignore this particular error
@@ -292,6 +300,8 @@ if(isset($_REQUEST['ei8_xmlrpc_twitter_post'])) {
 if($errorMessage) $submitPage .= "&errorMessage=".urlencode($errorMessage);
 $submitPage .= "&success=";
 $submitPage .= (!empty($_REQUEST['ei8_xmlrpc_a'])) ? $_REQUEST['ei8_xmlrpc_a']."#".$_REQUEST['ei8_xmlrpc_a'] : "1" ;
+
+die("for testing purposes...dieing here");
 
 $then = gmstrftime("%a, %d %b %Y %H:%M:%S GMT");                            
 header("Expires: $then");                                                   

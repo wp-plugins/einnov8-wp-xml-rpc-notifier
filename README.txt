@@ -1,8 +1,8 @@
 === eInnov8 FLOODtech Plugin ===
 Contributors: yipeecaiey, jimesten
-Requires at least: 3.0
+Requires at least: 3.4
 Tested up to: 3.5
-Stable tag: 2.5.2
+Stable tag: 2.5.3
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -40,6 +40,8 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	2.5.3   2013/01/23  UPDATE	Skip youtube URLs when autolinking
+	                            add in wpdb->prepare statements to prevent mysql errors
 	2.5.2   2013/01/16  BUG-FIX	Eliminate false errors for local forms without files uploaded
 	2.5.1   2012/12/30  UPDATE	Require captcha for all local forms
 	                            Update file upload requirements
@@ -143,6 +145,10 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.5.3 =
+Skip youtube URLs when autolinking
+add in wpdb->prepare statements to prevent mysql errors
 
 = 2.5.2 =
 Eliminate false errors for local forms without files uploaded
