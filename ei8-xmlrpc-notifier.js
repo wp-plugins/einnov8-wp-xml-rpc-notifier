@@ -218,7 +218,8 @@ $.fn.slideFadeUp = function(speed, callback) {
 })(jQuery);
 
 
-$(function() {
+//$(function() {
+jQuery(document).ready(function($) {
     // --- Using the default options:
     $("h2.expand").toggler();
     // --- Other options:

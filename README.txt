@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.5
-Stable tag: 2.5.3
+Stable tag: 2.5.4
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	2.5.4   2013/01/23  UPDATE	Update methods for calling and using jQuery
 	2.5.3   2013/01/23  UPDATE	Skip youtube URLs when autolinking
 	                            add in wpdb->prepare statements to prevent mysql errors
 	2.5.2   2013/01/16  BUG-FIX	Eliminate false errors for local forms without files uploaded
@@ -145,6 +146,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.5.4 =
+Update methods for calling and using jQuery
 
 = 2.5.3 =
 Skip youtube URLs when autolinking

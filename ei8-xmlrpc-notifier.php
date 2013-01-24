@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 FLOODtech Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Floodtech system at ei8t.com as well as the wp native xml-rpc functionality.
-Version: 2.5.3
+Version: 2.5.4
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -554,15 +554,17 @@ add_filter( 'the_content', 'ei8_xmlrpc_filter_tags', 11111 );
 //load js
 function ei8_enqueue_scripts() {
     //load the js available from the google api
-    wp_deregister_script( 'jquery' );
-    wp_register_script( 'jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js');
+
+    //wp_deregister_script( 'jquery' );
+    //wp_register_script( 'jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js');
     wp_enqueue_script( 'jquery' );
-    
+
     //now load the local js
-    wp_register_script( 'ei8-tweet-script', ei8_plugins_url('/ei8-xmlrpc-tweet.js') );
+    wp_register_script( 'ei8-tweet-script', ei8_plugins_url('/ei8-xmlrpc-tweet.js'), array('jquery') );
     wp_enqueue_script( 'ei8-tweet-script' );
 
-    wp_register_script( 'ei8-xmlrpc-notifier', ei8_plugins_url('/ei8-xmlrpc-notifier.js') );
+    //wp_register_script( 'ei8-xmlrpc-notifier', ei8_plugins_url('/ei8-xmlrpc-notifier.js') , array('jquery', 'jquery-ui-core','jquery-effects-core','jquery-effects-fade','jquery-effects-slide','jquery-ui-slider') );
+    wp_register_script( 'ei8-xmlrpc-notifier', ei8_plugins_url('/ei8-xmlrpc-notifier.js') , array('jquery') );
     wp_enqueue_script( 'ei8-xmlrpc-notifier' );
 }
 add_action('wp_enqueue_scripts', 'ei8_enqueue_scripts');
