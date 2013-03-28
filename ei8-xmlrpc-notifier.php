@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 FLOODtech Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Floodtech system at ei8t.com as well as the wp native xml-rpc functionality.
-Version: 2.5.4
+Version: 2.5.5
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //include admin settings and functions
 //if ( is_admin()) { //tagged out because contentsave.php uses some of these methods
+    include_once( dirname(__FILE__) . '/ei8-xmlrpc-settings.php' );
     include_once( dirname(__FILE__) . '/ei8-xmlrpc-admin.php' );
 //}
 
@@ -279,10 +280,13 @@ function ei8_xmlrpc_string_to_array($string) {
     return $myVars;
 }
 
-function ei8_xmlrpcs_parse_recorder_vars($defaultVars='',$overrideVars='') {
+function ei8_xmlrpc_parse_recorder_vars($defaultVars='',$overrideVars='') {
     //make sure the inputs are arrays
-    $dVars    = ei8_xmlrpc_string_to_array($defaultVars);
+    $dVars    = ei8_xmlrpc_string_to_array($defaultVars); //deprecated...but still left in just in case
     $oVars   = ei8_xmlrpc_string_to_array($overrideVars);
+
+    //check for custom folder settings...add in those variables if they are set
+    if(in_array('cf',array_keys($oVars))) $dVars = ei8_xmlrpc_string_to_array(ei8_xmlrpc_getCustomFolderValue($oVars['cf']));
 
     //merge the two arrays together (with precedence for the overrideVars)
     $myVars = array_merge($dVars,$oVars);
@@ -670,10 +674,11 @@ function ei8_xmlrpc_parse_uploader_shortcode($content) {
         //echo "<p>values: <pre>"; print_r($values); echo "</pre></p>";
 
         $myValues = array();
+        $customFolders = ei8_xmlrpc_getCustomFolders();
         foreach($values as $statement) if(!strstr($statement,"=")) $typeName = $statement; else $myValues[] = $statement;
 
         $ei8tVars   = ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars');
-        $myVars     = ei8_xmlrpcs_parse_recorder_vars($ei8tVars,$myValues);
+        $myVars     = ei8_xmlrpc_parse_recorder_vars($ei8tVars,$myValues);
         //echo "<p>typeName: $typeName, myVars: $myVars";
         switch($typeName) {
             case 'MiniRecorder':

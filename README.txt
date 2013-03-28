@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.5
-Stable tag: 2.5.4
+Stable tag: 2.5.5
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -15,7 +15,7 @@ Custom forms for submitting content to the wp xmlrpc server.
     * Set custom email address for notifications when posts are received (optional)
     * Manage email notification content when posts are received.
     * Short tags for custom form inclusion within posts 
-    * Optional captcha authentication for form submissions
+    * Captcha authentication for form submissions
     * Optional twitter integration for status updates
 
 
@@ -40,6 +40,9 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	2.5.5   2013/03/19  UPDATE	Added multiple ei8t destinations for submissions
+	                            Added new shortcode definition for the above.
+	                    BUG-FIX Resolved issues with xmlrpc user from errors introduced with wp v3.5.1
 	2.5.4   2013/01/23  UPDATE	Update methods for calling and using jQuery
 	2.5.3   2013/01/23  UPDATE	Skip youtube URLs when autolinking
 	                            add in wpdb->prepare statements to prevent mysql errors
@@ -146,6 +149,11 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.5.5 =
+Added multiple ei8t destinations for submissions
+Added new shortcode definition for the above.
+Resolved issues with xmlrpc user from errors introduced with wp v3.5.1
 
 = 2.5.4 =
 Update methods for calling and using jQuery
@@ -314,3 +322,12 @@ This version will now support automatic upgrades
 
 = 2.0.5 =
 Converts the plugin for compatibility with WP3 multi site networks
+
+
+--prefix=/usr --libdir=/usr/lib --shlibdir=/usr/lib --mandir=/usr/share/man --enable-shared --enable-runtime-cpudetect --enable-gpl --enable-version3 --enable-postproc --enable-avfilter --enable-pthreads --enable-x11grab --enable-vdpau --disable-avisynth --enable-libdc1394 --enable-libgsm --enable-libmp3lame --enable-libnut --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-librtmp --enable-libtheora --enable-libvorbis --enable-libx264 --enable-libxavs --enable-libxvid --extra-cflags='-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m32 -march=i386 -mtune=generic -fasynchronous-unwind-tables' --disable-stripping
+
+--prefix=/usr --libdir=/usr/lib --shlibdir=/usr/lib --mandir=/usr/share/man --enable-shared --enable-runtime-cpudetect --enable-gpl --enable-version3 --enable-postproc --enable-avfilter --enable-pthreads --enable-x11grab --enable-vdpau --disable-avisynth --enable-libdc1394 --enable-libgsm --enable-libmp3lame --enable-libnut --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-librtmp --enable-libtheora --enable-libvorbis --enable-libx264 --enable-libxavs --enable-libxvid --extra-cflags='-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m32 -march=i386 -mtune=generic -fasynchronous-unwind-tables' --disable-stripping
+
+
+--enable-libvorbis --enable-libvpx
+

@@ -1,9 +1,6 @@
 <?php
 //BEGIN ADMIN SECTION
 
-$optionP = 'ei8-xmlrpc-options';
-$optionE = 'ei8-xmlrpc-email-options';
-
 //validate data
 add_action('admin_notices', 'ei8_xmlrpc_validate_data' );
 
@@ -125,6 +122,23 @@ function ei8_xmlrpc_shortcode_options() {
             </td>
         </tr>
         <tr valign="top">
+            <th scope="row">Recorder/Uploader custom folder examples:</th>
+            <td>
+                <strong>Note: this can be used with the following shortcodes [ei8 MiniRecorder], [ei8 WideRecorder], [ei8 TallRecorder], and [ei8 MediaUploader]</strong><br>
+    <?php
+        $recorderOptions = array('MiniRecorder', 'WideRecorder', 'TallRecorder', 'MediaUploader');
+        $ro = 0;
+        $roCt = count($recorderOptions);
+        $customFolders = ei8_xmlrpc_getCustomFolders();
+        foreach($customFolders as $folder => $info) {
+            if($ro>=$roCt) $ro=0;
+            echo sprintf("[ei8 %s cf=%s]<br>", $recorderOptions[$ro], $folder);
+            $ro++;
+        }
+    ?><br><br>
+            </td>
+        </tr>
+        <tr valign="top">
             <th scope="row">Recorder/Uploader destination folder override examples: </th>
             <td>
                 <strong>Note: this can be used with the following shortcodes [ei8 MiniRecorder], [ei8 WideRecorder], [ei8 TallRecorder], and [ei8 MediaUploader]</strong><br>
@@ -212,7 +226,7 @@ function ei8_xmlrpc_admin_options() {
             ei8_xmlrpc_update_option($var, $_POST[$var]);
 
             $var = 'ei8_xmlrpc_recorder_vars';
-            ei8_xmlrpc_update_option($var, ei8_xmlrpc_parse_recorder_vars($_POST[$var]));
+            ei8_xmlrpc_update_option($var, ei8_xmlrpc_admin_parse_recorder_vars($_POST[$var]));
 
             $var = 'ei8_xmlrpc_submit_form';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
@@ -228,6 +242,13 @@ function ei8_xmlrpc_admin_options() {
 
             $var = 'ei8_xmlrpc_hide_admin_options';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
+
+            //update the custom folders values
+            $customFolders = ei8_xmlrpc_getCustomFolders();
+            foreach($customFolders as $folder=>$info) {
+                ei8_xmlrpc_storeCustomFolder($folder, $_POST[$info['var']]);
+            }
+
 
 /*
              * $var = 'ei8_xmlrpc_default_width_audio';
@@ -354,24 +375,18 @@ function ei8_xmlrpc_admin_options() {
                 <td><select name='ei8_xmlrpc_hide_admin_options'>
                     <option value="" <?php if(empty($hideAdmin)) echo "SELECTED"; ?>>visible to ALL(Authors, Editors, & Administrators)</option>
                     <option value="admin" <?php if(!empty($hideAdmin)) echo "SELECTED"; ?>>visible only to Administrators</option>
-                    </select></td>
+                </select></td>
             </tr>
-                <tr valign="top">
-                    <th scope="row">Web Recorder Settings:</th>
-                    <td><?php echo ei8_xmlrpc_form_text($f_recorderVars,$v_recorderVars); ?><br>
-                        <small>ex. http://www.ei8t.com/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">Form-Submit redirect URL:</th>
-                    <td><?php echo ei8_xmlrpc_form_text($f_submitForm,$v_submitForm); ?><!-- <br>
-                <small>This is where the user is sent after a form has been successfully submitted. <br>This CAN but does NOT HAVE TO be the original submit form location<br>
-                    ex. /submit/ OR http://domain.com/subfolder/submit/ OR http://domain.com/confirmation/</small> -->
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row"><a name="ei8xmlrpctwittersettings"></a>Twitter Account:</th>
-                    <td>
+            <tr valign="top">
+                <th scope="row">Form-Submit redirect URL:</th>
+                <td><?php echo ei8_xmlrpc_form_text($f_submitForm,$v_submitForm); ?><!-- <br>
+            <small>This is where the user is sent after a form has been successfully submitted. <br>This CAN but does NOT HAVE TO be the original submit form location<br>
+                ex. /submit/ OR http://domain.com/subfolder/submit/ OR http://domain.com/confirmation/</small> -->
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row"><a name="ei8xmlrpctwittersettings"></a>Twitter Account:</th>
+                <td>
 <?php
                         //handle twitter authentication
 
@@ -446,37 +461,52 @@ function ei8_xmlrpc_admin_options() {
                             echo "<img src='$profilepic' align='left' style='padding-right:10px;'> Screen name: $username <br><small><a href='$resetUrl'>Reset Twitter Credentials</a></small>";
                         }
 ?>
-                    </td>
-                </tr>
-                <!--<tr valign="top">
-                    <th scope="row">Require CAPTCHA on submit forms: </th>
-                    <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_use_captcha',$useCaptcha); ?></td>
-                </tr>-->
-                <tr valign="top">
-                    <th scope="row">Media uploader custom css:</th>
-                    <td><?php echo ei8_xmlrpc_form_text($f_uploaderCSS,$v_uploaderCSS); ?><br>
-                        <small>ex. http://www.einnov8.com/css/media_uploader.css</small>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">Default media alignment:</th>
-                    <td><select name='ei8_xmlrpc_media_align'>
+                </td>
+            </tr>
+            <!--<tr valign="top">
+                <th scope="row">Require CAPTCHA on submit forms: </th>
+                <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_use_captcha',$useCaptcha); ?></td>
+            </tr>-->
+            <tr valign="top">
+                <th scope="row">Media uploader custom css:</th>
+                <td><?php echo ei8_xmlrpc_form_text($f_uploaderCSS,$v_uploaderCSS); ?><br>
+                    <small>ex. http://www.einnov8.com/css/media_uploader.css</small>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">Default media alignment:</th>
+                <td><select name='ei8_xmlrpc_media_align'>
 <?php
                         foreach ($align_options as $align ) {
                             $selected = ($align==$mediaAlign || (empty($mediaAlign) && $align=="left")) ? "SELECTED" : "" ;
                             echo "<option value=\"$align\" $selected>$align</option>";
                         }
 ?>
-                        </select></td>
-                </tr>
-                <!--<tr valign="top">
-                    <th scope="row">Default shortcode video width:</th>
-                    <td><?php echo ei8_xmlrpc_form_text($f_defaultWidthVideo,$v_defaultWidthVideo); ?></td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">Default shortcode audio width:</th>
-                    <td><?php echo ei8_xmlrpc_form_text($f_defaultWidthAudio,$v_defaultWidthAudio); ?></td>
-                </tr>-->
+                    </select></td>
+            </tr>
+            <tr>
+                <td><h3>Web Recorder Settings</h3></td>
+                <td><small>ex. http://www.ei8t.com/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small></td>
+            </tr>
+<?php
+    $customFolders = ei8_xmlrpc_getCustomFolders();
+    foreach($customFolders as $folder => $info) {
+?>
+            <tr valign="top">
+                <th scope="row"><?php echo $info['title']; ?>:</th>
+                <td><?php echo ei8_xmlrpc_form_text($info['var'],$info['value']).' &nbsp; <small>Usage ex: [ei8 MiniRecorder cf='.$folder.']</small>'; ?></td>
+            </tr>
+<?php
+    }
+?>
+            <!--<tr valign="top">
+                <th scope="row">Default shortcode video width:</th>
+                <td><?php echo ei8_xmlrpc_form_text($f_defaultWidthVideo,$v_defaultWidthVideo); ?></td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">Default shortcode audio width:</th>
+                <td><?php echo ei8_xmlrpc_form_text($f_defaultWidthAudio,$v_defaultWidthAudio); ?></td>
+            </tr>-->
 <?php
             } //end admin only options
 ?>
@@ -643,7 +673,7 @@ function ei8_xmlrpc_update_option($id, $value) {
     $wpdb->flush();
 }
 
-function ei8_xmlrpc_parse_recorder_vars($vars) {
+function ei8_xmlrpc_admin_parse_recorder_vars($vars) {
     //parse as a url if it is one...
     if(strstr($vars,'http')) {
         $parts = parse_url($vars);
@@ -720,11 +750,15 @@ function ei8_xmlrpc_get_login() {
         'user_email' => 'xmlrpc@ei8t.com',
         'role'       => 'author'
     );
+
+    //create user if necessary
+    if(!$userID) wp_insert_user( $userInfo );
+
     //check user permissions if user exists
     if($userID) $userData = get_userdata($userID);
 
     //only do the update if necessary
-    if( !$userID || $userData->user_pass!=wp_hash_password($passWord) || !user_can($userID,'publish_posts') ) {
+    if( $userData->user_pass!=wp_hash_password($passWord) || !user_can($userID,'publish_posts') ) {
         wp_update_user( $userInfo );
     };
 
@@ -918,6 +952,7 @@ function ei8_xmlrpc_get_message_settings() {
 //handle db table installs and updates
 function ei8_xmlrpc_admin_install() {
     global $wpdb, $wp_version;
+    global $customFolderDefault, $customFolderPre;
 
     $table1 = $wpdb->prefix . "ei8_xmlrpc_options";
 
@@ -1031,6 +1066,12 @@ function ei8_xmlrpc_admin_install() {
     if(!(ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars')) && (ei8_xmlrpc_get_option('ei8_xmlrpc_pubClip_minirecorder'))) {
         ei8_xmlrpc_update_option('ei8_xmlrpc_recorder_vars', ei8_xmlrpc_get_option('ei8_xmlrpc_pubClip_minirecorder'));
         ei8_xmlrpc_update_option('ei8_xmlrpc_pubClip_minirecorder', '');
+        ei8_xmlrpc_admin_log("<p>Updated recorder settings to previous version</p>",1);
+    }
+    $cf = $customFolderPre.$customFolderDefault;
+    if(!(ei8_xmlrpc_get_option($cf)) && (ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars'))) {
+        ei8_xmlrpc_update_option($cf, ei8_xmlrpc_get_option('ei8_xmlrpc_recorder_vars'));
+        //ei8_xmlrpc_update_option('ei8_xmlrpc_recorder_vars', '');
         ei8_xmlrpc_admin_log("<p>Updated recorder settings to current version</p>",1);
     }
 
