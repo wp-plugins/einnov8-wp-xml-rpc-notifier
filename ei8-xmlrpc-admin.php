@@ -389,6 +389,99 @@ function ei8_xmlrpc_admin_options() {
                 <td>
 <?php
                         //handle twitter authentication
+                        $twitterToken  = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_token');
+                        $twitterSecret = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_secret');
+                        $twitterAuthToken  = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_auth_token');
+                        $twitterAuthSecret = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_auth_secret');
+                        //echo "<p>twitterToken: $twitterToken<br>twitterSecret: $twitterSecret<br>twitterAuthToken: $twitterAuthToken<br>twitterAuthSecret: $twitterAuthSecret</p>";
+
+                        require_once 'lib/ei8-twitter-wrapper.php';
+
+                        $twitterObj = new ei8TwitterObj();
+                        $twitterObj->setCallback(ei8_xmlrpc_get_plugin_url() . "twitter_callback.php" );
+
+                        //reset request
+                        if($_REQUEST['resetTwitter']) {
+                            $twitterToken = $twitterSecret = "";
+                            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', "");
+                            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', "");
+                            echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection reset");
+
+                        //got a response from Twitter, means the user has authenticated, now we authenticate the app
+                        } elseif($_GET['oauth_verifier']) {
+                            //$twitterObj->setOAuth($_GET['oauth_token']);
+                            //$twitterObj->setAccessToken($_GET['oauth_token']);
+                            //echo '<p>GOT HERE: pre authorize_app()</p>';
+                            $twitterObj->setTokens($twitterAuthToken, $twitterAuthSecret);
+                            list($twitterToken, $twitterSecret) = $twitterObj->authorize_app();
+                            //echo '<p>GOT HERE: post authorize_app(), pre validate_user</p>';
+                            //print("<p>TwitterObj: <pre>");
+                            //print_r($twitterObj);
+                            //print("</pre></p>");
+                            //echo "<p>GOT HERE</p>"; exit;
+                            $twitterInfo= $twitterObj->validate_user();
+                            //echo '<p>GOT HERE: post validate_user()</p>';
+                            //print("<p>TwitterInfo: <pre>");
+                            //print_r($twitterInfo);
+                            //print("</pre></p>");
+                            //exit();
+                            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', $twitterToken);
+                            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', $twitterSecret);
+                            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_auth_token', "");
+                            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_auth_secret', "");
+                            echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection established");
+                        }
+
+                        //echo ei8_xmlrpc_conf_message(false,$title='DEBUG Twitter connection settings',$text="token:$twitterToken secret:$twitterSecret");
+
+                        //there are no tokens stored in the db, so give the user the option of starting the auth dance
+                        if(empty($twitterToken) || empty($twitterSecret)) {
+
+                            //do the user auth here
+                            $url = $twitterObj->getAuthorizationUrl();
+
+                            //store the temp auth tokens
+                            list($authToken, $authSecret) = $twitterObj->getAuthTokens();
+                            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_auth_token', $authToken);
+                            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_auth_secret', $authSecret);
+
+
+                            //print("<p>TwitterObj: <pre>");
+                            //print_r($twitterObj);
+                            //print("</pre></p>");
+                            //$url .= (strstr($url,'?')) ? "&" : "?" ;
+                            //$url .= "oauth_callback=".urlencode($ei8AdminUrl);
+                            echo "<a href='$url'>Authorize an account with Twitter</a>";
+
+                        //make sure the user is valid
+                        } else {
+
+                            //do the user validate here
+
+
+                            $twitterObj->setTokens($twitterToken, $twitterSecret);
+                            $twitterInfo = $twitterObj->validate_user();
+
+                            $resetUrl = $ei8AdminUrl."&resetTwitter=1#ei8xmlrpctwittersettings";
+                            if(!$twitterInfo) {
+                                echo "ERROR: Invalid Twitter Credentials<br> <a href='$resetUrl'>Reset Twitter Credentials</a>";
+                            } else {
+                                $username = $twitterInfo->screen_name;
+                                $profilepic = $twitterInfo->profile_image_url;
+
+                                /*
+                                print("<p>TwitterObj: <pre>");
+                                print_r($twitterObj);
+                                print("</pre></p>");
+                                print("<p>TwitterInfo: <pre>");
+                                print_r($twitterInfo);
+                                print("</pre></p>");
+                                */
+                                echo "<img src='$profilepic' align='left' style='padding-right:10px;'> Screen name: $username <br><small><a href='$resetUrl'>Reset Twitter Credentials</a></small>";
+                            }
+                        }
+/*
+                        //handle twitter authentication
 
                         $twitterToken  = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_token');
                         $twitterSecret = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_secret');
@@ -413,17 +506,18 @@ function ei8_xmlrpc_admin_options() {
                         } elseif($_GET['oauth_token']) {
                             $twitterObj->setToken($_GET['oauth_token']);
                             $token = $twitterObj->getAccessToken();
+                            print("<p>TwitterObj: <pre>");
+                            print_r($twitterObj);
+                            print("</pre></p>");
+                            print("<p>TwitterInfo: <pre>");
+                            //echo "<p>GOT HERE</p>"; exit;
                             $twitterToken  = $token->oauth_token;
                             $twitterSecret = $token->oauth_token_secret;
                             $twitterObj->setToken($twitterToken, $twitterSecret);
                             $twitterInfo= $twitterObj->get_accountVerify_credentials();
-                            //print("<p>TwitterObj: <pre>");
-                            //print_r($twitterObj);
-                            //print("</pre></p>");
-                            //print("<p>TwitterInfo: <pre>");
-                            //print_r($twitterInfo);
-                            //print("</pre></p>");
-                            //exit();
+                            print_r($twitterInfo);
+                            print("</pre></p>");
+                            exit();
                             ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', $twitterToken);
                             ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', $twitterSecret);
                             echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection established");
@@ -449,17 +543,10 @@ function ei8_xmlrpc_admin_options() {
                             $username = $twitterInfo->screen_name;
                             $profilepic = $twitterInfo->profile_image_url;
 
-                            /*
-                            print("<p>TwitterObj: <pre>");
-                            print_r($twitterObj);
-                            print("</pre></p>");
-                            print("<p>TwitterInfo: <pre>");
-                            print_r($twitterInfo);
-                            print("</pre></p>");
-                            */
                             $resetUrl = $ei8AdminUrl."&resetTwitter=1#ei8xmlrpctwittersettings";
                             echo "<img src='$profilepic' align='left' style='padding-right:10px;'> Screen name: $username <br><small><a href='$resetUrl'>Reset Twitter Credentials</a></small>";
                         }
+*/
 ?>
                 </td>
             </tr>

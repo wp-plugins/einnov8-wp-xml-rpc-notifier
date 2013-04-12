@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.5
-Stable tag: 2.5.5
+Stable tag: 2.5.6
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -40,7 +40,8 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
-	2.5.5   2013/03/19  UPDATE	Added multiple ei8t destinations for submissions
+	2.5.6   2013/04/12  UPDATE	Replaced the twitter API connection library
+	2.5.5   2013/03/28  UPDATE	Added multiple ei8t destinations for submissions
 	                            Added new shortcode definition for the above.
 	                    BUG-FIX Resolved issues with xmlrpc user from errors introduced with wp v3.5.1
 	2.5.4   2013/01/23  UPDATE	Update methods for calling and using jQuery
@@ -149,6 +150,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.5.6 =
+Replaced the twitter API connection library
 
 = 2.5.5 =
 Added multiple ei8t destinations for submissions

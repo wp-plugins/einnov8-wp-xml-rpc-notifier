@@ -13,6 +13,7 @@ if(!function_exists('admin_url')) {
 //$url = "options-general.php?page=einnov8-wp-xml-rpc-notifier/ei8-xmlrpc-notifier.php";
 $url = "admin.php?page=ei8-xmlrpc-options";
 $url .= "&oauth_token=".$_GET['oauth_token'];
+$url .= "&oauth_verifier=".$_GET['oauth_verifier'];
 $url .= "#ei8xmlrpctwittersettings";
 $url = admin_url($url);
 header("Location: ".$url);
