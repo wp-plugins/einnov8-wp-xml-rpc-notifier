@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.5
-Stable tag: 2.5.6
+Stable tag: 2.5.7
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	2.5.7   2013/04/12  UPDATE	Updated tweet submission method
 	2.5.6   2013/04/12  UPDATE	Replaced the twitter API connection library
 	2.5.5   2013/03/28  UPDATE	Added multiple ei8t destinations for submissions
 	                            Added new shortcode definition for the above.
@@ -150,6 +151,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.5.7 =
+Updated tweet submission method
 
 = 2.5.6 =
 Replaced the twitter API connection library

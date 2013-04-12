@@ -123,10 +123,7 @@ class ei8TwitterObj {
     
     // Once the user has authenticated, validate the user as needed
     function validate_user() {
-        $code = $this->obj->request(
-            'GET',
-            $this->obj->url('1.1/account/verify_credentials')
-        );
+        $code = $this->obj->request('GET', $this->obj->url('1.1/account/verify_credentials'));
         
         if ($code == 200) {
             $this->twitter_info = json_decode($this->obj->response['response']);
@@ -135,6 +132,21 @@ class ei8TwitterObj {
             //$this->outputError();
         }
         return $this->twitter_info;
+    }
+
+    //tweet
+    function tweet($tweet) {
+        $code = $this->obj->request('POST', $this->obj->url('1.1/statuses/update'), array(
+          'status' => $tweet
+        ));
+
+        if ($code == 200) {
+          return true;
+          //tmhUtilities::pr(json_decode($this->obj->response['response']));
+        } else {
+          return false;
+          //tmhUtilities::pr($this->obj->response['response']);
+        }
     }
 
     function outputError() {

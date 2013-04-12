@@ -44,10 +44,7 @@ if ( !isset($_SERVER['HTTP_REFERER']) ||
 if(isset($_REQUEST['ei8_xmlrpc_twitter_post'])) {
     //session_start();
     
-    require 'lib/EpiCurl.php';
-    require 'lib/EpiOAuth.php';
-    require 'lib/EpiTwitter.php';
-    require 'lib/secret.php';
+    require 'lib/ei8-twitter-wrapper.php';
     
     $twitterToken  = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_token');
     $twitterSecret = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_secret');
@@ -61,22 +58,19 @@ if(isset($_REQUEST['ei8_xmlrpc_twitter_post'])) {
         $errorMessage = "140 Character Maximum Exceeded. Please try again";
     } else {
 
-        $twitterObj = new EpiTwitter($consumer_key, $consumer_secret);
-        //$twitterObj->setCallBack( ei8_xmlrpc_get_home_url() . ei8_xmlrpc_get_option('ei8_xmlrpc_submit_form')."?&errorMessage=Twitter_unknown#ei8xmlrpctwitterform"); 
-        $twitterObj->setToken($twitterToken, $twitterSecret);
-    	$twitterInfo= $twitterObj->get_accountVerify_credentials();
-    	$twitterInfo->response;
-        		
-    	$username = $twitterInfo->screen_name;
-    	$profilepic = $twitterInfo->profile_image_url;
-        
-        $update_status = $twitterObj->post_statusesUpdate(array('status' => $status));
-        $temp = $update_status->response;
-        
-        if(!$success) $errorMessage = $tweet->error;
-        //print("<p>Tweet: <pre>");
-        //print_r($twitterObj);
-        //print("</pre></p>");
+        $twitterObj = new ei8TwitterObj();
+        $twitterObj->setTokens($twitterToken, $twitterSecret);
+
+        if($twitterObj->validate_user()) {
+
+            $update_status = $twitterObj->tweet($status);
+
+            if(!$update_status) $errorMessage = $twitterObj->response['response'];
+            //print("<p>Tweet: <pre>");
+            //print_r($twitterObj);
+            //print("</pre></p>");
+
+        }
     }
     //print("<p>Finished processing Tweet");
     //exit();
