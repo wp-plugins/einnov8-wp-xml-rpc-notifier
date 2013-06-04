@@ -570,6 +570,11 @@ function ei8_enqueue_scripts() {
     //wp_register_script( 'ei8-xmlrpc-notifier', ei8_plugins_url('/ei8-xmlrpc-notifier.js') , array('jquery', 'jquery-ui-core','jquery-effects-core','jquery-effects-fade','jquery-effects-slide','jquery-ui-slider') );
     wp_register_script( 'ei8-xmlrpc-notifier', ei8_plugins_url('/ei8-xmlrpc-notifier.js') , array('jquery') );
     wp_enqueue_script( 'ei8-xmlrpc-notifier' );
+
+    //jwplayer
+    wp_register_script( 'ei8-xmlrpc-jwplayer', 'http://p.jwpcdn.com/6/4/jwplayer.js?ver=3.5.1' );
+    wp_enqueue_script( 'ei8-xmlrpc-jwplayer' );
+
 }
 add_action('wp_enqueue_scripts', 'ei8_enqueue_scripts');
 
@@ -580,6 +585,8 @@ function ei8_register_head() {
 
     //$url = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css';
     //echo "<link rel='stylesheet' type='text/css' href='$url' />\n";
+
+    echo '<script type="text/javascript">jwplayer.key="CrmSh4fiXjB2MrwBht0Q3pjOqppvu+U+as8bcQ==";</script>';
 }
 //add_action('admin_head', 'ei8_register_head');
 add_action('wp_head', 'ei8_register_head');
@@ -721,6 +728,14 @@ function ei8_xmlrpc_parse_commented_shortcode($content) {
     return $content;
 }
 
+function ei8_xmlrpc_get_guid_from_url($url) {
+    //$url = "http://www.dev.ei8t.com/swf/5MKzFmmnhFY&w=480&h=290&bm=td&cp=000000-FFFFFF-FFBB00-000000";
+    list($url) = explode('&',$url);
+    $parts = explode('/',$url);
+    $guid = array_pop($parts);
+    return $guid;
+}
+
 
 function ei8_xmlrpc_parse_shortcode($content,$type='') {
     $parts = explode('[ei8', $content);
@@ -789,7 +804,7 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
         }
 
         //set up the code with placeholders
-        $final =<<<EOT
+/*        $final =<<<EOT
 <div class='%class%' style="width:%width%px">
     <object width="%width%" height="%height%">
         <param name="movie" value="%url%"></param>
@@ -798,6 +813,12 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
         <embed src="%url%" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="%width%" height="%height%"></embed>
     </object>
     %affiliate%
+</div>
+EOT;*/
+        $id = "Player".time();
+        $final =<<<EOT
+<div class='%class%' style="width:%width%px">
+%jwplayer%
 </div>
 EOT;
 
@@ -813,21 +834,44 @@ EOT;
 
         //handle audio vs video default dimensions
         $dWidth = ($type=="audio") ? ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_width_audio'), 500) : ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_width_video'), 320) ;
-        $dHeight = ($type=="audio") ? ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_height_audio'), 20) : ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_height_video'), 260);
+        $dHeight = ($type=="audio") ? ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_height_audio'), 30) : ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_height_video'), 260);
 
         //handle necessary defaults
         $myValues['width']  = ei8_coalesce($myValues['width'], $urlParts['width'], $urlParts['w'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_width'), $dWidth);
         $myValues['height'] = ei8_coalesce($myValues['height'], $urlParts['height'], $urlParts['h'], $dHeight);
         //$myValues['affiliate'] = (empty($myValues['affiliate'])) ? "" : $showAffiliate ;
-        $myValues['affiliate'] = (ei8_coalesce($myValues['affiliate'],$urlParts['affiliate'])) ? $showAffiliate : '' ;
+        //$myValues['affiliate'] = (ei8_coalesce($myValues['affiliate'],$urlParts['affiliate'])) ? $showAffiliate : '' ;
+
+        //get the jwplayer embed code
+        $guid = ei8_xmlrpc_get_guid_from_url($myValues['url']);
+        $urlParts = parse_url($myValues['url']);
+        $url = "http://".$urlParts['host']."/jw6player/".$guid;
+        $QS = "";
+        foreach($myValues as $key=>$val) {
+            if($key=='url') continue;
+            $QS .= "&$key=$val";
+        }
+        $url .= urlencode($QS);
+        //echo "<p>url:$url</p>";
 
         //handle alignment
         $dAlign = trim(ei8_coalesce($myValues['align'],$urlParts['align'],''));
         if($dAlign!='') $myValues['class'] .= " ei8-align-$dAlign";
         //$myAlign = ($dAlign=='') ? '' : "style='text-align:$dAlign';";
 
+        //distill what we actually need now...
+        $myFinalValues = array(
+            'jwplayer'  => file_get_contents($url),
+            'class'     => $myValues['class'],
+            'width'     => $myValues['width'],
+        );
+
         //swap out the place holders with the actual values
-        foreach($myValues as $key=>$val) {
+        /*foreach($myValues as $key=>$val) {
+            $replace = "%".$key."%";
+            $final = str_replace($replace, $val, $final);
+        }*/
+        foreach($myFinalValues as $key=>$val) {
             $replace = "%".$key."%";
             $final = str_replace($replace, $val, $final);
         }
