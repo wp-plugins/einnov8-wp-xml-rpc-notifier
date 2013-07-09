@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	2.6.1   2013/07/08  UPDATE	Added Playlist functionality
 	2.6.0   2013/06/03  UPDATE	Upgrade shortcode rendering to use html5 with jwplayer6
 	2.5.7   2013/04/12  UPDATE	Updated tweet submission method
 	2.5.6   2013/04/12  UPDATE	Replaced the twitter API connection library
@@ -152,6 +153,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.6.1 =
+Added Playlist functionality
 
 = 2.6.0 =
 Upgrade shortcode rendering to use html5 with jwplayer6
