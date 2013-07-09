@@ -617,6 +617,9 @@ function ei8_xmlrpc_filter_shortcode($content,$type='') {
     //filter out html comment tags around shortcodes (used in syndication)
     $content = ei8_xmlrpc_parse_commented_shortcode($content);
 
+    //filter out and handle playlists
+    $content = ei8_xmlrpc_parse_playlist($content);
+
     //filter for player shortcodes
     return ei8_xmlrpc_parse_shortcode($content, $type);
 }
@@ -736,11 +739,157 @@ function ei8_xmlrpc_get_guid_from_url($url) {
     return $guid;
 }
 
+function ei8_xmlrpc_get_first_valid_element_from_array($array, $key) {
+    foreach($array as $part) if ($part[$key] && $part[$key]!='') return $part[$key];
+    //hopefully you don't get here
+    return "";
+}
+
+
+function ei8_xmlrpc_parse_playlist($content,$type='') {
+    $parts = explode('[ei8 Playlist]', $content);
+    $content_bak = $content; //make a copy before we start just in case we need to roll back
+    $content = "";
+    $playList = array();
+    foreach($parts as $part) {
+        //handle the first part that precedes the shortcode
+        if(empty($content)) {
+            $content = $part;
+            continue;
+        }
+
+        //now pull out the shortcode from the 'other' part of the content
+        list($working, $other) = explode("[ei8 PlaylistEnd]", $part, 2);
+
+        $shortcode_bak = "<!--[ei8 Playlist]".$working."[ei8 PlaylistEnd]-->";
+
+        $working_bak = $working;
+
+        //remove unneeded whitespace, ensure correct formatting of needed whitespace
+        $working = trim($working);
+
+        //get the parsed shortcodes
+        $shortcodes = ei8_xmlrpc_parse_shortcodes($working);
+
+        //only keep the ones we want
+        $myShortcodes = array();
+        foreach($shortcodes as $shortcode) if($shortcode['values'] && is_array($shortcode['values'])) $myShortcodes[] = $shortcode['values'];
+
+        //set the important defaults
+        $url = ei8_xmlrpc_get_first_valid_element_from_array($myShortcodes,'url');
+        $urlParts = parse_url($url);
+        $url_playlist = "http://".$urlParts['host']."/jw6playlist/";
+        $url_player = "http://".$urlParts['host']."/jw6player/";
+        //echo "<p>shortcodes<pre>"; print_r($shortcodes); echo "</pre></p>";
+        //echo "<p>myShortcodes<pre>"; print_r($myShortcodes); echo "</pre></p>";
+        //echo "<p>urlParts<pre>"; print_r($urlParts); echo "</pre></p>";
+        //echo "<p>url: $url<br>url_playlist: $url_playlist<br>url_player: $url_player</p>";
+
+        $defaults = array('class', 'width', 'height', 'skin', 'autostart', 'repeat', 'affiliate','guid');
+        $myDefaults = array();
+        foreach($defaults as $param) $myDefaults[$param] = ei8_xmlrpc_get_first_valid_element_from_array($myShortcodes,$param);
+
+        //set up the query string we will be using
+        $query_str = "";
+        foreach($myDefaults as $key=>$val) if($key!='class' && $key!='guid') {
+            if($query_str!='') $query_str .= "&";
+            $query_str .= "$key=$val";
+        }
+        $QS = $query_str;
+        foreach($myShortcodes as $myValues) $QS .= "&guid[]=".$myValues['guid'];
+        //add back in the other defaults so that they are recognized as the defaults
+        $url_playlist .= urlencode($QS);
+        $url_player .= urlencode($myDefaults['guid']."&".$query_str);
+        //echo "<p>url:$url</p>";
+
+        //get the jwplayer embed code
+        $jwplayer = file_get_contents($url_player);
+
+        //get the jwplaylist xml code
+        $playlist_xml  = simplexml_load_file($url_playlist);
+
+        //now start building the actual display and js
+        $jwplaylist = "";
+        $jwplayerEl = "Player".$myDefaults['guid'];
+        foreach($playlist_xml->media as $media) {
+///ADD IN PREFERENCES HERE??
+            $myFile1 = $media->sources->source[0]->file;
+            $myFile2 = $media->sources->source[1]->file;
+            $myImage = $media->image;
+            $myTitle = $media->title;
+            $myDesc  = $media->description;
+
+            $jwplaylist .=<<<EOT
+
+            <li>
+                <div class='ei8-playlist-item'>
+                    <a href="javascript:ei8PlaylistLoad('$jwplayerEl','$myFile1','$myFile2','$myImage')">
+                        <div class="ei8-playlist-item-image"><img src='$myImage' border='0'></div>
+                        <div class="ei8-playlist-item-info">
+                            <div class="ei8-playlist-item-title">$myTitle</div>
+                            <div class="ei8-playlist-item-description">$myDesc</div>
+                        </div>
+                    </a>
+                </div>
+            </li>
+EOT;
+        }
+
+        $final =<<<EOT
+<script type="text/javascript">
+    if(!(typeof(ei8PlaylistLoad) == "function")) {
+        function ei8PlaylistLoad(myPlayer,myFile1,myFile2,myImage) {
+            jwplayer(myPlayer).load([{
+                    sources: [
+                        { file: myFile1 },
+                        { file: myFile2 },
+                    ],
+                    image: myImage
+            }]);
+            jwplayer(myPlayer).play(true);
+        }
+    }
+</script>
+<div class='ei8-playlist-container'>
+    <div class='ei8-playlist-player'>
+        <div class='%class%' style="width:%width%px">
+            %jwplayer%
+        </div>
+    </div>
+    <div class='ei8-playlist'>
+        <ul>
+            %jwplaylist%
+        </ul>
+    </div>
+</div>
+EOT;
+
+        //distill what we actually need now...
+        $myFinalValues = array(
+            'jwplayer'      => $jwplayer,
+            'jwplaylist'    => $jwplaylist,
+            //'jwplaylistjs'  => $jwplaylistJS,
+            'class'         => $myDefaults['class'],
+            'width'         => $myDefaults['width'],
+        );
+
+        //swap out the place holders with the actual values
+        foreach($myFinalValues as $key=>$val) {
+            $replace = "%".$key."%";
+            $final = str_replace($replace, $val, $final);
+        }
+
+        $content .= $shortcode_bak.$final.$other;
+    }
+    return $content;
+}
+
 
 function ei8_xmlrpc_parse_shortcode($content,$type='') {
     $parts = explode('[ei8', $content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
+    $playlistBlockSkip = false;
     foreach($parts as $part) {
         //handle the first part that precedes the shortcode
         if(empty($content)) {
@@ -767,6 +916,18 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
 
         //skip expander stuff
         if(preg_match('/(Expander)/',$working)) {
+            $content .= '[ei8'.$part;
+            continue;
+        }
+
+        //skip playlist blocks and everything in them (because they have already been parsed)
+        if(preg_match('/(PlaylistEnd)/',$working)) {
+            $playlistBlockSkip = false;
+            $content .= '[ei8'.$part;
+            continue;
+        }
+        if($playlistBlockSkip==true || preg_match('/(Playlist)/',$working)) {
+            $playlistBlockSkip = true;
             $content .= '[ei8'.$part;
             continue;
         }
@@ -841,6 +1002,7 @@ EOT;
         $myValues['height'] = ei8_coalesce($myValues['height'], $urlParts['height'], $urlParts['h'], $dHeight);
         //$myValues['affiliate'] = (empty($myValues['affiliate'])) ? "" : $showAffiliate ;
         //$myValues['affiliate'] = (ei8_coalesce($myValues['affiliate'],$urlParts['affiliate'])) ? $showAffiliate : '' ;
+        $myValues['hide_affiliate'] = ($myValues['affiliate']) ? "" : 1 ;
 
         //get the jwplayer embed code
         $guid = ei8_xmlrpc_get_guid_from_url($myValues['url']);
@@ -886,5 +1048,106 @@ EOT;
         */
     }
     return $content;
+}
+
+
+function ei8_xmlrpc_parse_shortcodes($content) {
+    $shortcodes = array();
+    $parts = explode('[ei8', $content);
+    $content_bak = $content; //make a copy before we start just in case we need to roll back
+    $content = "";
+    foreach($parts as $part) {
+        $part = trim($part);
+        //handle the first part that precedes the shortcode
+        if(empty($shortcodes) && $part!='') {
+            $shortcodes[]['pre'] = $part;
+            //$content = $part;
+            continue;
+        }
+
+        //now pull out the shortcode from the 'other' part of the content
+        list($working, $other) = explode("]", $part, 2);
+
+        $shortcode = "<!--[ei8".$working."]-->";
+
+        $working_bak = $working;
+
+        //remove unneeded whitespace, ensure correct formatting of needed whitespace
+        $working = trim($working);
+        $working = htmlspecialchars_decode($working);
+        $working = htmlspecialchars_decode($working);
+        //$working = preg_replace('%\s%',' ',$working);
+        //$working = str_replace('&nbsp;',' ',$working);
+        //$working = str_replace('  ',' ',$working);
+        $working = strip_tags($working);
+        //$working = preg_replace('/(\v|\\n|\\r)/','',$working);
+
+        //skip expander stuff
+        if(preg_match('/(Expander)/',$working)) {
+            $shortcodes[]['pre'] = '[ei8'.$part;
+            //$content .= '[ei8'.$part;
+            continue;
+        }
+
+        //split up the shortcode into the different values we have to work with
+        $values = explode(" ",$working);
+
+        $mediaAlign      = ei8_xmlrpc_get_option('ei8_xmlrpc_media_align');
+        $mediaClass      = 'ei8-embedded-content';
+        if($mediaAlign!='') $mediaClass .= '-'.$mediaAlign;
+        //if($mediaAlign!='') $mediaClass = 'align'.$mediaAlign;
+
+
+        $myValues = array(
+            'class' => $mediaClass,
+        );
+        $myAlign = '';
+        foreach($values as $statement) {
+            //handle the first part that is the video url
+            //if(empty($myValues)) {
+            //    $myValues['url'] = $statement;
+            //    continue;
+            //}
+            if(!strstr($statement,"=")) {
+                if(!isset($myValues['url']));
+                $name = 'url';
+            } //continue; //malformed expression
+            list($name,$val) = explode("=",$statement,2);
+            if($name=='audio') $type='audio';
+            if($name=="audio" | $name=="video") $name = 'url';
+            //if($name=="align") $myAlign = "style='text-align:".trim($val)."';";
+            if($name=='class') continue;
+            //elseif($name=="align") $myAlign = trim($val);
+            else $myValues[trim($name)] = trim($val);
+        }
+
+        //extract height and width from url (and potentially align)
+        $urlQueryParts = explode('&', htmlspecialchars_decode($myValues['url']), 2);
+        parse_str($urlQueryParts[1], $urlParts);
+
+        //handle audio vs video default dimensions
+        $dWidth = ($type=="audio") ? ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_width_audio'), 500) : ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_width_video'), 320) ;
+        $dHeight = ($type=="audio") ? ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_height_audio'), 30) : ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_default_height_video'), 260);
+
+        //handle necessary defaults
+        $myValues['width']  = ei8_coalesce($myValues['width'], $urlParts['width'], $urlParts['w'], ei8_xmlrpc_get_option('ei8_xmlrpc_default_width'), $dWidth);
+        $myValues['height'] = ei8_coalesce($myValues['height'], $urlParts['height'], $urlParts['h'], $dHeight);
+        $myValues['affiliate'] = (ei8_coalesce($myValues['affiliate'],$urlParts['affiliate']));
+
+        //get the media guid
+        $myValues['guid'] = ei8_xmlrpc_get_guid_from_url($myValues['url']);
+
+        //handle alignment
+        $dAlign = trim(ei8_coalesce($myValues['align'],$urlParts['align'],''));
+        if($dAlign!='') $myValues['class'] .= " ei8-align-$dAlign";
+
+        //put it all into the array
+        $shortcodes[] = array(
+            'pre' => $shortcode,
+            'values' => $myValues,
+            'post'   => $other
+        );
+    }
+    return $shortcodes;
 }
 ?>

@@ -95,6 +95,7 @@ function ei8_xmlrpc_shortcode_options() {
     <table class="form-table">
         <tr><td colspan=2><strong>Shortcodes are tags that can be pasted into any page or post to automatically include formatted content or functionality from ei8t.com.<br>
             These shortcodes bypass many wordpress mechanisms that can filter or alter pasted html code.</strong></td></tr>
+        <tr><td colspan=2><h3>Shortcodes for Recording or Uploading</h3></td></tr>
         <tr valign="top">
             <th scope="row">Static tags:</th>
             <td>
@@ -111,9 +112,13 @@ function ei8_xmlrpc_shortcode_options() {
         <tr valign="top">
             <th scope="row">Expander tags:</th>
             <td>
-                <strong>NOTE: for the expander tags to work properly, there must be an ExpanderTitle properly placed within an ExpanderBody.<br>
-                    Spacing and line breaks do not matter<br>
-                    You may be able to copy and paste from the example below, or you may need to contact eInnov8 for technical assistance</strong><br>
+                <span style='font-weight: bold'>
+                    <ul style='list-style: disc;'>NOTE: for expander tags to work properly:
+                        <li style="margin-left: 40px">There must be an ExpanderTitle properly placed within an ExpanderBody</li>
+                        <li style="margin-left: 40px">Spacing and line breaks do not matter</li>
+                        <li style="margin-left: 40px">You may be able to copy and paste from the example below, or you may need to contact eInnov8 for technical assistance</li>
+                    </ul>
+                </span>
                 [ei8 ExpanderBody]<br>
                 [ei8 ExpanderTitle]Some title[ei8 ExpanderTitleEnd]<br>
                 Some content here...as much as you want!!<br>
@@ -147,6 +152,8 @@ function ei8_xmlrpc_shortcode_options() {
                 [ei8 TallRecorder v=8hvJLMMDDr9] <i>(only override the video...audio follows default settings)</i><br>
             </td>
         </tr>
+
+        <tr><td colspan=2><h3>Shortcodes for Media Playback</h3></td></tr>
         <tr><td colspan=2><strong>The following are samples of video and audio shortcodes that can be copied from ei8t.com:</strong></td></tr>
         <tr valign="top">
             <th scope="row">Video example: </th>
@@ -164,6 +171,26 @@ function ei8_xmlrpc_shortcode_options() {
             <th scope="row">Alignment example: (left/center/right)</th>
             <td>
                 [ei8 url=http://www.dev.ei8t.com/swf/wq3HXt4Jz&w=500&h=20&bm=td&cp=000000-FFFFFF-000000-000000 align=left]
+            </td>
+        </tr>
+        <tr valign="top">
+            <th scope="row">Playlist example:</th>
+            <td>
+                <span style='font-weight: bold'>
+                    <ul style='list-style: disc;'>NOTE: for the playlists to work properly:
+                        <li style="margin-left: 40px">There can be as many items in the playlist as you wish, these are added as normal [ei8 url=...] tags</li>
+                        <li style="margin-left: 40px">There must be a PlaylistEnd tag properly placed at the end of the playlist.</li>
+                        <li style="margin-left: 40px">Spacing and line breaks do not matter</li>
+                        <li style="margin-left: 40px">Any text or other content contained within a playlist block will be ignored</li>
+                        <li style="margin-left: 40px">You may be able to copy and paste from the example below, or you may need to contact eInnov8 for technical assistance</li>
+                    </ul>
+                </span>
+                [ei8 Playlist]<br>
+                [ei8 url=http://www.dev.ei8t.com/swf/d3tRs77ffYq width=352 height=284 skin=black]<br>
+                [ei8 url=http://www.dev.ei8t.com/swf/fj4Wskcpq8J width=320 height=260 skin=black]<br>
+                [ei8 url=http://www.dev.ei8t.com/swf/bMZNkrjWQ38 width=320 height=260 skin=black]<br>
+                [ei8 url=http://www.dev.ei8t.com/swf/3gVsJFwcxHN width=320 height=260 skin=black]<br>
+                [ei8 PlaylistEnd]
             </td>
         </tr>
     </table>

@@ -111,10 +111,39 @@ textarea {
 /* These are designated, and could be useful, but no styling is used by default */
 .ei8-web-recorder-mini, .ei8-web-recorder-tall, .ei8-web-recorder-media {}
 .ei8-textarea, .ei8-textarea-updesc, .ei8-textarea-simple-submit, .ei8-textarea-tweet {}
+.ei8-playlist-player, .ei8-playlist {}
 
 
 
-
+/* These are used for the playlist item display */
+.ei8-playlist-container {
+    margin-bottom: 25px;
+}
+.ei8-playlist ul {
+    padding-left: 0px;
+}
+.ei8-playlist ul li {
+    list-style: none;
+    display: block;
+}
+.ei8-playlist-item {
+    display: block;
+    clear: both;
+    width: 350px;
+    padding: 10px;
+    margin: 5px 10px 5px 0px ;
+}
+.ei8-playlist-item-image {
+    display: inline;
+    float: left;
+    margin-right: 10px;
+}
+.ei8-playlist-item-image img {
+    width: 100px;
+}
+.ei8-playlist-item-title {
+    font-weight: bold;
+}
 
 
 /* These are used for the twitter form */
