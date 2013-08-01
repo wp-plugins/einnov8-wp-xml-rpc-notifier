@@ -193,6 +193,21 @@ function ei8_xmlrpc_shortcode_options() {
                 [ei8 PlaylistEnd]
             </td>
         </tr>
+        <tr valign="top">
+            <th scope="row">Playlist customization:</th>
+            <td>
+                <span>
+                    <ul style='list-style: disc;'>The following are variables you can set within the [ei8 Playlist] tag
+                        <li style="margin-left: 40px"><strong>align</strong> [options: left, right, center] <i>(overrides default playlist alignment)</i></li>
+                        <li style="margin-left: 40px"><strong>width</strong> [any numeric pixel width]</li>
+                        <li style="margin-left: 40px"><strong>autoplay</strong> [options: true, false] <i>(default: true)</i></li>
+                    </ul>
+                </span>
+                [ei8 Playlist <strong>align=right width=600 autoplay=false</strong>]<br>
+                ...[ei8 shortcodes go here]...<br>
+                [ei8 PlaylistEnd]
+            </td>
+        </tr>
     </table>
 </div>
 <?php
