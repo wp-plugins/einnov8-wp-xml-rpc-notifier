@@ -111,12 +111,265 @@ textarea {
 /* These are designated, and could be useful, but no styling is used by default */
 .ei8-web-recorder-mini, .ei8-web-recorder-tall, .ei8-web-recorder-media {}
 .ei8-textarea, .ei8-textarea-updesc, .ei8-textarea-simple-submit, .ei8-textarea-tweet {}
-.ei8-playlist-player, .ei8-playlist {}
+.ei8-playlist {}
 
 
 
 /* These are used for the playlist item display */
 .ei8-playlist-container {
+    margin-bottom: 25px;
+}
+.ei8-playlist-player {
+    margin-bottom: 5px;
+}
+#content .ei8-playlist ul {
+    padding-left: 0px;
+    margin-left: 0px;
+    margin-right: -30000px;
+}
+.ei8-playlist ul li {
+    list-style: none;
+    display: inline-block;
+    float: left;
+    width: 100px;
+}
+.ei8-playlist-item {
+    display: inline-block;
+    clear: both;
+    width: 90px;
+    padding: 10px;
+    margin: 0px ;
+    float: left;
+}
+.ei8-playlist-item-image {
+    display: inline;
+    float: left;
+    margin-right: 10px;
+    /*height: 80px;*/
+}
+.ei8-playlist-item-info {
+    display: none;
+    /*display: inline-block;*/
+    float: left;
+    margin-right: 10px;
+}
+.ei8-playlist-item-image img {
+    width: 80px;
+}
+.ei8-playlist-item-title {
+    font-weight: bold;
+
+}
+.ei8-playlist {
+    border: 1px #FFFFFF solid;
+    overflow-y: hidden;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.wrapword{
+    white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    white-space: pre-wrap;       /* css-3 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    word-break: break-all;
+    white-space: normal;
+}
+
+.ei8-playlist-player div .jwplayer {
+    border: 5px solid #eee;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+
+}
+
+.jThumbnailScroller {
+    position: relative;
+    height: 90px;
+    /*margin: 0px auto 0 auto;*/
+    border: 5px solid #eee;
+    background: #bbb;
+    padding: 0;
+    overflow: hidden;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.jThumbnailScroller .jTscrollerContainer {
+    position: absolute;
+}
+
+.jThumbnailScroller .jTscroller {
+    position: relative;
+    height: 100%;
+    margin: 0;
+    left: 0;
+    top: 0;
+    display: inline-block;
+    *display: inline;
+}
+
+.jThumbnailScroller .jTscrollerNextButton, .jThumbnailScroller .jTscrollerPrevButton {
+    position: absolute;
+    display: block;
+    width: 40px;
+    height: 40px;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+    opacity: 0.7;
+}
+
+.jThumbnailScroller .jTscrollerNextButton {
+    background: #000 url(nextArrow.png) center center;
+}
+
+.jThumbnailScroller .jTscrollerPrevButton {
+    background: #000 url(prevArrow.png) center center;
+}
+
+.jThumbnailScroller .jTscrollerNextButton:hover, .jThumbnailScroller .jTscrollerPrevButton:hover {
+    /*background-color: #d56916;*/
+    background-color: #536CA5;
+    opacity: 1;
+}
+
+.jThumbnailScroller .jTscroller a {
+    display: block;
+    float: left;
+    border: 5px solid #ddd;
+    margin: 6px 10px 6px 0;
+    background: #fff;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    background-color: #eee;
+}
+
+.jThumbnailScroller .jTscroller a:hover {
+    border-color: #fff;
+}
+
+.jThumbnailScroller .jTscroller a:first-child {
+    margin-left: 10px;
+}
+
+
+.jThumbnailScroller .jTscroller a img {
+    border: none;
+    height: 65px;
+}
+
+/* different styled scrollers */
+/* liquid width scroller */
+.jThumbnailScroller {
+    /*margin: 30px auto;*/
+}
+
+.jThumbnailScroller .jTscroller a {
+    opacity: 0.7;
+}
+
+.jThumbnailScroller .jTscroller a:hover {
+    opacity: 1;
+}
+
+.jThumbnailScroller .jTscrollerNextButton {
+    margin: -20px 10px 0 10px;
+    right: 0;
+    top: 50%;
+}
+
+.jThumbnailScroller .jTscrollerPrevButton {
+    margin: -20px 10px 0 10px;
+    left: 0;
+    top: 50%;
+}
+
+.jThumbnailScroller#tS1 {
+    width: 95%;
+}
+
+.jThumbnailScroller#tS2 {
+    margin: 30px auto;
+}
+
+.jThumbnailScroller#tS2 .jTscroller a {
+    opacity: 0.7;
+}
+
+.jThumbnailScroller#tS2 .jTscroller a:hover {
+    opacity: 1;
+}
+
+.jThumbnailScroller#tS2 .jTscrollerNextButton {
+    margin: -20px 10px 0 10px;
+    right: 0;
+    top: 50%;
+}
+
+.jThumbnailScroller#tS2 .jTscrollerPrevButton {
+    margin: -20px 10px 0 10px;
+    left: 0;
+    top: 50%;
+}
+
+/* a vertical scroller */
+.jThumbnailScroller#tS3 {
+    position: absolute;
+    left: 40px;
+    top: 322px;
+    width: 122px;
+    height: 400px;
+    margin: 0;
+    background: #eee;
+}
+
+.jThumbnailScroller#tS3 .jTscroller {
+    height: auto;
+    margin-bottom: 40px;
+}
+
+.jThumbnailScroller#tS3 .jTscroller a {
+    display: block;
+    margin: 0 6px 10px 6px;
+    width: 100px;
+    overflow: hidden;
+    opacity: 0.7;
+}
+
+.jThumbnailScroller#tS3 .jTscroller a:hover {
+    opacity: 1;
+}
+
+.jThumbnailScroller#tS3 .jTscroller a:first-child {
+    margin-top: 50px;
+}
+
+.jThumbnailScroller#tS3 .jTscrollerNextButton {
+    margin: 10px 0 10px -20px;
+    bottom: 0;
+    left: 50%;
+    -moz-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+}
+
+.jThumbnailScroller#tS3 .jTscrollerPrevButton {
+    margin: 10px 0 10px -20px;
+    top: 0;
+    left: 50%;
+    -moz-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+}
+
+/*.ei8-playlist-container {
     margin-bottom: 25px;
 }
 .ei8-playlist ul {
@@ -143,7 +396,8 @@ textarea {
 }
 .ei8-playlist-item-title {
     font-weight: bold;
-}
+}*/
+
 
 
 /* These are used for the twitter form */

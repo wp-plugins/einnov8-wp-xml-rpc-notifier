@@ -267,6 +267,18 @@ function ei8_xmlrpc_admin_options() {
             $var = 'ei8_xmlrpc_media_align';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
 
+            $var = 'ei8_xmlrpc_playlist_align';
+            ei8_xmlrpc_update_option($var, $_POST[$var]);
+
+            $var = 'ei8_xmlrpc_playlist_layout';
+            ei8_xmlrpc_update_option($var, $_POST[$var]);
+
+            $var = 'ei8_xmlrpc_playlist_show_title';
+            ei8_xmlrpc_update_option($var, $_POST[$var]);
+
+            $var = 'ei8_xmlrpc_playlist_show_description';
+            ei8_xmlrpc_update_option($var, $_POST[$var]);
+
             $var = 'ei8_xmlrpc_hide_admin_options';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
 
@@ -327,7 +339,12 @@ function ei8_xmlrpc_admin_options() {
     $postType        = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
     $post_types      = ei8_get_post_types();
     $mediaAlign      = ei8_xmlrpc_get_option('ei8_xmlrpc_media_align');
+    $playlistAlign   = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_align');
+    $playlistLayout  = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_layout');
     $align_options   = array('left','center','right');
+    $playlist_layout_options    = array('horizontal','vertical','list');
+    $playlist_show_title        = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_show_title');
+    $playlist_show_description  = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_show_description');
 
 ?>
 <div class="wrap">
@@ -507,73 +524,6 @@ function ei8_xmlrpc_admin_options() {
                                 echo "<img src='$profilepic' align='left' style='padding-right:10px;'> Screen name: $username <br><small><a href='$resetUrl'>Reset Twitter Credentials</a></small>";
                             }
                         }
-/*
-                        //handle twitter authentication
-
-                        $twitterToken  = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_token');
-                        $twitterSecret = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_secret');
-
-                        require 'lib/EpiCurl.php';
-                        require 'lib/EpiOAuth.php';
-                        require 'lib/EpiSequence.php';
-                        require 'lib/EpiTwitter.php';
-                        require 'lib/secret.php';
-
-                        //protected $callback = 'http://einnov8.com';
-
-
-                        $twitterObj = new EpiTwitter($consumer_key, $consumer_secret);
-                        $twitterObj->setCallBack( ei8_xmlrpc_get_plugin_url() . "twitter_callback.php" );
-
-                        if($_REQUEST['resetTwitter']) {
-                            $twitterToken = $twitterSecret = "";
-                            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', "");
-                            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', "");
-                            echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection reset");
-                        } elseif($_GET['oauth_token']) {
-                            $twitterObj->setToken($_GET['oauth_token']);
-                            $token = $twitterObj->getAccessToken();
-                            print("<p>TwitterObj: <pre>");
-                            print_r($twitterObj);
-                            print("</pre></p>");
-                            print("<p>TwitterInfo: <pre>");
-                            //echo "<p>GOT HERE</p>"; exit;
-                            $twitterToken  = $token->oauth_token;
-                            $twitterSecret = $token->oauth_token_secret;
-                            $twitterObj->setToken($twitterToken, $twitterSecret);
-                            $twitterInfo= $twitterObj->get_accountVerify_credentials();
-                            print_r($twitterInfo);
-                            print("</pre></p>");
-                            exit();
-                            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_token', $twitterToken);
-                            ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', $twitterSecret);
-                            echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection established");
-                        }
-
-                        //echo ei8_xmlrpc_conf_message(false,$title='DEBUG Twitter connection settings',$text="token:$twitterToken secret:$twitterSecret");
-
-                        if(empty($twitterToken) || empty($twitterSecret)) {
-                            //$token = $twitterObj->getAccessToken();
-                            $url = $twitterObj->getAuthorizationUrl();
-
-                            //print("<p>TwitterObj: <pre>");
-                            //print_r($twitterObj);
-                            //print("</pre></p>");
-                            //$url .= (strstr($url,'?')) ? "&" : "?" ;
-                            //$url .= "oauth_callback=".urlencode($ei8AdminUrl);
-                            echo "<a href='$url'>Authorize an account with Twitter</a>";
-                        } else {
-                            $twitterObj->setToken($twitterToken, $twitterSecret);
-                            $twitterInfo= $twitterObj->get_accountVerify_credentials();
-                            $twitterInfo->response;
-
-                            $username = $twitterInfo->screen_name;
-                            $profilepic = $twitterInfo->profile_image_url;
-
-                            $resetUrl = $ei8AdminUrl."&resetTwitter=1#ei8xmlrpctwittersettings";
-                            echo "<img src='$profilepic' align='left' style='padding-right:10px;'> Screen name: $username <br><small><a href='$resetUrl'>Reset Twitter Credentials</a></small>";
-                        }
-*/
 ?>
                 </td>
             </tr>
@@ -598,6 +548,37 @@ function ei8_xmlrpc_admin_options() {
 ?>
                     </select></td>
             </tr>
+            <tr valign="top">
+                <th scope="row">Default playlist alignment:</th>
+                <td><select name='ei8_xmlrpc_playlist_align'>
+<?php
+                        foreach ($align_options as $align ) {
+                            $selected = ($align==$playlistAlign || (empty($playlistAlign) && $align=="left")) ? "SELECTED" : "" ;
+                            echo "<option value=\"$align\" $selected>$align</option>";
+                        }
+?>
+                    </select></td>
+            </tr>
+<!--            <tr valign="top">
+                <th scope="row">Default playlist layout:</th>
+                <td><select name='ei8_xmlrpc_playlist_layout'>
+<?php
+                        foreach ($playlist_layout_options as $layout ) {
+                            $selected = ($layout==$playlistLayout || (empty($playlistLayout) && $layout=="horizontal")) ? "SELECTED" : "" ;
+                            echo "<option value=\"$layout\" $selected>$layout</option>";
+                        }
+?>
+                    </select></td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">Playlist show title:</th>
+                <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_playlist_show_title',$playlist_show_title); ?></td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">Playlist show description:</th>
+                <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_playlist_show_description',$playlist_show_description); ?></td>
+            </tr>
+-->
             <tr>
                 <td><h3>Web Recorder Settings</h3></td>
                 <td><small>ex. http://www.ei8t.com/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small></td>
@@ -666,7 +647,7 @@ function ei8_xmlrpc_email_options() {
             </script>
             </head>
             <body>
-                Sorry. Please use this <a href="<?php echo $ei8AdminUrl; ?>" title="New Post">link</a>.
+                Sorry. Please use this <a href="<?php echo $ei8AdminUrl; ?>">link</a>.
             </body>
             </html>
 

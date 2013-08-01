@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 FLOODtech Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Floodtech system at ei8t.com as well as the wp native xml-rpc functionality.
-Version: 2.6.1
+Version: 2.6.2
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -575,6 +575,14 @@ function ei8_enqueue_scripts() {
     wp_register_script( 'ei8-xmlrpc-jwplayer', 'http://p.jwpcdn.com/6/4/jwplayer.js?ver=3.5.1' );
     wp_enqueue_script( 'ei8-xmlrpc-jwplayer' );
 
+    //thumbnail scroller
+    wp_register_script( 'ei8-jquery-custom', ei8_plugins_url('/jquery-ui-1.8.13.custom.min.js'), array('jquery') );
+    wp_enqueue_script( 'ei8-jquery-custom' );
+
+    //thumbnail scroller
+    wp_register_script( 'ei8-thumbnail_scroller', ei8_plugins_url('/jquery.thumbnailScroller.js'), array('jquery') );
+    wp_enqueue_script( 'ei8-thumbnail_scroller' );
+
 }
 add_action('wp_enqueue_scripts', 'ei8_enqueue_scripts');
 
@@ -747,7 +755,7 @@ function ei8_xmlrpc_get_first_valid_element_from_array($array, $key) {
 
 
 function ei8_xmlrpc_parse_playlist($content,$type='') {
-    $parts = explode('[ei8 Playlist]', $content);
+    $parts = explode('[ei8 Playlist', $content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     $playList = array();
@@ -759,9 +767,46 @@ function ei8_xmlrpc_parse_playlist($content,$type='') {
         }
 
         //now pull out the shortcode from the 'other' part of the content
-        list($working, $other) = explode("[ei8 PlaylistEnd]", $part, 2);
+        list($pWorking, $working) = explode("]", $part, 2);
 
-        $shortcode_bak = "<!--[ei8 Playlist]".$working."[ei8 PlaylistEnd]-->";
+        //echo "<p>pWorking: <pre>$pWorking</pre></p>";
+        //echo "<p>working: <pre>$working</pre></p>";
+
+        //remove unneeded whitespace, ensure correct formatting of needed whitespace
+        $pWorking = trim($pWorking);
+        $pWorking = htmlspecialchars_decode($pWorking);
+        $pWorking = htmlspecialchars_decode($pWorking);
+        $pWorking = strip_tags($pWorking);
+
+        if($pWorking=='End') {
+            //echo '<p>encountered "ei8 PlaylistEnd"</p>';
+            $content .= $working;
+            continue;
+        } else {
+            //echo '<p>trying to work with the ei8 Playlist"</p>';
+        }
+
+        //split up the shortcode into the different values we have to work with
+        $values = explode(" ",$pWorking);
+
+        $myDefaults = array(
+            'class' => $playlistClass,
+        );
+        $myAlign = '';
+        foreach($values as $statement) {
+            list($name,$val) = explode("=",$statement,2);
+            if($name=="align") $name = 'class';
+            $myDefaults[trim($name)] = trim($val);
+        }
+        
+        $playlistAlign      = ei8_coalesce($myDefaults['class'], ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_align'), 'left');
+        $playlistClass      = 'ei8-embedded-content';
+        if($playlistAlign!='') $playlistClass .= '-'.$playlistAlign;
+
+        //now pull out the other shortcodes from 'the rest' of the content
+        //list($working, $other) = explode("[ei8 PlaylistEnd]", $theRest, 2);
+
+        $shortcode_bak = "<!--[ei8 Playlist ".$pWorking."]".$working."[ei8 PlaylistEnd]-->";
 
         $working_bak = $working;
 
@@ -785,9 +830,10 @@ function ei8_xmlrpc_parse_playlist($content,$type='') {
         //echo "<p>urlParts<pre>"; print_r($urlParts); echo "</pre></p>";
         //echo "<p>url: $url<br>url_playlist: $url_playlist<br>url_player: $url_player</p>";
 
-        $defaults = array('class', 'width', 'height', 'skin', 'autostart', 'repeat', 'affiliate','guid');
-        $myDefaults = array();
-        foreach($defaults as $param) $myDefaults[$param] = ei8_xmlrpc_get_first_valid_element_from_array($myShortcodes,$param);
+        $defaults = array('class', 'width', 'height', 'skin', 'autostart', 'repeat', 'affiliate', 'guid');
+        //$myDefaults = array();
+        foreach($defaults as $param) if(!isset($myDefaults[$param])) $myDefaults[$param] = ei8_xmlrpc_get_first_valid_element_from_array($myShortcodes,$param);
+        //echo "<p>myDefaults<pre>"; print_r($myDefaults); echo "</pre></p>";
 
         //set up the query string we will be using
         $query_str = "";
@@ -809,8 +855,9 @@ function ei8_xmlrpc_parse_playlist($content,$type='') {
         $playlist_xml  = simplexml_load_file($url_playlist);
 
         //now start building the actual display and js
-        $jwplaylist = "";
+        $jwplaylist = $jwplaylist2 = "";
         $jwplayerEl = "Player".$myDefaults['guid'];
+        $jwplayerPlaylistEl = $jwplayerEl."Playlist";
         foreach($playlist_xml->media as $media) {
 ///ADD IN PREFERENCES HERE??
             $myFile1 = $media->sources->source[0]->file;
@@ -818,6 +865,7 @@ function ei8_xmlrpc_parse_playlist($content,$type='') {
             $myImage = $media->image;
             $myTitle = $media->title;
             $myDesc  = $media->description;
+            $myTitleSafe = addslashes($myTitle);
 
             $jwplaylist .=<<<EOT
 
@@ -826,12 +874,16 @@ function ei8_xmlrpc_parse_playlist($content,$type='') {
                     <a href="javascript:ei8PlaylistLoad('$jwplayerEl','$myFile1','$myFile2','$myImage')">
                         <div class="ei8-playlist-item-image"><img src='$myImage' border='0'></div>
                         <div class="ei8-playlist-item-info">
-                            <div class="ei8-playlist-item-title">$myTitle</div>
-                            <div class="ei8-playlist-item-description">$myDesc</div>
+                            <div class="ei8-playlist-item-title wrapword">$myTitle</div>
+                            <!-- <div class="ei8-playlist-item-description wrapword">$myDesc</div> -->
                         </div>
                     </a>
                 </div>
             </li>
+EOT;
+
+            $jwplaylist2 .=<<<EOT
+                <a href="javascript:ei8PlaylistLoad('$jwplayerEl','$myFile1','$myFile2','$myImage')" title="$myTitleSafe"><img src='$myImage' border='0'></a>
 EOT;
         }
 
@@ -849,6 +901,25 @@ EOT;
             jwplayer(myPlayer).play(true);
         }
     }
+    jQuery.noConflict();
+    (function($){
+        window.onload=function(){
+            $("#%jwplaylistID%").thumbnailScroller({
+                scrollerType:"clickButtons",
+                scrollerOrientation:"horizontal",
+                scrollSpeed:2,
+                scrollEasing:"easeOutCirc",
+                scrollEasingAmount:600,
+                acceleration:4,
+                scrollSpeed:800,
+                noScrollCenterSpace:10,
+                autoScrolling:0,
+                autoScrollingSpeed:2000,
+                autoScrollingEasing:"easeInOutQuad",
+                autoScrollingDelay:500
+            });
+        }
+    })(jQuery);
 </script>
 <div class='ei8-playlist-container'>
     <div class='ei8-playlist-player'>
@@ -856,18 +927,27 @@ EOT;
             %jwplayer%
         </div>
     </div>
-    <div class='ei8-playlist'>
-        <ul>
-            %jwplaylist%
-        </ul>
+    <div id="%jwplaylistID%" class="jThumbnailScroller %class%" style="width:%width%px">
+        <div class="jTscrollerContainer">
+            <div id="%jwplaylistID%Scroller" class="jTscroller">
+                %jwplaylist2%
+            </div>
+        </div>
+        <a href="#" class="jTscrollerPrevButton"></a>
+        <a href="#" class="jTscrollerNextButton"></a>
     </div>
 </div>
+<div style="clear: both;"></div>
+
 EOT;
 
         //distill what we actually need now...
         $myFinalValues = array(
             'jwplayer'      => $jwplayer,
             'jwplaylist'    => $jwplaylist,
+            'jwplaylist2'   => $jwplaylist2,
+            'jwplayerID'    => $jwplayerEl,
+            'jwplaylistID'  => $jwplayerPlaylistEl,
             //'jwplaylistjs'  => $jwplaylistJS,
             'class'         => $myDefaults['class'],
             'width'         => $myDefaults['width'],
@@ -879,7 +959,8 @@ EOT;
             $final = str_replace($replace, $val, $final);
         }
 
-        $content .= $shortcode_bak.$final.$other;
+        //$content .= $shortcode_bak.$final.$other;
+        $content .= $shortcode_bak.$final;
     }
     return $content;
 }
