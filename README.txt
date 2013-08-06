@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.5
-Stable tag: 2.6.2
+Stable tag: 2.6.3
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	2.6.3   2013/08/05  UPDATE	Add in playlist autoplay functionality
 	2.6.2   2013/07/29  UPDATE	Update Playlist display and admin options
 	2.6.1   2013/07/08  UPDATE	Added Playlist functionality
 	2.6.0   2013/06/03  UPDATE	Upgrade shortcode rendering to use html5 with jwplayer6
@@ -154,6 +155,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.6.3 =
+Add in playlist autoplay functionality
 
 = 2.6.2 =
 Update Playlist display and admin options

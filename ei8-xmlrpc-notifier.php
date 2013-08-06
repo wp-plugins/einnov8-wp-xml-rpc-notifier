@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 FLOODtech Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Floodtech system at ei8t.com as well as the wp native xml-rpc functionality.
-Version: 2.6.2
+Version: 2.6.3
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -626,7 +626,7 @@ function ei8_xmlrpc_filter_shortcode($content,$type='') {
     $content = ei8_xmlrpc_parse_commented_shortcode($content);
 
     //filter out and handle playlists
-    $content = ei8_xmlrpc_parse_playlist($content);
+    $content = ei8_xmlrpc_parse_playlist_shortcode($content);
 
     //filter for player shortcodes
     return ei8_xmlrpc_parse_shortcode($content, $type);
@@ -754,7 +754,7 @@ function ei8_xmlrpc_get_first_valid_element_from_array($array, $key) {
 }
 
 
-function ei8_xmlrpc_parse_playlist($content,$type='') {
+function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
     $parts = explode('[ei8 Playlist', $content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
@@ -789,6 +789,7 @@ function ei8_xmlrpc_parse_playlist($content,$type='') {
         //split up the shortcode into the different values we have to work with
         $values = explode(" ",$pWorking);
 
+        $playlistClass      = 'ei8-embedded-content';
         $myDefaults = array(
             'class' => $playlistClass,
         );
@@ -800,7 +801,6 @@ function ei8_xmlrpc_parse_playlist($content,$type='') {
         }
         
         $playlistAlign      = ei8_coalesce($myDefaults['class'], ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_align'), 'left');
-        $playlistClass      = 'ei8-embedded-content';
         if($playlistAlign!='') $playlistClass .= '-'.$playlistAlign;
 
         //now pull out the other shortcodes from 'the rest' of the content
@@ -823,8 +823,10 @@ function ei8_xmlrpc_parse_playlist($content,$type='') {
         //set the important defaults
         $url = ei8_xmlrpc_get_first_valid_element_from_array($myShortcodes,'url');
         $urlParts = parse_url($url);
-        $url_playlist = "http://".$urlParts['host']."/jw6playlist/";
-        $url_player = "http://".$urlParts['host']."/jw6player/";
+        $host = "http://".$urlParts['host'];
+        $url_player = $host."/jw6player/";
+        $url_playlist = $host."/jw6playlist/";
+        $url_playlistinfo = $host."/jw6playlistinfo/";
         //echo "<p>shortcodes<pre>"; print_r($shortcodes); echo "</pre></p>";
         //echo "<p>myShortcodes<pre>"; print_r($myShortcodes); echo "</pre></p>";
         //echo "<p>urlParts<pre>"; print_r($urlParts); echo "</pre></p>";
@@ -844,20 +846,24 @@ function ei8_xmlrpc_parse_playlist($content,$type='') {
         $QS = $query_str;
         foreach($myShortcodes as $myValues) $QS .= "&guid[]=".$myValues['guid'];
         //add back in the other defaults so that they are recognized as the defaults
-        $url_playlist .= urlencode($QS);
         $url_player .= urlencode($myDefaults['guid']."&".$query_str);
-        //echo "<p>url:$url</p>";
+        $url_playlist .= urlencode($QS);
+        $url_playlistinfo .= urlencode($QS);
+        //echo "<p>url_player:$url_player</p>";
+        //echo "<p>url_playlist:$url_playlist</p>";
 
         //get the jwplayer embed code
-        $jwplayer = file_get_contents($url_player);
+        //$jwplayer = file_get_contents($url_player);
+        $jwplayer = file_get_contents($url_playlist);
 
         //get the jwplaylist xml code
-        $playlist_xml  = simplexml_load_file($url_playlist);
+        $playlist_xml  = simplexml_load_file($url_playlistinfo);
 
         //now start building the actual display and js
-        $jwplaylist = $jwplaylist2 = "";
+        $jwplaylist = $jwplaylist2 = $jwplaylist3 = "";
         $jwplayerEl = "Player".$myDefaults['guid'];
         $jwplayerPlaylistEl = $jwplayerEl."Playlist";
+        $jwplayerPlaylistIndex = 0;
         foreach($playlist_xml->media as $media) {
 ///ADD IN PREFERENCES HERE??
             $myFile1 = $media->sources->source[0]->file;
@@ -866,7 +872,6 @@ function ei8_xmlrpc_parse_playlist($content,$type='') {
             $myTitle = $media->title;
             $myDesc  = $media->description;
             $myTitleSafe = addslashes($myTitle);
-
             $jwplaylist .=<<<EOT
 
             <li>
@@ -885,6 +890,11 @@ EOT;
             $jwplaylist2 .=<<<EOT
                 <a href="javascript:ei8PlaylistLoad('$jwplayerEl','$myFile1','$myFile2','$myImage')" title="$myTitleSafe"><img src='$myImage' border='0'></a>
 EOT;
+
+            $jwplaylist3 .=<<<EOT
+                <a href="javascript:ei8PlaylistItem('$jwplayerEl','$jwplayerPlaylistIndex')" title="$myTitleSafe"><img src='$myImage' border='0'></a>
+EOT;
+            $jwplayerPlaylistIndex++;
         }
 
         $final =<<<EOT
@@ -898,6 +908,12 @@ EOT;
                     ],
                     image: myImage
             }]);
+            jwplayer(myPlayer).play(true);
+        }
+    }
+    if(!(typeof(ei8PlaylistItem) == "function")) {
+        function ei8PlaylistItem(myPlayer,myItem) {
+            jwplayer(myPlayer).playlistItem(myItem);
             jwplayer(myPlayer).play(true);
         }
     }
@@ -930,7 +946,7 @@ EOT;
     <div id="%jwplaylistID%" class="jThumbnailScroller %class%" style="width:%width%px">
         <div class="jTscrollerContainer">
             <div id="%jwplaylistID%Scroller" class="jTscroller">
-                %jwplaylist2%
+                %jwplaylist3%
             </div>
         </div>
         <a href="#" class="jTscrollerPrevButton"></a>
@@ -946,10 +962,12 @@ EOT;
             'jwplayer'      => $jwplayer,
             'jwplaylist'    => $jwplaylist,
             'jwplaylist2'   => $jwplaylist2,
+            'jwplaylist3'   => $jwplaylist3,
             'jwplayerID'    => $jwplayerEl,
             'jwplaylistID'  => $jwplayerPlaylistEl,
             //'jwplaylistjs'  => $jwplaylistJS,
-            'class'         => $myDefaults['class'],
+            //'class'         => $myDefaults['class'],
+            'class'         => $playlistClass,
             'width'         => $myDefaults['width'],
         );
 
