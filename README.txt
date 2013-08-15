@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	2.6.4   2013/08/15  BUG-FIX	Bugfix for proper playlist display in Firefox
 	2.6.3   2013/08/05  UPDATE	Add in playlist autoplay functionality
 	2.6.2   2013/07/29  UPDATE	Update Playlist display and admin options
 	2.6.1   2013/07/08  UPDATE	Added Playlist functionality
@@ -155,6 +156,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 2.6.4 =
+Bugfix for proper playlist display in Firefox
 
 = 2.6.3 =
 Add in playlist autoplay functionality

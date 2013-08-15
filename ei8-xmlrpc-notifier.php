@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 FLOODtech Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Floodtech system at ei8t.com as well as the wp native xml-rpc functionality.
-Version: 2.6.3
+Version: 2.6.4
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -888,11 +888,12 @@ function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
 EOT;
 
             $jwplaylist2 .=<<<EOT
-                <a href="javascript:ei8PlaylistLoad('$jwplayerEl','$myFile1','$myFile2','$myImage')" title="$myTitleSafe"><img src='$myImage' border='0'></a>
+                <a href="javascript:ei8PlaylistLoad('$jwplayerEl','$myFile1','$myFile2','$myImage');" title="$myTitleSafe"><img src='$myImage' border='0'></a>
 EOT;
 
             $jwplaylist3 .=<<<EOT
-                <a href="javascript:ei8PlaylistItem('$jwplayerEl','$jwplayerPlaylistIndex')" title="$myTitleSafe"><img src='$myImage' border='0'></a>
+
+                <a href="javascript:ei8PlaylistItem('$jwplayerEl','$jwplayerPlaylistIndex');"><img src='$myImage' alt="$myTitleSafe"></a>
 EOT;
             $jwplayerPlaylistIndex++;
         }
@@ -928,12 +929,13 @@ EOT;
                 scrollEasingAmount:600,
                 acceleration:4,
                 scrollSpeed:800,
-                noScrollCenterSpace:10,
+                noScrollCenterSpace:50,
                 autoScrolling:0,
                 autoScrollingSpeed:2000,
                 autoScrollingEasing:"easeInOutQuad",
                 autoScrollingDelay:500
             });
+            $("#%jwplaylistID%ScrollerContainer").width($("#%jwplaylistID%ScrollerContainer").width()+2);
         }
     })(jQuery);
 </script>
@@ -944,7 +946,7 @@ EOT;
         </div>
     </div>
     <div id="%jwplaylistID%" class="jThumbnailScroller %class%" style="width:%width%px">
-        <div class="jTscrollerContainer">
+        <div id="%jwplaylistID%ScrollerContainer" class="jTscrollerContainer">
             <div id="%jwplaylistID%Scroller" class="jTscroller">
                 %jwplaylist3%
             </div>
