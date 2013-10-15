@@ -1,4 +1,7 @@
 <?php
+//uncomment this line below to enable verbose install logging & display sql errors
+//$ei8_xmlrpc_debug = 1;
+
 
 //set up customFolders for submit pages
 $customFolderSettings = array(
@@ -52,5 +55,48 @@ function ei8_xmlrpc_storeCustomFolder($folder,$val) {
 //Admin options for page navigation
 $optionP = 'ei8-xmlrpc-options';
 $optionE = 'ei8-xmlrpc-email-options';
+$optionF = 'ei8-xmlrpc-floodgate-options';
+
+
+
+
+//set up floodgate options
+$floodgateOptionPre     = 'ei8_floodgate_';
+$floodgateOptionSettings= array(
+    //$name         => array($title,$default_value,$extra),
+    'name'          => array('Floodgate URL', 'floodgate', 'ie: http://yoursite.com/<span style="color:red">floodgate</span>/'),
+    'pass'          => array('Floodgate Password', 'floodgate'),
+    'client_name'   => array('Client\'s Name', 'Client\'s Name'),
+    'reseller_name' => array('Reseller Name', 'FLOODtech'),
+    'logo'          => array('Company Logo', ei8_plugins_url('/images/logo.png'), 'ie: http://yoursite.com/images/logo.png'),
+);
+$floodgateOptionDefaults= array();
+foreach($floodgateOptionSettings as $key=>$vals) $floodgateOptionDefaults[$key]=$vals[1];
+$floodgateOptions = array_keys($floodgateOptionDefaults);
+
+$floodgateTypes = array(
+    'video' => 'Video',
+    'audio' => 'Audio',
+    'text'  => 'Text',
+    'image' => 'Image'
+);
+
+function ei8_xmlrpc_build_floodgate_option_name($name){
+    global $floodgateOptionPre;
+    return $floodgateOptionPre.$name;
+}
+
+function ei8_xmlrpc_get_floodgate_option($name) {
+    global $floodgateOptionDefaults;
+    $value = ei8_xmlrpc_get_option(ei8_xmlrpc_build_floodgate_option_name($name));
+    //see if we need to force the default value...buy default we do :)
+    if (empty($value) && ($admin==false || $name=='name')) $value = $floodgateOptionDefaults[$name];
+    //echo "<p>ei8_xmlrpc_get_floodgate_option ( $name ) :: ".ei8_xmlrpc_build_floodgate_option_name($name)." ($value)</p>";
+    return stripslashes($value);
+}
+
+function ei8_xmlrpc_update_floodgate_option($name,$val) {
+    return ei8_xmlrpc_update_option(ei8_xmlrpc_build_floodgate_option_name($name), $val);
+}
 
 ?>

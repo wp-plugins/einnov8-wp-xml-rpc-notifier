@@ -61,12 +61,13 @@ function ei8_xmlrpc_settings_link($links, $file) {
 add_action('admin_menu', 'ei8_xmlrpc_options_menu');
 
 function ei8_xmlrpc_options_menu() {
-    global $optionP, $optionE;
+    global $optionP, $optionE, $optionF;
     $hideOptions = ei8_xmlrpc_get_option('ei8_xmlrpc_hide_admin_options');
     if(empty($hideOptions) || current_user_can('edit_users')) {
         add_menu_page('eInnov8 Settings', 'eInnov8 Options', 'edit_others_posts', $optionP, 'ei8_xmlrpc_admin_options');
         add_submenu_page( $optionP, 'eInnov8 Settings', 'Preferences', 'edit_others_posts', $optionP, 'ei8_xmlrpc_admin_options');
         add_submenu_page( $optionP, 'ei8 Email Options', 'Email Notifications', 'edit_others_posts', $optionE, 'ei8_xmlrpc_email_options');
+        add_submenu_page( $optionP, 'ei8 Floodgate Settings', 'Floodgate Settings', 'edit_others_posts', $optionF, 'ei8_xmlrpc_floodgate_settings');
         add_submenu_page( $optionP, 'ei8 Shortcodes', '[ei8 shortcodes]', 'activate_plugins', 'ei8-shortcodes', 'ei8_xmlrpc_shortcode_options');
         add_submenu_page( $optionP, 'ei8 CSS', '[ei8 css]', 'activate_plugins', 'ei8-css', 'ei8_xmlrpc_css_options');
     }
@@ -209,6 +210,154 @@ function ei8_xmlrpc_shortcode_options() {
             </td>
         </tr>
     </table>
+</div>
+<?php
+}
+
+function ei8_xmlrpc_floodgate_settings() {
+    global $optionF, $floodgateOptions, $floodgateOptionSettings;
+    $ei8AdminUrl     = "admin.php?page=".$optionF;
+    $floodgateTargetVarPre = 'ei8_xmlrpc_floodgate_target_';
+
+    if($_POST['action']=="update") {
+        //print_r($_POST);
+        if (current_user_can('edit_others_posts')) {
+
+            //process floodgate options
+            $floodgateName = ei8_xmlrpc_floodgate_get_name();
+            foreach($floodgateOptions as $option) {
+                $var = ei8_xmlrpc_build_floodgate_option_name($option);
+                ei8_xmlrpc_update_option($var, $_POST[$var]);
+            }
+            if ($floodgateName != ei8_xmlrpc_floodgate_get_name())  ei8_xmlrpc_floodgate_update_endpoint();
+
+            //process floodgate targets
+            $targets = array();
+            foreach($_POST as $v=>$val) {
+                if(!strstr($v,$floodgateTargetVarPre)) continue;
+                list($ignore,$ident) = explode($floodgateTargetVarPre,$v);
+                list($id,$var) = explode('_',$ident,2);
+                if(!in_array($id,array_keys($targets))) $targets[$id] = new ei8XmlrpcFloodgateTarget($id);
+                $targets[$id]->$var = $val;
+                /*ei8_xmlrpc_admin_log("<p>Processing submitted target:
+                    <br>floodgateTargetVarPre: $floodgateTargetVarPre
+                    <br>v: $v
+                    <br>ignore: $ignore
+                    <br>ident: $ident
+                    <br>id: $id
+                    <br>var: $var
+                    <br>val: $val</p>");*/
+            }
+            $showTargets = print_r($targets,true);
+            ei8_xmlrpc_admin_log("<p>(".count($targets).") floodgate targets found to process.</p>");
+            //ei8_xmlrpc_admin_log("<p>Targets <pre>$showTargets</pre></p>");
+            if(count($targets)>=1) foreach($targets as $id=>$target) {
+                $showTarget = print_r($target,true);
+                //ei8_xmlrpc_admin_log("<p>Processing target: <pre>$showTarget</pre></p>");
+                //handle empties
+                if($target->target=='') {
+                    if($id=='new') continue;
+                    $target->delete();
+                } else $target->update();
+            }
+        }
+
+        $floodgateName = ei8_xmlrpc_floodgate_get_name();
+        ei8_xmlrpc_admin_log("<p>Your $floodgateName preferences have been updated.</p>",1);
+
+        //echo "<div id='akismet-warning' class='updated fade'><p>$msg</p></div>";
+
+        //force page reload
+        if ( !headers_sent() ) {
+            wp_redirect($ei8AdminUrl);
+        } else {
+            $ei8AdminUrl = admin_url($ei8AdminUrl);
+
+?>
+
+<meta http-equiv="Refresh" content="0; URL=<?php echo $ei8AdminUrl; ?>">
+<script type="text/javascript">
+    <!--
+    document.location.href = "<?php echo $ei8AdminUrl; ?>"
+    //-->
+</script>
+</head>
+<body>
+Sorry. Please use this <a href="<?php echo $ei8AdminUrl; ?>" title="New Post">link</a>.
+</body>
+</html>
+
+<?php
+        }
+        exit();
+
+
+    } //end form processing
+
+?>
+<div class="wrap">
+<?php ei8_screen_icon(); ?>
+
+<h2>Floodgate Settings:</h2>
+<form method="post" action="<?php echo $ei8AdminUrl; ?>">
+    <?php wp_nonce_field('update-options'); ?>
+<table class="form-table">
+    <tr><td><h3>Floodgate Options</h3></td></tr>
+<?php
+    foreach($floodgateOptionSettings as $name=>$vals) {
+        $var = ei8_xmlrpc_build_floodgate_option_name($name);
+        $title = $vals[0];
+        $extra = $vals[2];
+        $val = ei8_xmlrpc_get_floodgate_option($name);
+
+        $showExtra = (empty($extra)) ? '' : '<br><small>('.$extra.')</small>' ;
+?>
+    <tr valign="top">
+        <th scope="row"><?php echo $title ?></th>
+        <td><input type="text" name="<?php echo $var ?>" size=35 value="<?php echo $val ?>" /><?php echo $showExtra ?></td>
+    </tr>
+<?php
+    }
+?>
+    <tr><td><h3>Floodgate Targets</h3></td></tr>
+    <tr valign="top">
+        <th scope="col">Title</th>
+        <th scope="col">Target</th>
+        <th scope="col">Video</th>
+        <th scope="col">Audio</th>
+        <th scope="col">Text</th>
+        <th scope="col">Image</th>
+    </tr>
+<?php
+    $ft = new ei8XmlrpcFloodgateTargets();
+    foreach($ft->targets as $target) {
+        $targetVarPre = $floodgateTargetVarPre.$target->id.'_';
+?>
+    <tr valign="top">
+        <td><input type="text" name="<?php echo $targetVarPre.'title' ?>" size=35 value="<?php echo $target->title ?>" /></td>
+        <td><input type="text" name="<?php echo $targetVarPre.'target' ?>" size=35 value="<?php echo $target->target ?>" /></td>
+        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_video',$target->is_video); ?></td>
+        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_audio',$target->is_audio); ?></td>
+        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_text',$target->is_text); ?></td>
+        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_image',$target->is_image); ?></td>
+    </tr>
+<?php
+    }
+    $targetVarPre = $floodgateTargetVarPre.'new_';
+?>
+    <tr><th colspan=3>Create A New Target <br>(<small>ex. http://www.ei8t.com/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small>)</th></tr>
+    <tr valign="top">
+        <td><input type="text" name="<?php echo $targetVarPre.'title' ?>" size=35 value="New Target" /></td>
+        <td><input type="text" name="<?php echo $targetVarPre.'target' ?>" size=35 value="" /></td>
+        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_video',false); ?></td>
+        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_audio',false); ?></td>
+        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_text',false); ?></td>
+        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_image',false); ?></td>
+    </tr>
+    </table>
+    <input type="hidden" name="action" value="update">
+    <p class="submit"><input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p>
+</form>
 </div>
 <?php
 }
@@ -783,6 +932,28 @@ function ei8_xmlrpc_update_option($id, $value) {
     $wpdb->flush();
 }
 
+function ei8_xmlrpc_update_option_by_id($id, $value) {
+    global $wpdb;
+    $table = $wpdb->prefix . "ei8_xmlrpc_options";
+    $value = addslashes($value);
+    //see if this is a new insert or an update
+    if(is_numeric($id)) {
+        $sql = $wpdb->prepare(
+            "UPDATE $table SET option_value='%s' WHERE ID='%s'",
+            $value,
+            $id
+        );
+    } else {
+        $sql = $wpdb->prepare(
+            "INSERT INTO $table SET option_name='%s', option_value='%s'",
+            $id,
+            $value
+        );
+    }
+    $wpdb->query($sql);
+    $wpdb->flush();
+}
+
 function ei8_xmlrpc_admin_parse_recorder_vars($vars) {
     //parse as a url if it is one...
     if(strstr($vars,'http')) {
@@ -1074,24 +1245,41 @@ function ei8_xmlrpc_admin_install() {
         UNIQUE ( `option_name` )
         );";
 
+    $table2 = $wpdb->prefix . "ei8_floodgate_targets";
+
+    $table2_sql = "CREATE TABLE `{$table2}` (
+        `id` BIGINT( 20 ) NOT NULL AUTO_INCREMENT,
+        `title` VARCHAR( 100 ) NOT NULL ,
+        `target` TEXT NOT NULL,
+        `is_video` TINYINT( 1 ) NOT NULL DEFAULT  '0',
+        `video_order` INT( 3 ) NOT NULL DEFAULT  '5',
+        `is_audio` TINYINT( 1 ) NOT NULL DEFAULT  '0',
+        `audio_order` INT( 3 ) NOT NULL DEFAULT  '5',
+        `is_text` TINYINT( 1 ) NOT NULL DEFAULT  '0',
+        `text_order` INT( 3 ) NOT NULL DEFAULT  '5',
+        `is_image` TINYINT( 1 ) NOT NULL DEFAULT  '0',
+        `image_order` INT( 3 ) NOT NULL DEFAULT  '5',
+        PRIMARY KEY ( `ID` )
+        );";
+
     if($wp_version < 3) require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    $ei8_xmlrpc_db_sql   = $table1_sql ;
+    $ei8_xmlrpc_db_sql   = $table1_sql.$table2_sql ;
 
     $wpdb->flush();
     $errs = 0;
 
     //first check for old testiboonials settings and update if necessary
     $updatedSQL = true;
-    $table2 = $wpdb->prefix . "testiboonials_xmlrpc_options";
-    if($wpdb->get_var("SHOW TABLES LIKE '$table2'")==$table2 && $wpdb->get_var("SHOW TABLES LIKE '$table1'") != $table1) {
+    $tableT = $wpdb->prefix . "testiboonials_xmlrpc_options";
+    if($wpdb->get_var("SHOW TABLES LIKE '$tableT'")==$tableT && $wpdb->get_var("SHOW TABLES LIKE '$table1'") != $table1) {
         ei8_xmlrpc_admin_log("<p>Converting database from older version.</p>",1);
 
         if ($wpdb->get_var("SHOW TABLES LIKE '$table1'") != $table1) {
-            $sql = "CREATE TABLE $table1 LIKE $table2";
-            $errs += ei8_xmlrpc_admin_query($sql);
+            $sql = "CREATE TABLE $table1 LIKE $tableT";
+            $errs = ei8_xmlrpc_admin_query($sql);
 
             if($errs<1) {
-                $sql = "SELECT * FROM $table2";
+                $sql = "SELECT * FROM $tableT";
                 $myrows = $wpdb->get_results($sql);
                 foreach($myrows AS $row) {
 
@@ -1105,8 +1293,7 @@ function ei8_xmlrpc_admin_install() {
                     $sql  = "INSERT INTO $table1 SET ID=$id, option_name='$name', option_value='$val'";
                     $errs += $wpdb->query($sql);
                 }
-                $sql = "DROP table $table2";
-                $errs += ei8_xmlrpc_admin_query($sql);
+                ei8_xmlrpc_admin_query("DROP table $tableT");
 
                 ei8_xmlrpc_admin_log("<p>Storing new table structure</p>");
                 ei8_xmlrpc_update_option("ei8_xmlrpc_db_sql",$ei8_xmlrpc_db_sql);
@@ -1121,9 +1308,9 @@ function ei8_xmlrpc_admin_install() {
         //handle first time installs
     } elseif($wpdb->get_var("SHOW TABLES LIKE '$table1'") != $table1) {
         ei8_xmlrpc_admin_log("<p>Performing initial database installation.</p>",1);
-
         ei8_xmlrpc_admin_log("<p>Creating new tables</p>");
-        $errs += ei8_xmlrpc_admin_query($table1_sql);
+        $errs = ei8_xmlrpc_admin_query($table1_sql,$errs);
+        $errs = ei8_xmlrpc_admin_query($table2_sql,$errs);
 
         if($errs<1) {
             ei8_xmlrpc_admin_log("<p>Storing new table structure</p>");
@@ -1137,34 +1324,64 @@ function ei8_xmlrpc_admin_install() {
         //handle upgrades
     } elseif( ei8_xmlrpc_get_option( "ei8_xmlrpc_db_sql" ) != $ei8_xmlrpc_db_sql ) {
         ei8_xmlrpc_admin_log("<p>Previous database version found...performing database upgrade</p>",1);
-        //ei8_xmlrpc_admin_log("<p>CURRENT ei8_xmlrpc_db_sql :: <pre>".ei8_xmlrpc_get_blog_option( "ei8_xmlrpc_db_sql" )."</pre></p>",1);
-        //ei8_xmlrpc_admin_log("<p>CURRENT ei8_xmlrpc_db_sql :: <pre>".ei8_xmlrpc_get_option( "ei8_xmlrpc_db_sql" )."</pre></p>",1);
-        //ei8_xmlrpc_admin_log("<p>NEW ei8_xmlrpc_db_sql :: <pre>{$ei8_xmlrpc_db_sql}</pre></p>",1);
+        ei8_xmlrpc_admin_log("<p>CURRENT ei8_xmlrpc_db_sql :: <pre>".ei8_xmlrpc_get_option( "ei8_xmlrpc_db_sql" )."</pre></p>");
+        ei8_xmlrpc_admin_log("<p>NEW ei8_xmlrpc_db_sql :: <pre>{$ei8_xmlrpc_db_sql}</pre></p>");
+
+        $table1Bak = $table1.'_bak';
+        $table2Bak = $table2.'_bak';
+
+        $upgradeTable1 = ($wpdb->get_var("SHOW TABLES LIKE '$table1'") == $table1);
+        $upgradeTable2 = ($wpdb->get_var("SHOW TABLES LIKE '$table2'") == $table2);
+        $upgradeTable1Failed = ($wpdb->get_var("SHOW TABLES LIKE '$table1Bak'") == $table1Bak);
+        $upgradeTable2Failed = ($wpdb->get_var("SHOW TABLES LIKE '$table2Bak'") == $table2Bak);
 
         //create table backups
         ei8_xmlrpc_admin_log("<p>Backing up current tables</p>");
-        $table1_bak = $table1."_bak";
-        $errs += ei8_xmlrpc_admin_query( "RENAME TABLE $table1 TO {$table1}_bak;" );
+        if($upgradeTable1) {
+            ei8_xmlrpc_admin_log("<p>FOUND '$table1'...set to upgrade</p>");
+            if ($upgradeTable1Failed) {
+                ei8_xmlrpc_admin_log("<p>OOPS! Looks like an upgrade of the database wasn't completed! ...attempting to clean up $table1 now</p>");
+                $errs = ei8_xmlrpc_admin_query( "DROP TABLE IF EXISTS $table1;", $errs );
+            } else $errs = ei8_xmlrpc_admin_query( "RENAME TABLE $table1 TO $table1Bak;", $errs );
+        }
+        if($upgradeTable2) {
+            ei8_xmlrpc_admin_log("<p>FOUND '$table2'...set to upgrade</p>");
+            if ($upgradeTable2Failed) {
+                ei8_xmlrpc_admin_log("<p>OOPS! Looks like an upgrade of the database wasn't completed! ...attempting to clean up $table2 now</p>");
+                $errs = ei8_xmlrpc_admin_query( "DROP TABLE IF EXISTS $table2;", $errs );
+            } else $errs = ei8_xmlrpc_admin_query( "RENAME TABLE $table2 TO $table2Bak;", $errs );
+        }
 
         //create new tables
         ei8_xmlrpc_admin_log("<p>Creating new tables</p>");
-        $errs += ei8_xmlrpc_admin_query($table1_sql);
+        $errs = ei8_xmlrpc_admin_query($table1_sql, $errs);
+        $errs = ei8_xmlrpc_admin_query($table2_sql, $errs);
 
         //copy data from backups
         ei8_xmlrpc_admin_log("<p>Copying old data into new tables</p>");
-        $errs += ei8_xmlrpc_admin_query( "INSERT INTO $table1 SELECT * FROM {$table1}_bak;" );
+        if($upgradeTable1) $errs = ei8_xmlrpc_admin_query( "INSERT INTO $table1 SELECT * FROM $table1Bak;", $errs );
+        if($upgradeTable2) $errs = ei8_xmlrpc_admin_query( "INSERT INTO $table2 SELECT * FROM $table2Bak;", $errs );
 
         //drop backup tables
         ei8_xmlrpc_admin_log("<p>Dropping backup tables</p>");
-        $errs += ei8_xmlrpc_admin_query( "DROP TABLE {$table1}_bak;" );
+        if($upgradeTable1) $errs = ei8_xmlrpc_admin_query( "DROP TABLE $table1Bak;", $errs );
+        if($upgradeTable2) $errs = ei8_xmlrpc_admin_query( "DROP TABLE $table2Bak;", $errs );
+
+        //see if floodgate needs to be populated
+        $ft = new ei8XmlrpcFloodgateTargets();
+        if(count($ft->getTargets())<1) {
+            ei8_xmlrpc_admin_log("<p>Importing custom folder settings into upgraded floodgate targets</p>",1);
+            $ft->importCustomFolders();
+        }
 
         //update options db_version
         if($errs<1) {
             ei8_xmlrpc_admin_log("<p>Storing new table structure</p>");
-            ei8_xmlrpc_update_option("ei8_xmlrpc_db_sql",$ei8_xmlrpc_db_sql);
+            ei8_xmlrpc_update_option('ei8_xmlrpc_db_sql',$ei8_xmlrpc_db_sql);
             ei8_xmlrpc_admin_log("<p>Database tables updated to current version</p>",1);
         } else {
             ei8_xmlrpc_admin_log("<p class='abq-error'>Errors updating database</p>",1);
+            ei8_xmlrpc_admin_log("<p><b>SQL ERROR:</b><pre style='color:red'>".$wpdb->last_error."</pre></p>");
         }
 
     } else {
@@ -1208,6 +1425,9 @@ function ei8_xmlrpc_admin_install() {
 
     //try to make sure xml-rpc is enabled
     update_site_option('enable_xmlrpc',1);
+
+    //add the endpoint for floodgate url rewriting
+    ei8_xmlrpc_floodgate_update_name();
 }
 
 function ei8_get_web_root() {
@@ -1230,14 +1450,19 @@ function ei8_xmlrpc_admin_log( $msg, $level=2 ) {
 
 //execute sql queries, check for and log any sql errors
 //returns 1 if errors are found, 0 if none
-function ei8_xmlrpc_admin_query($sql) {
+function ei8_xmlrpc_admin_query($sql, $errCt=0) {
     global $wpdb, $ei8_xmlrpc_debug;
 
     //conditionally turn on error reporting
     //NOTE: there has got to be a better way to catch and display sql errors...but I ran out of time...
-    if (isset($ei8_xmlrpc_debug)) $wpdb->show_errors();
-
-    return ( $wpdb->query($sql) === FALSE ) ? 1 : 0 ;
+    //if (isset($ei8_xmlrpc_debug)) $wpdb->show_errors();
+    ei8_xmlrpc_admin_log("<p><b>Running Query:</b> <pre>".$sql."</pre></p>");
+    //if ($wpdb->query($sql) === FALSE && strlen(trim($wpdb->last_error))>=1) {
+    if ($wpdb->query($sql) === FALSE) {
+        ei8_xmlrpc_admin_log("<p style='color:red'><b>SQL ERROR: </b>\"".$wpdb->last_error."\"</p>");
+        $errCt++;
+    }
+    return $errCt ;
 }
 
 //retrieve and display logMsg if it exists
@@ -1250,10 +1475,6 @@ function ei8_xmlrpc_admin_notices() {
     }
 }
 
-//uncomment this line below to enable verbose install logging & display sql errors
-$ei8_xmlrpc_debug = 1;
-
 add_action('admin_init', 'ei8_xmlrpc_admin_install');
 add_action('admin_notices', 'ei8_xmlrpc_admin_notices');
-
 ?>

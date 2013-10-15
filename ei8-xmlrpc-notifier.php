@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //if ( is_admin()) { //tagged out because contentsave.php uses some of these methods
     include_once( dirname(__FILE__) . '/ei8-xmlrpc-settings.php' );
     include_once( dirname(__FILE__) . '/ei8-xmlrpc-admin.php' );
+    include_once( dirname(__FILE__) . '/ei8-xmlrpc-floodgate-controller.php' );
 //}
 
 //process new posts
@@ -55,8 +56,14 @@ function ei8_xmlrpc_publish_post($post_id) {
     $tPing = ei8_xmlrpc_get_option('ei8_xmlrpc_ping');
     if(!empty($tPing)) ei8_add_ping($post_id, $tPing);
 
+    //get the post content
+    $tContent = $post->post_content;
+    //decode the html characters
+    // IMPORTANT SECURITY NOTE: VERY DANGEROUS!!! TAGGED OUT PENDING FURTHER DISCUSSION
+    // THIS WOULD BE USED TO ALLOW HTML SUBMISSIONS VIA XMLRPC
+    //if(!empty($tContent)) $tContent = htmlspecialchars_decode($tContent);
     //autolink urls found in post
-    $tContent = ei8_autolink_safe($post->post_content);
+    if(!empty($tContent)) $tContent = ei8_autolink_safe($tContent);
     if(!empty($tContent)) ei8_update_post_content($post_id, $tContent);
 
     //exit quietly
