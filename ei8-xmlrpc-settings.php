@@ -81,6 +81,17 @@ $floodgateTypes = array(
     'image' => 'Image'
 );
 
+function ei8_xmlrpc_floodgate_get_types($getAll='') {
+    global $floodgateTypes;
+    if(empty($getAll)) return $floodgateTypes;
+    $myFgTypes = array_merge(
+        array('home'=>'Home'),
+        $floodgateTypes,
+        array('support'=>'Support')
+    );
+    return $myFgTypes;
+}
+
 function ei8_xmlrpc_build_floodgate_option_name($name){
     global $floodgateOptionPre;
     return $floodgateOptionPre.$name;

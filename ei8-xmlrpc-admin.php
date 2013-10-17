@@ -1,6 +1,14 @@
 <?php
 //BEGIN ADMIN SECTION
 
+// Enable WP_DEBUG mode
+define('WP_DEBUG', true);
+
+// Enable Debug logging to the /wp-content/debug.log file
+define('WP_DEBUG_LOG', true);
+
+define('WP_DEBUG_DISPLAY', true);
+
 //validate data
 add_action('admin_notices', 'ei8_xmlrpc_validate_data' );
 
@@ -214,58 +222,51 @@ function ei8_xmlrpc_shortcode_options() {
 <?php
 }
 
+function ei8_xmlrpc_floodgate_get_tab($currentTab='') {
+    list($fgTabs,$fgTabUrl) = ei8_xmlrpc_floodgate_get_tab_settings();
+    if($currentTab=='') $currentTab = $_GET['fgTab'];
+    if($currentTab=='') $currentTab = 'settings';
+
+    $currentTitle   = $fgTabs[$currentTab];
+    $currentUrl     = $fgTabUrl.$currentTab;
+
+    return array($currentTab,$currentTitle,$currentUrl);
+}
+
+function ei8_xmlrpc_floodgate_get_tab_settings() {
+    global $optionF;
+    $fgTabs = array(
+        'settings'  => 'Settings',
+        'order'     => 'Order Navigation',
+        'text'      => 'Main Text',
+    );
+    $fgTabUrl   = "admin.php?page=$optionF&fgTab=";
+    return array($fgTabs,$fgTabUrl);
+}
+
+function ei8_xmlrpc_floodgate_show_tabs() {
+    list($currentTab) = ei8_xmlrpc_floodgate_get_tab();
+    list($fgTabs,$fgTabUrl) = ei8_xmlrpc_floodgate_get_tab_settings();
+
+    $nav = '<h2 class="nav-tab-wrapper">';
+    foreach($fgTabs as $tab=>$title) {
+        $showActive = ($currentTab==$tab) ? 'nav-tab-active' : '' ;
+        $nav .= sprintf('<a href="%s" class="nav-tab %s">%s</a>', $fgTabUrl.$tab, $showActive, esc_html($title));
+    }
+    $nav .= '</h2>';
+    echo $nav;
+}
+
 function ei8_xmlrpc_floodgate_settings() {
-    global $optionF, $floodgateOptions, $floodgateOptionSettings;
-    $ei8AdminUrl     = "admin.php?page=".$optionF;
-    $floodgateTargetVarPre = 'ei8_xmlrpc_floodgate_target_';
+    list($currentTab,$currentTitle,$ei8AdminUrl) = ei8_xmlrpc_floodgate_get_tab();
 
-    if($_POST['action']=="update") {
-        //print_r($_POST);
-        if (current_user_can('edit_others_posts')) {
+    $form_process   = 'ei8_xmlrpc_floodgate_process_'.$currentTab;
+    $form_render    = 'ei8_xmlrpc_floodgate_render_'.$currentTab;
 
-            //process floodgate options
-            $floodgateName = ei8_xmlrpc_floodgate_get_name();
-            foreach($floodgateOptions as $option) {
-                $var = ei8_xmlrpc_build_floodgate_option_name($option);
-                ei8_xmlrpc_update_option($var, $_POST[$var]);
-            }
-            if ($floodgateName != ei8_xmlrpc_floodgate_get_name())  ei8_xmlrpc_floodgate_update_endpoint();
+    //form processing
+    if(!empty($_POST['tabaction'])) {
 
-            //process floodgate targets
-            $targets = array();
-            foreach($_POST as $v=>$val) {
-                if(!strstr($v,$floodgateTargetVarPre)) continue;
-                list($ignore,$ident) = explode($floodgateTargetVarPre,$v);
-                list($id,$var) = explode('_',$ident,2);
-                if(!in_array($id,array_keys($targets))) $targets[$id] = new ei8XmlrpcFloodgateTarget($id);
-                $targets[$id]->$var = $val;
-                /*ei8_xmlrpc_admin_log("<p>Processing submitted target:
-                    <br>floodgateTargetVarPre: $floodgateTargetVarPre
-                    <br>v: $v
-                    <br>ignore: $ignore
-                    <br>ident: $ident
-                    <br>id: $id
-                    <br>var: $var
-                    <br>val: $val</p>");*/
-            }
-            $showTargets = print_r($targets,true);
-            ei8_xmlrpc_admin_log("<p>(".count($targets).") floodgate targets found to process.</p>");
-            //ei8_xmlrpc_admin_log("<p>Targets <pre>$showTargets</pre></p>");
-            if(count($targets)>=1) foreach($targets as $id=>$target) {
-                $showTarget = print_r($target,true);
-                //ei8_xmlrpc_admin_log("<p>Processing target: <pre>$showTarget</pre></p>");
-                //handle empties
-                if($target->target=='') {
-                    if($id=='new') continue;
-                    $target->delete();
-                } else $target->update();
-            }
-        }
-
-        $floodgateName = ei8_xmlrpc_floodgate_get_name();
-        ei8_xmlrpc_admin_log("<p>Your $floodgateName preferences have been updated.</p>",1);
-
-        //echo "<div id='akismet-warning' class='updated fade'><p>$msg</p></div>";
+        $form_process();
 
         //force page reload
         if ( !headers_sent() ) {
@@ -294,13 +295,105 @@ Sorry. Please use this <a href="<?php echo $ei8AdminUrl; ?>" title="New Post">li
 
     } //end form processing
 
+    //now render the form
 ?>
 <div class="wrap">
 <?php ei8_screen_icon(); ?>
-
-<h2>Floodgate Settings:</h2>
+<?php ei8_xmlrpc_floodgate_show_tabs(); ?>
 <form method="post" action="<?php echo $ei8AdminUrl; ?>">
     <?php wp_nonce_field('update-options'); ?>
+    <?php $form_render(); ?>
+    <input type="hidden" name="tabaction" value="process_<?php echo $currentTab ?>">
+    <?php if($currentTab!='order') { ?><p class="submit"><input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p><?php } ?>
+</form>
+</div>
+<?php
+}
+
+
+function ei8_xmlrpc_floodgate_process_settings() {
+    global $floodgateOptions;
+    $floodgateTargetVarPre = 'ei8_xmlrpc_floodgate_target_';
+
+    //process floodgate options
+    $floodgateName = ei8_xmlrpc_floodgate_get_name();
+    foreach($floodgateOptions as $option) {
+        $var = ei8_xmlrpc_build_floodgate_option_name($option);
+        ei8_xmlrpc_update_option($var, $_POST[$var]);
+    }
+    if ($floodgateName != ei8_xmlrpc_floodgate_get_name())  ei8_xmlrpc_floodgate_update_endpoint();
+
+    //process floodgate targets
+    $targets = array();
+    foreach($_POST as $v=>$val) {
+        if(!strstr($v,$floodgateTargetVarPre)) continue;
+        list($ignore,$ident) = explode($floodgateTargetVarPre,$v);
+        list($id,$var) = explode('_',$ident,2);
+        if(!in_array($id,array_keys($targets))) $targets[$id] = new ei8XmlrpcFloodgateTarget($id);
+        $targets[$id]->$var = $val;
+        /*ei8_xmlrpc_admin_log("<p>Processing submitted target:
+            <br>floodgateTargetVarPre: $floodgateTargetVarPre
+            <br>v: $v
+            <br>ignore: $ignore
+            <br>ident: $ident
+            <br>id: $id
+            <br>var: $var
+            <br>val: $val</p>");*/
+    }
+    $showTargets = print_r($targets,true);
+    ei8_xmlrpc_admin_log("<p>(".count($targets).") floodgate targets found to process.</p>");
+    //ei8_xmlrpc_admin_log("<p>Targets <pre>$showTargets</pre></p>");
+    if(count($targets)>=1) foreach($targets as $id=>$target) {
+        $showTarget = print_r($target,true);
+        //ei8_xmlrpc_admin_log("<p>Processing target: <pre>$showTarget</pre></p>");
+        //handle empties
+        if($target->target=='') {
+            if($id=='new') continue;
+            $target->delete();
+        } else $target->update();
+    }
+
+    ei8_xmlrpc_admin_log("<p>Your Floodgate Settings have been updated.</p>",1);
+}
+
+function ei8_xmlrpc_floodgate_process_order() {
+    //NOTE: this is handled by AJAX
+    //ei8_xmlrpc_admin_log("<p>Your Navigation Order has been updated.</p>",1);
+
+    parse_str($_POST['order'], $data);
+
+    if (is_array($data)) {
+        foreach($data as $key => $values ) {
+            echo "<p>processing data($key)<pre>"; print_r($values); echo "</pre></p>";
+            $type = str_replace('item_','',$key);
+            foreach( $values as $position => $id ) {
+                $ft = new ei8XmlrpcFloodgateTarget($id);
+                $ft->update_order($type, $position);
+            }
+        }
+    }
+    die();
+}
+add_action('wp_ajax_update-floodgate-type-order', 'ei8_xmlrpc_floodgate_process_order' );
+
+
+function ei8_xmlrpc_floodgate_process_text() {
+    $fgTypes = ei8_xmlrpc_floodgate_get_types(1);
+    $fgVarPre = 'ei8_xmlrpc_floodgate_text_';
+
+    foreach($fgTypes as $type=>$title) {
+        $var = $fgVarPre.$type;
+        ei8_xmlrpc_update_option($var, $_POST[$var]);
+    }
+
+    ei8_xmlrpc_admin_log("<p>Your Floodgate Text Settings have been updated.</p>",1);
+}
+
+function ei8_xmlrpc_floodgate_render_settings() {
+    global $floodgateOptionSettings;
+    $floodgateTargetVarPre = 'ei8_xmlrpc_floodgate_target_';
+?>
+
 <table class="form-table">
     <tr><td><h3>Floodgate Options</h3></td></tr>
 <?php
@@ -355,11 +448,95 @@ Sorry. Please use this <a href="<?php echo $ei8AdminUrl; ?>" title="New Post">li
         <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_image',false); ?></td>
     </tr>
     </table>
-    <input type="hidden" name="action" value="update">
-    <p class="submit"><input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p>
-</form>
-</div>
 <?php
+}
+
+function ei8_xmlrpc_floodgate_render_order() {
+?>
+    <noscript>
+        <div class="error message"><p>This page can't work without javascript, because it uses drag and drop and AJAX.</p></div>
+    </noscript>
+    <table class="form-table">
+        <tr valign="top">
+<?php
+    $fgTypes = ei8_xmlrpc_floodgate_get_types();
+    $fgTypesCt = count($fgTypes);
+
+    if($fgTypesCt>=1) foreach($fgTypes as $type=>$title) {
+        $sortableName = 'sortable-'.$type;
+        $ft = new ei8XmlrpcFloodgateTargets($type);
+        $targets = $ft->targets;
+        echo "<td><h3>$title Targets</h3>";
+        echo sprintf('<div id="ajax-response-%s"></div>',$type);
+        echo '<div id="order-floodgate-type">';
+        echo sprintf('<ul id="%s">',$sortableName);
+        if(count($ft->targets)>=1) foreach($ft->targets as $target) {
+            echo sprintf('<li id="item_%s_%s"><span>%s</span></li>', $type, $target->id, $target->title);
+        } else echo '<p>No '.$title.' targets exist...</p>';
+        echo '</ul>';
+        echo '<div class="clear"></div>';
+        echo '</div>';
+        echo '</td>';
+?>
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+            jQuery("#<?php echo $sortableName; ?>").sortable({
+                'tolerance':'intersect',
+                'cursor':'pointer',
+                'items':'li',
+                'placeholder':'placeholder',
+                'nested': 'ul'
+            });
+
+            jQuery("#<?php echo $sortableName; ?>").disableSelection();
+            jQuery("#<?php echo $sortableName; ?>").on( "sortupdate", function() {
+                jQuery.post(
+                        ajaxurl,
+                        {
+                            action:'update-floodgate-type-order',
+                            order:jQuery("#<?php echo $sortableName; ?>").sortable("serialize")
+                        },
+                        function(data, status, something)
+                {
+                    jQuery("#ajax-response-<?php echo $type; ?>").html('<div class="message updated fade"><p><?php echo $title; ?> Items Order Updated</p></div>');
+                    jQuery("#ajax-response-<?php echo $type; ?> div").delay(3000).hide("slow");
+                    //alert('got here! action: update-floodgate-type-order, sortableName:<?php echo $sortableName; ?>, ajaxurl:'+ajaxurl);
+                    //alert("Data: " + data + "\nStatus: " + status + "\nSomething: " + something);
+                });
+            });
+        });
+    </script>
+<?php
+    }
+?>
+        </tr>
+    </table>
+<?php
+}
+
+function ei8_xmlrpc_floodgate_render_text() {
+    $fgTypes = ei8_xmlrpc_floodgate_get_types(1);
+    $fgVarPre = 'ei8_xmlrpc_floodgate_text_';
+
+    $settings = array(
+        'textarea_rows' => '12',
+        'editor_css'    => '<style>.wp-editor-wrap {width:500px;}</style>',
+        'media_buttons' => false
+    );
+
+    echo "<table class='form-table'>";
+
+    foreach($fgTypes as $type=>$title) {
+        $var = $fgVarPre.$type;
+        $val = ei8_xmlrpc_get_option($var);
+?>
+    <tr valign="top">
+        <th scope="row"><?php echo $title ?>:</th>
+        <td><?php wp_editor( $val, $var, $settings ); ?></td>
+    </tr>
+<?php
+    }
+    echo "</table>";
 }
 
 function ei8_screen_icon($icon='') {
@@ -1229,6 +1406,15 @@ function ei8_xmlrpc_get_message_settings() {
     return $message_settings;
 }
 
+function ei8_xmlrpc_admin_init() {
+    wp_enqueue_script('jQuery');
+    wp_enqueue_script('jquery-ui-sortable');
+
+    wp_register_style('ei8AdminStyleSheets', ei8_plugins_url('/ei8-xmlrpc-notifier-admin.css'));
+    wp_enqueue_style( 'ei8AdminStyleSheets');
+
+    ei8_xmlrpc_admin_install();
+}
 
 //handle db table installs and updates
 function ei8_xmlrpc_admin_install() {
@@ -1475,6 +1661,6 @@ function ei8_xmlrpc_admin_notices() {
     }
 }
 
-add_action('admin_init', 'ei8_xmlrpc_admin_install');
+add_action('admin_init', 'ei8_xmlrpc_admin_init');
 add_action('admin_notices', 'ei8_xmlrpc_admin_notices');
 ?>

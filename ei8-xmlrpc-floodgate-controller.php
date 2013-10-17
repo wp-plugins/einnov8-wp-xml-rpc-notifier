@@ -32,7 +32,7 @@ function ei8_xmlrpc_floodgate_controller( $vars = '' )
     'request' === $hook
         && isset ( $vars[$name] )
         && empty ( $vars[$name] )
-        && $vars[$name] = 'default';
+        && $vars[$name] = 'home';
 
     return $vars;
 }

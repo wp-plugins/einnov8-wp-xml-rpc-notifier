@@ -112,7 +112,7 @@ class ei8XmlrpcFloodgateTarget {
                 text_order = %d,
                 is_image = %d,
                 image_order = %d
-             WHERE ID = %d",
+             WHERE id = %d",
             $this->title,
             addslashes($this->target),
             $this->is_video,
@@ -125,6 +125,14 @@ class ei8XmlrpcFloodgateTarget {
             $this->image_order,
             $this->id
         );
+        ei8_xmlrpc_admin_query($sql);
+        //$this->db->flush();
+        return $this->id;
+    }
+
+    public function update_order($type,$position) {
+        $col = $type.'_order';
+        $sql = $this->db->prepare("UPDATE $this->table SET $col=%d WHERE id=%d", $position, $this->id);
         ei8_xmlrpc_admin_query($sql);
         //$this->db->flush();
         return $this->id;

@@ -133,7 +133,11 @@ font-size: 0.8em;
 background: #1C0069;
 }
 
-#mainnav a {
+#mainnav li.deactivated:hover {
+    background: #4D4E4E;
+}
+
+#mainnav a, #mainnav span {
 display: block;
 width: 100px;
 float: left;
@@ -165,20 +169,24 @@ text-align: center;
     margin-top: 10px;
 }
 
-.content-box {
-padding: 2px;
-background: #D1D1D1;
-width: 320px;
-line-height: 20px;
-float: left;
-margin-right: 20px;
+.content-col {
+    width: 320px;
+    float: left;
+    margin-right: 20px;
 }
 
-.content-box-small {
+.content-box {
+    padding: 2px;
+    background: #D1D1D1;
+    line-height: 20px;
+    margin-bottom: 20px;
+}
+
+.content-box-small, .content-col-small {
 width: 260px;
 }
 
-.content-box-end {
+.content-box-end, .content-col-end {
 margin-right: 0px;
 }
 

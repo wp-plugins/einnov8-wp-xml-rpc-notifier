@@ -11,9 +11,6 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
     public $type;
     public $targets;
 
-    private $table;
-    private $db;
-
 
     public function __construct($type='') {
         global $wpdb;
