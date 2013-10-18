@@ -49,7 +49,7 @@ class ei8XmlrpcFloodgateForm
         if ( !headers_sent() ) {
             wp_redirect($url);
         } else {
-            $url = site_url($url);
+            $url = (is_admin()) ? admin_url($url) : site_url($url) ;
 ?>
 
 <meta http-equiv="Refresh" content="0; URL=<?php echo $url; ?>">

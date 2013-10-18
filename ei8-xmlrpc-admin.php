@@ -275,7 +275,7 @@ function ei8_xmlrpc_floodgate_settings() {
         $form_process();
 
         //force page reload
-        $form->redirect($ei8AdminUrl);
+        $form->redirect($ei8AdminUrl,1);
 
     }
 

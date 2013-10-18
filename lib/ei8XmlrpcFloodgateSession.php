@@ -363,5 +363,3 @@ if ($_SESSION['sess_logged'] && $_SESSION['sess_hasher']!='') {
 } //end if db_session
 */
 ?>
-
-
