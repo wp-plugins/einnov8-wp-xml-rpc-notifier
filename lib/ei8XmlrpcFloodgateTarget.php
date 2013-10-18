@@ -20,12 +20,9 @@ class ei8XmlrpcFloodgateTarget {
     public $image_order;
 
     private $table;
-    private $db;
 
     public function __construct($id='') {
-        global $wpdb;
-        $this->db = &$wpdb;
-        $this->table = $this->db->prefix . "ei8_floodgate_targets";
+        $this->table = new ei8XmlrpcFloodgateDbTableTargets();
         if($id!='') $this->get($id);
         return $this;
     }
@@ -52,90 +49,29 @@ class ei8XmlrpcFloodgateTarget {
     }
 
     public function get($id) {
-        $sql     = $this->db->prepare("SELECT * FROM $this->table WHERE ID=%d LIMIT 1", $id);
-        $result = $this->db->get_results($sql);
-        if($result===FALSE) ei8_xmlrpc_admin_log("<p style='color:red'><b>SQL ERROR: </b>\"".$this->db->last_error."\"(SQL: $sql)</p>");
-        //echo "<p>RESULT:<pre>"; print_r($result); echo "</pre></p>";
-        foreach($result[0] as $key=>$val) $this->$key = stripslashes($val);
+        $array = $this->table->get_target($id);
+        foreach($array as $key=>$val) $this->$key = stripslashes($val);
         return $this;
     }
 
     public function create() {
-        $sql = $this->db->prepare("INSERT INTO $this->table SET
-                title ='%s',
-                target ='%s',
-                is_video = %d,
-                video_order = %d,
-                is_audio = %d,
-                audio_order = %d,
-                is_text = %d,
-                text_order = %d,
-                is_image = %d,
-                image_order = %d",
-            $this->title,
-            addslashes($this->target),
-            $this->is_video,
-            $this->video_order,
-            $this->is_audio,
-            $this->audio_order,
-            $this->is_text,
-            $this->text_order,
-            $this->is_image,
-            $this->image_order
-        );
-        ei8_xmlrpc_admin_query($sql);
-        $this->id=$this->db->insert_id;
-        //$this->db->flush();
+        $this->id = $this->table->create_target($this);
         return $this->id;
     }
 
     public function delete() {
-        $sql = $this->db->prepare("DELETE FROM $this->table WHERE id=%d",
-            $this->id
-        );
-        ei8_xmlrpc_admin_query($sql);
-        //$this->db->flush();
-        return $this->id;
+        return $this->table->delete_target($this->id);
     }
 
     public function update() {
         if(empty($this->id) || !is_numeric($this->id)) return $this->create();
-
-        $sql = $this->db->prepare("UPDATE $this->table SET
-                title ='%s',
-                target ='%s',
-                is_video = %d,
-                video_order = %d,
-                is_audio = %d,
-                audio_order = %d,
-                is_text = %d,
-                text_order = %d,
-                is_image = %d,
-                image_order = %d
-             WHERE id = %d",
-            $this->title,
-            addslashes($this->target),
-            $this->is_video,
-            $this->video_order,
-            $this->is_audio,
-            $this->audio_order,
-            $this->is_text,
-            $this->text_order,
-            $this->is_image,
-            $this->image_order,
-            $this->id
-        );
-        ei8_xmlrpc_admin_query($sql);
-        //$this->db->flush();
-        return $this->id;
+        return $this->table->update_target($this);
     }
 
     public function update_order($type,$position) {
         $col = $type.'_order';
-        $sql = $this->db->prepare("UPDATE $this->table SET $col=%d WHERE id=%d", $position, $this->id);
-        ei8_xmlrpc_admin_query($sql);
-        //$this->db->flush();
-        return $this->id;
+        $this->$col = $position;
+        return $this->table->update_order($this->id, $col, $position);
     }
 
 

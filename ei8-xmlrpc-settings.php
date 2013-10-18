@@ -61,7 +61,7 @@ $optionF = 'ei8-xmlrpc-floodgate-options';
 
 
 //set up floodgate options
-$floodgateOptionPre     = 'ei8_floodgate_';
+//$floodgateOptionPre     = 'ei8_floodgate_';
 $floodgateOptionSettings= array(
     //$name         => array($title,$default_value,$extra),
     'name'          => array('Floodgate URL', 'floodgate', 'ie: http://yoursite.com/<span style="color:red">floodgate</span>/'),
@@ -93,13 +93,15 @@ function ei8_xmlrpc_floodgate_get_types($getAll='') {
 }
 
 function ei8_xmlrpc_build_floodgate_option_name($name){
-    global $floodgateOptionPre;
-    return $floodgateOptionPre.$name;
+    $option = new ei8XmlrpcFloodgateOptionFG();
+    return $option->build_name($name);
 }
 
 function ei8_xmlrpc_get_floodgate_option($name) {
     global $floodgateOptionDefaults;
-    $value = ei8_xmlrpc_get_option(ei8_xmlrpc_build_floodgate_option_name($name));
+    $option = new ei8XmlrpcFloodgateOptionFG();
+    $value = $option->get($name);
+    //$value = ei8_xmlrpc_get_option(ei8_xmlrpc_build_floodgate_option_name($name));
     //see if we need to force the default value...buy default we do :)
     if (empty($value) && ($admin==false || $name=='name')) $value = $floodgateOptionDefaults[$name];
     //echo "<p>ei8_xmlrpc_get_floodgate_option ( $name ) :: ".ei8_xmlrpc_build_floodgate_option_name($name)." ($value)</p>";
@@ -107,7 +109,9 @@ function ei8_xmlrpc_get_floodgate_option($name) {
 }
 
 function ei8_xmlrpc_update_floodgate_option($name,$val) {
-    return ei8_xmlrpc_update_option(ei8_xmlrpc_build_floodgate_option_name($name), $val);
+    $option = new ei8XmlrpcFloodgateOptionFG($name,$val);
+    return $option->update();
+    //return ei8_xmlrpc_update_option(ei8_xmlrpc_build_floodgate_option_name($name), $val);
 }
 
 ?>

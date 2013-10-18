@@ -1,12 +1,4 @@
 <?php
-//Load all classes in the lib directory
-$dir = dirname(__FILE__).'/lib';
-$libFiles = scandir($dir);
-foreach($libFiles as $libFile) if(strstr($libFile,'ei8Xmlrpc')) {
-    ei8_xmlrpc_admin_log("<p>Loading $libFile</p>");
-    require_once($dir.'/'.$libFile);
-}
-
 
 add_action( 'init',              'ei8_xmlrpc_floodgate_controller' );
 add_action( 'template_redirect', 'ei8_xmlrpc_floodgate_controller' );

@@ -1,7 +1,8 @@
 <?php
+session_start();
 
 $fp = new ei8XmlrpcFloodgatePage();
-$fp->display();
+$fp->handle();
 exit;
 
 ?>

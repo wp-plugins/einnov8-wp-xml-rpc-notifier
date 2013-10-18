@@ -1,57 +1,62 @@
 <?php
+//Load all classes in the lib directory
+$dir = dirname(__FILE__).'/lib';
+$libFiles = scandir($dir);
+foreach($libFiles as $libFile) if(strstr($libFile,'ei8Xmlrpc')) {
+    //ei8_xmlrpc_admin_log("<p>Loading $libFile</p>");
+    require_once($dir.'/'.$libFile);
+}
+
 //BEGIN ADMIN SECTION
-
-// Enable WP_DEBUG mode
-define('WP_DEBUG', true);
-
-// Enable Debug logging to the /wp-content/debug.log file
-define('WP_DEBUG_LOG', true);
-
-define('WP_DEBUG_DISPLAY', true);
 
 //validate data
 add_action('admin_notices', 'ei8_xmlrpc_validate_data' );
 
 function ei8_xmlrpc_validate_data($input) {
     global $optionP, $optionE;
+    $form = new ei8XmlrpcFloodgateForm();
+
     //validate the email
     $tEmail = ei8_xmlrpc_get_option('ei8_xmlrpc_email_notify');
-    if(!empty($tEmail) && !ei8_isValidEmails($tEmail)) {
+    //if(!empty($tEmail) && !ei8_isValidEmails($tEmail)) {
+    if(!empty($tEmail) && !$form->validate_emails($tEmail)) {
         echo "<div id='akismet-warning' class='error fade'><b>At least one of the notification email addresses are not valid.  <a href='$optionP'>Please fix or email notifications will not be received. </a>($tEmail)</b></div>";
     }
     //validate the email
     $tEmail = ei8_xmlrpc_get_option('email_from_addr');
-    if(!empty($tEmail) && !ei8_isValidEmail($tEmail)) {
+    //if(!empty($tEmail) && !ei8_isValidEmail($tEmail)) {
+    if(!empty($tEmail) && !$form->validate_email($tEmail)) {
         echo "<div id='akismet-warning' class='error fade'><b>The email notification 'From' address is is not valid.  <a href='$optionE'>Please fix or your emails may be marked as spam. </a>($tEmail)</b></div>";
     }
 
     //validate the ping url
     $tPing = ei8_xmlrpc_get_option('ei8_xmlrpc_ping');
-    if(!empty($tPing) && !ei8_isValidUrl($tPing)) {
+    //if(!empty($tPing) && !ei8_isValidUrl($tPing)) {
+    if(!empty($tPing) && !$form->validate_url($tPing)) {
         echo "<div id='akismet-warning' class='error fade'><b>This is not a valid URL to be pinged.  <a href='$optionP'>Please fix or ping notifications will not be sent. </a>($tPing)</b></div>";
     }
 
 }
 
-function ei8_isValidEmails($email){
-    if(strstr($email,',')) {
-        $emails = explode(',',$email);
-        foreach ($emails as $piece) {
-            if (!ei8_isValidEmail(trim($piece))) return false;
-        }
-        return true;
-    } else return ei8_isValidEmail($email);
+/* moved to ei8XmlrpcFloodgateForm class...left here in case they are still needed
+function ei8_isValidEmails($email) {
+    //moved to oop
+    $form = new ei8XmlrpcFloodgateForm();
+    return $form->validate_emails($email);
 }
 
 function ei8_isValidEmail($email){
-    return preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/i", $email);
+    //moved to oop
+    $form = new ei8XmlrpcFloodgateForm();
+    return $form->validate_email($email);
 }
 
 function ei8_isValidUrl($url){
-    if(strstr($url, ' ')) return false;
-    return preg_match('/^http(s?):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?/i', $url);
+    //moved to oop
+    $form = new ei8XmlrpcFloodgateForm();
+    return $form->validate_url($url);
 }
-
+*/
 
 //create admin link to settings from main app plugins page
 add_filter( 'plugin_action_links', 'ei8_xmlrpc_settings_link', 10, 2 );
@@ -258,6 +263,7 @@ function ei8_xmlrpc_floodgate_show_tabs() {
 }
 
 function ei8_xmlrpc_floodgate_settings() {
+    $form = new ei8XmlrpcFloodgateForm();
     list($currentTab,$currentTitle,$ei8AdminUrl) = ei8_xmlrpc_floodgate_get_tab();
 
     $form_process   = 'ei8_xmlrpc_floodgate_process_'.$currentTab;
@@ -269,31 +275,9 @@ function ei8_xmlrpc_floodgate_settings() {
         $form_process();
 
         //force page reload
-        if ( !headers_sent() ) {
-            wp_redirect($ei8AdminUrl);
-        } else {
-            $ei8AdminUrl = admin_url($ei8AdminUrl);
+        $form->redirect($ei8AdminUrl);
 
-?>
-
-<meta http-equiv="Refresh" content="0; URL=<?php echo $ei8AdminUrl; ?>">
-<script type="text/javascript">
-    <!--
-    document.location.href = "<?php echo $ei8AdminUrl; ?>"
-    //-->
-</script>
-</head>
-<body>
-Sorry. Please use this <a href="<?php echo $ei8AdminUrl; ?>" title="New Post">link</a>.
-</body>
-</html>
-
-<?php
-        }
-        exit();
-
-
-    } //end form processing
+    }
 
     //now render the form
 ?>
@@ -301,9 +285,9 @@ Sorry. Please use this <a href="<?php echo $ei8AdminUrl; ?>" title="New Post">li
 <?php ei8_screen_icon(); ?>
 <?php ei8_xmlrpc_floodgate_show_tabs(); ?>
 <form method="post" action="<?php echo $ei8AdminUrl; ?>">
-    <?php wp_nonce_field('update-options'); ?>
+    <?php /*wp_nonce_field('update-options');*/ ?>
     <?php $form_render(); ?>
-    <input type="hidden" name="tabaction" value="process_<?php echo $currentTab ?>">
+    <?php echo $form->make_field_hidden('tabaction', 'process_'.$currentTab); ?>
     <?php if($currentTab!='order') { ?><p class="submit"><input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p><?php } ?>
 </form>
 </div>
@@ -316,10 +300,16 @@ function ei8_xmlrpc_floodgate_process_settings() {
     $floodgateTargetVarPre = 'ei8_xmlrpc_floodgate_target_';
 
     //process floodgate options
+    ei8_xmlrpc_admin_log("<p>Processing floodgate options.</p>");
+    $op = new ei8XmlrpcFloodgateOptionFG();
     $floodgateName = ei8_xmlrpc_floodgate_get_name();
     foreach($floodgateOptions as $option) {
-        $var = ei8_xmlrpc_build_floodgate_option_name($option);
-        ei8_xmlrpc_update_option($var, $_POST[$var]);
+        $var = $op->build_name($option);
+        ei8_xmlrpc_admin_log("<p>Processing floodgate option: $option($var).</p>");
+        $op->set($var,stripslashes($_POST[$var]));
+        $op->update();
+        //$var = ei8_xmlrpc_build_floodgate_option_name($option);
+        //ei8_xmlrpc_update_option($var, $_POST[$var]);
     }
     if ($floodgateName != ei8_xmlrpc_floodgate_get_name())  ei8_xmlrpc_floodgate_update_endpoint();
 
@@ -397,11 +387,15 @@ function ei8_xmlrpc_floodgate_render_settings() {
 <table class="form-table">
     <tr><td><h3>Floodgate Options</h3></td></tr>
 <?php
+    $op = new ei8XmlrpcFloodgateOptionFG();
     foreach($floodgateOptionSettings as $name=>$vals) {
-        $var = ei8_xmlrpc_build_floodgate_option_name($name);
+        $op->load($name);
+        $var = $op->name;
+        $val = $op->value;
+        //$var = ei8_xmlrpc_build_floodgate_option_name($name);
         $title = $vals[0];
         $extra = $vals[2];
-        $val = ei8_xmlrpc_get_floodgate_option($name);
+        //$val = ei8_xmlrpc_get_floodgate_option($var);
 
         $showExtra = (empty($extra)) ? '' : '<br><small>('.$extra.')</small>' ;
 ?>
@@ -1048,24 +1042,21 @@ function ei8_xmlrpc_email_options() {
 }
 
 function ei8_xmlrpc_form_text($var,$val) {
-    $html = '<input type="text" name="'.$var.'" size=65 value="'.$val.'" />';
-    return $html;
+    //moved to oop
+    $fgForm = new ei8XmlrpcFloodgateForm();
+    return $fgForm->make_field_text($var,$val);
 }
 
 function ei8_xmlrpc_form_textarea($var,$val,$rows='') {
-    $showRows = ($rows=='') ? '' : 'rows="'.$rows.'"';
-    $html = '<textarea class="ei8-textarea" cols=65 name="'.$var.'" '.$showRows.'>'.$val.'</textarea>';
-    return $html;
+    //moved to oop
+    $fgForm = new ei8XmlrpcFloodgateForm();
+    return $fgForm->make_field_text($var,$val,$rows);
 }
 
 function ei8_xmlrpc_form_boolean($var,$val) {
-    $selectNo  = ($val!=1) ? "SELECTED" : "" ;
-    $selectYes = ($val==1) ? "SELECTED" : "" ;
-    $html = "<select name='$var'>
-                    <option value='2' $selectNo>No</option>
-                    <option value=1 $selectYes>Yes</option>
-                </select>";
-    return $html;
+    //moved to oop
+    $fgForm = new ei8XmlrpcFloodgateForm();
+    return $fgForm->make_field_boolean($var,$val);
 }
 
 function ei8_xmlrpc_get_blog_option($val) {
@@ -1074,6 +1065,9 @@ function ei8_xmlrpc_get_blog_option($val) {
 }
 
 function ei8_xmlrpc_get_option($id) {
+    $db = new ei8XmlrpcFloodgateDbTableOptions();
+    return $db->get_option($id);
+    /*
     global $wpdb;
     $wpdb->flush();
     $table   = $wpdb->prefix . "ei8_xmlrpc_options";
@@ -1081,9 +1075,13 @@ function ei8_xmlrpc_get_option($id) {
     $results = $wpdb->get_results($sql);
     $result = stripslashes($results[0]->option_value);
     return $result;
+    */
 }
 
 function ei8_xmlrpc_update_option($id, $value) {
+    $db = new ei8XmlrpcFloodgateDbTableOptions();
+    $db->update_option($id,addslashes($value));
+    /*
     global $wpdb;
     $table = $wpdb->prefix . "ei8_xmlrpc_options";
     //check first to see if the option already exists
@@ -1107,28 +1105,7 @@ function ei8_xmlrpc_update_option($id, $value) {
     }
     $wpdb->query($sql);
     $wpdb->flush();
-}
-
-function ei8_xmlrpc_update_option_by_id($id, $value) {
-    global $wpdb;
-    $table = $wpdb->prefix . "ei8_xmlrpc_options";
-    $value = addslashes($value);
-    //see if this is a new insert or an update
-    if(is_numeric($id)) {
-        $sql = $wpdb->prepare(
-            "UPDATE $table SET option_value='%s' WHERE ID='%s'",
-            $value,
-            $id
-        );
-    } else {
-        $sql = $wpdb->prepare(
-            "INSERT INTO $table SET option_name='%s', option_value='%s'",
-            $id,
-            $value
-        );
-    }
-    $wpdb->query($sql);
-    $wpdb->flush();
+    */
 }
 
 function ei8_xmlrpc_admin_parse_recorder_vars($vars) {

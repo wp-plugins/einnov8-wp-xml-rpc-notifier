@@ -16,6 +16,9 @@ class ei8XmlrpcFloodgatePage
     public $floodgateTypes;
     public $floodgateTargets;
 
+    public $session;
+    public $session_is_valid;
+
     public $showNav;
     public $showContent;
     public $breadCrumb;
@@ -40,6 +43,9 @@ class ei8XmlrpcFloodgatePage
         //get the current type and target from request var
         list($this->currentType,$this->currentTarget,$this->queryString) = explode('/',$floodgate,3);
         if(empty($this->currentTarget)) $this->currentTarget = $this->get_default_target();
+
+        $this->session = new ei8XmlrpcFloodgateSession();
+        $this->session_is_valid = $this->session->validate();
     }
 
     private function get_default_target($type='') {
@@ -91,12 +97,17 @@ class ei8XmlrpcFloodgatePage
             case 'support':
                 $col[2][] = $this->build_content_support();
                 break;
+            case 'login':
+                $col[1] = array();
+                $col[1][] = $this->build_content_login();
+                break;
         }
-        
+
         $this->showContent = "";
         //foreach($col as $colNum=>$contents) foreach($contents as $content) {
         for($colNum=1;$colNum<=3;$colNum++) {
-            $extra = ($colNum==3) ? ' content-col-small content-col-end' : '' ;
+            if($this->currentType=='login') $extra = 'content-login';
+            else $extra = ($colNum==3) ? ' content-col-small content-col-end' : '' ;
             $this->showContent .= '<div class="content-col '.$extra.'">';
             foreach($col[$colNum] as $content) {
                 list($title,$html) = $content;
@@ -113,27 +124,6 @@ EOT;
             }
             $this->showContent .= '</div>';
         }
-
-/*        $this->showContent =<<<EOT
-    		<div class="content-box">
-    		<div class="content-box-inner">
-    			<h2>How To Use FLOODtech</h2>
-    			$welcomeText
-    		</div>
-    		</div>
-    		<div class="content-box">
-    		<div class="content-box-inner">
-    			<h2>How To Use FLOODtech</h2>
-    			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vitae hendrerit sapien, ut placerat magna. Aenean molestie ac nibh pharetra ornare. Nam mollis gravida magna, auctor placerat magna luctus at. Aenean iaculis nulla justo, vel vestibulum augue pretium quis. Nunc ac orci molestie, adipiscing sapien sit amet, ullamcorper sapien. Ut accumsan sit amet leo non placerat. Donec pulvinar pulvinar tristique. Etiam laoreet diam quis erat ultricies, a tincidunt leo ullamcorper. </p>
-    		</div>
-    		</div>
-    		<div class="content-box">
-    		<div class="content-box-inner">
-    			<h2>How To Use FLOODtech</h2>
-    			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vitae hendrerit sapien, ut placerat magna. Aenean molestie ac nibh pharetra ornare. Nam mollis gravida magna, auctor placerat magna luctus at. Aenean iaculis nulla justo, vel vestibulum augue pretium quis. Nunc ac orci molestie, adipiscing sapien sit amet, ullamcorper sapien. Ut accumsan sit amet leo non placerat. Donec pulvinar pulvinar tristique. Etiam laoreet diam quis erat ultricies, a tincidunt leo ullamcorper. </p>
-    		</div>
-    		</div>
-EOT;*/
     }
 
     private function build_content_media_uploader() {
@@ -146,13 +136,37 @@ EOT;*/
 
     private function build_content_phone() {
         $title  = "Submit Audio By Telephone";
-        $html   = "<p>Phone Info Goes Here";
+        $html   = "<p>Phone Info Goes Here</p>";
         return array($title, $html);
+    }
+
+    private function build_content_login() {
+        $form = new ei8XmlrpcFloodgateFormFG($this->build_floodgate_current_url());
+        $form->submitButton = 'Login';
+        $form_fields = array(
+            'pass'      => array('password','Please Enter Your Password',40),
+            'action'    => array('hidden','login'),
+        );
+        $title  = "";
+        if($_POST[$form->prep_var_name('action')]=='login') {
+            $this->session->try_login($_POST[$form->prep_var_name('pass')]);
+            if($this->session->is_valid()) {
+                //redirect
+                //echo '<p>YOU ARE LOGGED IN!<pre>'; print_r($this->session); echo '</pre></p>';
+                $this->redirect($this->floodgateUrl);
+            } else {
+                //show fancy error message?
+                $title = "<span class='errormessage'>Please try again</span>";
+            }
+        }
+        $form->body = $form->build_table($form_fields);
+        //$title  = "Please login";
+        return array($title, $form->render());
     }
 
     private function build_content_support() {
         $title  = "Get Support!";
-        $html   = "<p>Support Form Goes Here";
+        $html   = "<p>Support Form Goes Here</p>";
         return array($title, $html);
     }
 
@@ -194,10 +208,23 @@ EOT;*/
         $this->showNav .= $this->build_nav_type('Support','support');
     }
 
+    private function build_floodgate_current_url() {
+        return $this->build_floodgate_url($this->currentType,$this->currentTarget);
+    }
+
+    private function build_floodgate_url($type='',$target='') {
+        $url = $this->floodgateUrl;
+        if(!empty($type)) {
+            $url .= $type.'/';
+            if(!empty($target))
+                $url .= $target.'/';
+        }
+        return $url;
+    }
+
     private function build_nav_type($title,$type='') {
         //first set up the url
-        $url = $this->floodgateUrl;
-        if($type!='') $url .= "$type/";
+        $url = $this->build_floodgate_url($type);
 
         //figure out if there are any subs to handle for this type
         $subsCT = 0;
@@ -278,11 +305,50 @@ EOT;
         return $html;
     }
 
+    public function handle() {
+        if(strstr($this->currentType,'logout') || strstr($this->currentTarget,'logout') || strstr($this->queryString,'logout')) {
+            $this->session->do_logout();
+            $this->redirect($this->floodgateUrl);
+        } else {
+            $this->display();
+        }
+    }
+
     public function display() {
-        $this->build_breadcrumb();
-        $this->build_nav();
+        if($this->session_is_valid) {
+            $this->build_breadcrumb();
+            $this->build_nav();
+        } else {
+            $this->currentType = 'login';
+        }
         $this->build_content();
         echo $this->build_page();
+    }
+
+    public function redirect($url) {
+        //echo "<p>You should be redirected to: $url</p>"; exit;
+
+        if ( !headers_sent() ) {
+            wp_redirect($url);
+        } else {
+            //$url = site_url($url);
+?>
+
+<meta http-equiv="Refresh" content="0; URL=<?php echo $url; ?>">
+<script type="text/javascript">
+    <!--
+    document.location.href = "<?php echo $url; ?>"
+    //-->
+</script>
+</head>
+<body>
+Sorry. Please use this <a href="<?php echo $url; ?>" title="New Post">link</a>.
+</body>
+</html>
+
+<?php
+        }
+        exit();
     }
 
 }

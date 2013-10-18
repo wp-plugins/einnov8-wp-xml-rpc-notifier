@@ -3,40 +3,39 @@ Floodgate Stylesheet
 */
 
 @font-face {
-font-family: FuturaBold;
-src: url('Futura-Bold.ttf');
+    font-family: FuturaBold;
+    src: url('Futura-Bold.ttf');
 }
 
 * {
-margin: 0;
-padding: 0;
-font-family: 'Lucida Sans';
+    margin: 0;
+    padding: 0;
+    font-family: 'Lucida Sans';
 }
 
 nav li {
-list-style-type: none;
+    list-style-type: none;
 }
 
 nav a {
-text-decoration: none;
+    text-decoration: none;
 }
 
 .wrap {
-width: 960px;
-margin: 0 auto;
+    width: 960px;
+    margin: 0 auto;
 }
 
 .floatarea {
-clear: both;
-overflow: hidden;
+    clear: both;
+    overflow: hidden;
 }
-
 
 /* Header */
 header {
-height: 68px;
-background: #000;
-overflow: visible !important;
+    height: 68px;
+    background: #000;
+    overflow: visible !important;
 }
 
 header.adminbuffer {
@@ -44,93 +43,92 @@ header.adminbuffer {
 }
 
 #titles {
-float: left;
-margin-left: 5px;
+    float: left;
+    margin-left: 5px;
 }
 
 #titles h1 {
-color: #fff;
-font-size: 22px;
-line-height: 40px;
+    color: #fff;
+    font-size: 22px;
+    line-height: 40px;
 }
 
 #titles h2 {
-color: #A8A6A6;
-font-size: 14px;
-line-height: 25px;
-font-weight: normal;
+    color: #A8A6A6;
+    font-size: 14px;
+    line-height: 25px;
+    font-weight: normal;
 }
 
 #titles h2 span {
-color: #C1272D;
-font-weight: bold;
+    color: #C1272D;
+    font-weight: bold;
 }
-
 
 /* Drop Down */
 #mainnav ul li ul a {
-display: block;
-float: none;
+    display: block;
+    float: none;
 }
- 
+
 #mainnav ul ul {
-position: absolute;
-z-index: 500;
-top: 68px;
-left: -1px;
+    position: absolute;
+    z-index: 500;
+    top: 68px;
+    left: -1px;
 }
- 
+
 #mainnav ul ul ul {
-top: 0;
-left: 100%;
+    top: 0;
+    left: 100%;
 }
- 
+
 #mainnav ul ul li {
-float: none;
-clear: both;
-display: block;
+    float: none;
+    clear: both;
+    display: block;
 }
 
 #mainnav ul ul,
 #mainnav ul li:hover ul ul,
 #mainnav ul ul li:hover ul ul {
-display: none; 
+    display: none;
 }
 
 #mainnav ul li:hover ul,
-#mainnav ul ul li:hover ul ,
+#mainnav ul ul li:hover ul,
 #mainnav ul ul li ul li:hover ul {
-display: block;
+    display: block;
 }
 
 #mainnav {
-float: right;
-font-size: 14px;
+    float: right;
+    font-size: 14px;
 }
 
 #mainnav ul {
-float: right;
+    float: right;
 }
 
 #mainnav li {
-float: left;
-margin: 0 1px;
-background: #4D4E4E;
-position: relative;
+    float: left;
+    margin: 0 1px;
+    background: #4D4E4E;
+    position: relative;
 }
 
 #mainnav li:hover ul li a {
-padding: 5px 1px;
-margin: 1px 0;
-background: #929393;
-font-size: 0.8em;
+    padding: 5px 1px;
+    margin: 1px 0;
+    background: #929393;
+    font-size: 0.8em;
 }
 
 #mainnav li:hover,
 #mainnav li.active,
 #mainnav li:hover ul li a:hover,
 #mainnav li.active:hover ul li.active a {
-background: #1C0069;
+    background: #1C0069;
 }
 
 #mainnav li.deactivated:hover {
@@ -138,12 +136,12 @@ background: #1C0069;
 }
 
 #mainnav a, #mainnav span {
-display: block;
-width: 100px;
-float: left;
-color: #fff;
-padding: 25px 0px;
-text-align: center;
+    display: block;
+    width: 100px;
+    float: left;
+    color: #fff;
+    padding: 25px 0px;
+    text-align: center;
 }
 
 /* Header2 */
@@ -183,24 +181,30 @@ text-align: center;
 }
 
 .content-box-small, .content-col-small {
-width: 260px;
+    width: 260px;
 }
 
 .content-box-end, .content-col-end {
-margin-right: 0px;
+    margin-right: 0px;
 }
 
 .content-box,
 .content-box h2 {
-font-size: 14px;
+    font-size: 14px;
 }
 
 .content-box-inner {
-padding: 10px;
-background: #fff;
-border-radius: 10px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 10px;
 }
 
 .content-box p {
-color: #4D4E4E;
+    color: #4D4E4E;
+}
+
+.content-login {
+    width: 450px;
+    float: none;
+    margin: auto;
 }
