@@ -10,6 +10,8 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
 {
     public $type;
     public $targets;
+    public $acct_guid;
+    public $remoteTargets;
 
 
     public function __construct($type='') {
@@ -18,7 +20,15 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
         $this->table = $this->db->prefix . "ei8_floodgate_targets";
         $this->type = $type;
         $this->getTargets();
+        $this->getAccountGuid();
+        $this->getRemoteTargets();
         return $this;
+    }
+
+    public function getAccountGuid() {
+        $op = ei8XmlrpcFloodgateOption('acct_guid');
+        $this->acct_guid = $op->get();
+        return $this->acct_guid;
     }
 
     public function getTargets(){
@@ -47,6 +57,13 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
         return $this->targets;
     }
 
+    public function getRemoteTargets(){
+        $api = new ei8XmlrpcFloodgateAPI($this->acct_guid);
+        $info = $api->getAccountInfo();
+        $this->remoteTargets = (empty($this->type)) ? $info->folders : $info->folders->{$this->type};
+        return $this->remoteTargets;
+    }
+
     public function importCustomFolders() {
         $customFolders = ei8_xmlrpc_getCustomFolders();
         $cfCT = count($customFolders);
@@ -56,10 +73,15 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
             if($folder['value']!='') {
                 $t = new ei8XmlrpcFloodgateTarget();
                 $t->title = $folder['title'];
-                $t->target = $folder['value'];
+                ei8_xmlrpc_admin_log("<p>Importing custom folder: ".$t->title." (video)</p>",1);
+                $t->target = $t->getGuidFromOldTarget($folder['value'],'video');
                 $t->is_video = 1;
+                $t->update();
+                $t = new ei8XmlrpcFloodgateTarget();
+                $t->title = $folder['title'];
+                ei8_xmlrpc_admin_log("<p>Importing custom folder: ".$t->title." (audio)</p>",1);
+                $t->target = $t->getGuidFromOldTarget($folder['value'],'audio');
                 $t->is_audio = 1;
-                ei8_xmlrpc_admin_log("<p>Importing custom folder: ".$t->title."</p>",1);
                 $t->update();
             } //else ei8_xmlrpc_admin_log("<p>Skipping custom folder: ".$folder['title']." (no target to import)</p>");
         }

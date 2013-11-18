@@ -14,7 +14,7 @@ add_action('admin_notices', 'ei8_xmlrpc_validate_data' );
 
 function ei8_xmlrpc_validate_data($input) {
     global $optionP, $optionE;
-    $form = new ei8XmlrpcFloodgateForm();
+    $form = new ei8XmlrpcFloodgateFormHandler();
 
     //validate the email
     $tEmail = ei8_xmlrpc_get_option('ei8_xmlrpc_email_notify');
@@ -263,7 +263,7 @@ function ei8_xmlrpc_floodgate_show_tabs() {
 }
 
 function ei8_xmlrpc_floodgate_settings() {
-    $form = new ei8XmlrpcFloodgateForm();
+    $form = new ei8XmlrpcFloodgateFormHandler();
     list($currentTab,$currentTitle,$ei8AdminUrl) = ei8_xmlrpc_floodgate_get_tab();
 
     $form_process   = 'ei8_xmlrpc_floodgate_process_'.$currentTab;
@@ -368,7 +368,7 @@ add_action('wp_ajax_update-floodgate-type-order', 'ei8_xmlrpc_floodgate_process_
 
 
 function ei8_xmlrpc_floodgate_process_text() {
-    $fgTypes = ei8_xmlrpc_floodgate_get_types(1);
+    $fgTypes = ei8_xmlrpc_floodgate_get_media_types(1);
     $fgVarPre = 'ei8_xmlrpc_floodgate_text_';
 
     foreach($fgTypes as $type=>$title) {
@@ -407,6 +407,14 @@ function ei8_xmlrpc_floodgate_render_settings() {
     }
 ?>
     <tr><td><h3>Floodgate Targets</h3></td></tr>
+<?php
+    $floodgateMediaTypes = ei8_xmlrpc_floodgate_get_media_types();
+    $fgT = new ei8XmlrpcFloodgateTargets();
+    foreach($floodgateMediaTypes as $type=>$title) {
+        echo "<tr><td><h4>{$title}</h4></td></tr>";
+
+    }
+?>
     <tr valign="top">
         <th scope="col">Title</th>
         <th scope="col">Target</th>
@@ -453,7 +461,7 @@ function ei8_xmlrpc_floodgate_render_order() {
     <table class="form-table">
         <tr valign="top">
 <?php
-    $fgTypes = ei8_xmlrpc_floodgate_get_types();
+    $fgTypes = ei8_xmlrpc_floodgate_get_media_types();
     $fgTypesCt = count($fgTypes);
 
     if($fgTypesCt>=1) foreach($fgTypes as $type=>$title) {
@@ -509,7 +517,7 @@ function ei8_xmlrpc_floodgate_render_order() {
 }
 
 function ei8_xmlrpc_floodgate_render_text() {
-    $fgTypes = ei8_xmlrpc_floodgate_get_types(1);
+    $fgTypes = ei8_xmlrpc_floodgate_get_media_types(1);
     $fgVarPre = 'ei8_xmlrpc_floodgate_text_';
 
     $settings = array(
@@ -1043,19 +1051,19 @@ function ei8_xmlrpc_email_options() {
 
 function ei8_xmlrpc_form_text($var,$val) {
     //moved to oop
-    $fgForm = new ei8XmlrpcFloodgateForm();
+    $fgForm = new ei8XmlrpcFloodgateFormHandler();
     return $fgForm->make_field_text($var,$val);
 }
 
 function ei8_xmlrpc_form_textarea($var,$val,$rows='') {
     //moved to oop
-    $fgForm = new ei8XmlrpcFloodgateForm();
+    $fgForm = new ei8XmlrpcFloodgateFormHandler();
     return $fgForm->make_field_text($var,$val,$rows);
 }
 
 function ei8_xmlrpc_form_boolean($var,$val) {
     //moved to oop
-    $fgForm = new ei8XmlrpcFloodgateForm();
+    $fgForm = new ei8XmlrpcFloodgateFormHandler();
     return $fgForm->make_field_boolean($var,$val);
 }
 
@@ -1414,14 +1422,8 @@ function ei8_xmlrpc_admin_install() {
         `id` BIGINT( 20 ) NOT NULL AUTO_INCREMENT,
         `title` VARCHAR( 100 ) NOT NULL ,
         `target` TEXT NOT NULL,
-        `is_video` TINYINT( 1 ) NOT NULL DEFAULT  '0',
-        `video_order` INT( 3 ) NOT NULL DEFAULT  '5',
-        `is_audio` TINYINT( 1 ) NOT NULL DEFAULT  '0',
-        `audio_order` INT( 3 ) NOT NULL DEFAULT  '5',
-        `is_text` TINYINT( 1 ) NOT NULL DEFAULT  '0',
-        `text_order` INT( 3 ) NOT NULL DEFAULT  '5',
-        `is_image` TINYINT( 1 ) NOT NULL DEFAULT  '0',
-        `image_order` INT( 3 ) NOT NULL DEFAULT  '5',
+        `media_type` TEXT NOT NULL,
+        `orderer` INT( 3 ) NOT NULL DEFAULT  '5'
         PRIMARY KEY ( `ID` )
         );";
 

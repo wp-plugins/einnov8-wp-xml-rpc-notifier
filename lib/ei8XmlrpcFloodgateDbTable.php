@@ -110,14 +110,8 @@ class ei8XmlrpcFloodgateDbTableTargets extends ei8XmlrpcFloodgateDbTable
             `id` BIGINT( 20 ) NOT NULL AUTO_INCREMENT,
             `title` VARCHAR( 100 ) NOT NULL ,
             `target` TEXT NOT NULL,
-            `is_video` TINYINT( 1 ) NOT NULL DEFAULT  '0',
-            `video_order` INT( 3 ) NOT NULL DEFAULT  '5',
-            `is_audio` TINYINT( 1 ) NOT NULL DEFAULT  '0',
-            `audio_order` INT( 3 ) NOT NULL DEFAULT  '5',
-            `is_text` TINYINT( 1 ) NOT NULL DEFAULT  '0',
-            `text_order` INT( 3 ) NOT NULL DEFAULT  '5',
-            `is_image` TINYINT( 1 ) NOT NULL DEFAULT  '0',
-            `image_order` INT( 3 ) NOT NULL DEFAULT  '5',
+            `media_type` TEXT NOT NULL,
+            `orderer` INT( 3 ) NOT NULL DEFAULT  '5',
             PRIMARY KEY ( `ID` )
             );";
     }
@@ -126,24 +120,12 @@ class ei8XmlrpcFloodgateDbTableTargets extends ei8XmlrpcFloodgateDbTable
         $sql = $this->db->prepare("INSERT INTO {$this->table_name} SET
                 title ='%s',
                 target ='%s',
-                is_video = %d,
-                video_order = %d,
-                is_audio = %d,
-                audio_order = %d,
-                is_text = %d,
-                text_order = %d,
-                is_image = %d,
-                image_order = %d",
+                media_type = '%s',
+                orderer = %d",
             $data->title,
             addslashes($data->target),
-            $data->is_video,
-            $data->video_order,
-            $data->is_audio,
-            $data->audio_order,
-            $data->is_text,
-            $data->text_order,
-            $data->is_image,
-            $data->image_order
+            $data->mediat_type,
+            $data->orderer
         );
         ei8_xmlrpc_admin_query($sql);
         return $this->db->insert_id;
@@ -170,25 +152,13 @@ class ei8XmlrpcFloodgateDbTableTargets extends ei8XmlrpcFloodgateDbTable
         $sql = $this->db->prepare("UPDATE {$this->table_name} SET
                 title ='%s',
                 target ='%s',
-                is_video = %d,
-                video_order = %d,
-                is_audio = %d,
-                audio_order = %d,
-                is_text = %d,
-                text_order = %d,
-                is_image = %d,
-                image_order = %d
+                media_type ='%s',
+                orderer = %d
              WHERE id = %d",
             $data->title,
             addslashes($data->target),
-            $data->is_video,
-            $data->video_order,
-            $data->is_audio,
-            $data->audio_order,
-            $data->is_text,
-            $data->text_order,
-            $data->is_image,
-            $data->image_order,
+            $data->media_type,
+            $data->orderer,
             $data->id
         );
         ei8_xmlrpc_admin_query($sql);

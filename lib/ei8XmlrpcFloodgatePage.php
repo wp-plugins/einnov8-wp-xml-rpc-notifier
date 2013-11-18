@@ -13,8 +13,9 @@ class ei8XmlrpcFloodgatePage
     public $clientName;
     public $resellerName;
     public $floodgateUrl;
-    public $floodgateTypes;
+    public $floodgateMediaTypes;
     public $floodgateTargets;
+    public $pluginUrl;
 
     public $session;
     public $session_is_valid;
@@ -29,13 +30,14 @@ class ei8XmlrpcFloodgatePage
     public function __construct() {
         global $floodgate;
 
+        $this->pluginUrl    = ei8_plugins_url('',' ');
         $this->css          = ei8_plugins_url('/floodgate.css');
         $this->logo         = ei8_xmlrpc_get_floodgate_option('logo');
         $this->clientName   = ei8_xmlrpc_get_floodgate_option('client_name');
         $this->resellerName = ei8_xmlrpc_get_floodgate_option('reseller_name');
 
         $this->floodgateUrl = get_bloginfo('wpurl').'/'.ei8_xmlrpc_floodgate_get_name().'/';
-        $this->floodgateTypes = ei8_xmlrpc_floodgate_get_types();
+        $this->floodgateMediaTypes = ei8_xmlrpc_floodgate_get_media_types();
 
         $ft = new ei8XmlrpcFloodgateTargets();
         $this->floodgateTargets = $ft->targets;
@@ -63,8 +65,8 @@ class ei8XmlrpcFloodgatePage
         //$this->breadCrumb = "YOU ARE HERE";
         $breadCrumbs = array();
         //$breadCrumbs[] = $this->resellerName);
-        if($this->currentType && $this->floodgateTypes[$this->currentType]) {
-            $breadCrumbs[] = $this->floodgateTypes[$this->currentType];
+        if($this->currentType && $this->floodgateMediaTypes[$this->currentType]) {
+            $breadCrumbs[] = $this->floodgateMediaTypes[$this->currentType];
             $breadCrumbs[] = ($this->currentTarget) ? $this->floodgateTargets[$this->currentTarget]->title : "ERROR" ;
         }
         $this->breadCrumb = implode(' :: ', $breadCrumbs);
@@ -130,7 +132,9 @@ EOT;
         $target = new ei8XmlrpcFloodgateTarget($this->currentTarget);
         $title  = "Media Upload";
         //$html   = "<p>Media Uploader Goes Here";
-        $html   = ei8_xmlrpc_recorder_wrap('media', $target->target);
+        //$html   = ei8_xmlrpc_recorder_wrap('media', $target->target);
+        $form = new ei8XmlrpcFloodgateFormUploader($this->currentType,$target->target,$this->pluginUrl);
+        $html   = $form->render();
         return array($title, $html);
     }
 
@@ -141,6 +145,14 @@ EOT;
     }
 
     private function build_content_login() {
+        $form = new ei8XmlrpcFloodgateFormLogin($this->build_floodgate_current_url());
+        if($form->status=='success') $this->redirect($this->floodgateUrl);
+        //$form->body = $form->build_table($form_fields);
+        //$title  = "Please login";
+        return array($title, $form->render());
+    }
+
+    /*private function build_content_login() {
         $form = new ei8XmlrpcFloodgateFormFG($this->build_floodgate_current_url());
         $form->submitButton = 'Login';
         $form_fields = array(
@@ -162,7 +174,7 @@ EOT;
         $form->body = $form->build_table($form_fields);
         //$title  = "Please login";
         return array($title, $form->render());
-    }
+    }*/
 
     private function build_content_support() {
         $title  = "Get Support!";
@@ -204,7 +216,7 @@ EOT;
 
     private function build_nav() {
         $this->showNav = $this->build_nav_type('Home');
-        foreach($this->floodgateTypes as $type=>$typeName) $this->showNav .= $this->build_nav_type($typeName,$type);
+        foreach($this->floodgateMediaTypes as $type=>$typeName) $this->showNav .= $this->build_nav_type($typeName,$type);
         $this->showNav .= $this->build_nav_type('Support','support');
     }
 
@@ -240,9 +252,10 @@ EOT;
 
         //could change the class here if no subs
         if ($requireSubsMissing) {
-            $html = sprintf('<li class="menu-item deactivated" title="There are no targets set up for this type"><span>%s</span>', $title);
+            $html = sprintf('<li class="menu-item sated" title="There are no targets set up for this type"><span>%s</span>', $title);
         } else {
-            $showActive = ($showDeactivate=='' && $this->currentType==$type) ? 'active' : '' ;
+            //$showActive = ($showDeactivate=='' && $this->currentType==$type) ? 'active' : '' ;
+            $showActive = ($this->currentType==$type) ? 'active' : '' ;
             $html = sprintf('<li class="menu-item %s"><a href="%s">%s</a>',$showActive, $url, $title);
         }
         if($subsCT>=1) {
@@ -258,6 +271,7 @@ EOT;
     }
 
     private function build_page() {
+        //$adminBuffer = (is_multisite() && is_admin_bar_showing()) ? 'adminbuffer' : '' ;
         $adminBuffer = (is_multisite() && is_admin_bar_showing()) ? 'adminbuffer' : '' ;
         $html =<<<EOT
 <!DOCTYPE html>

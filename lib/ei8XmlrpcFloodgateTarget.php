@@ -10,14 +10,8 @@ class ei8XmlrpcFloodgateTarget {
     public $id;
     public $title;
     public $target;
-    public $is_video;
-    public $video_order;
-    public $is_audio;
-    public $audio_order;
-    public $is_text;
-    public $text_order;
-    public $is_image;
-    public $image_order;
+    public $media_type;
+    public $orderer;
 
     private $table;
 
@@ -33,19 +27,19 @@ class ei8XmlrpcFloodgateTarget {
     }
 
     public function is_video() {
-        return (boolean) $this->is_video;
+        return ($this->media_type=='video');
     }
 
     public function is_audio() {
-        return (boolean) $this->is_audio;
+        return ($this->media_type=='audio');
     }
 
     public function is_text() {
-        return (boolean) $this->is_text;
+        return ($this->media_type=='text');
     }
 
     public function is_image() {
-        return (boolean) $this->is_image;
+        return ($this->media_type=='image');
     }
 
     public function get($id) {
@@ -72,6 +66,23 @@ class ei8XmlrpcFloodgateTarget {
         $col = $type.'_order';
         $this->$col = $position;
         return $this->table->update_order($this->id, $col, $position);
+    }
+
+    public function getGuidFromOldTarget($target,$type) {
+        $guids = self::getGuidsFromOldTarget($target);
+        return $guids[$target];
+    }
+
+    public function getGuidsFromOldTarget($target) {
+        $target = html_entity_decode($target);
+        $parts = (strstr($target,'&')) ? explode('&',$target) : explode(' ',$target) ;
+        $guids = array();
+        foreach($parts as $part) {
+            list($t,$guid) = explode("=",$part);
+            $type = ($t==v) ? 'video' : 'audio' ;
+            $guids[$type] = $guid;
+        }
+        return $guids;
     }
 
 

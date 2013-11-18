@@ -66,6 +66,7 @@ $floodgateOptionSettings= array(
     //$name         => array($title,$default_value,$extra),
     'name'          => array('Floodgate URL', 'floodgate', 'ie: http://yoursite.com/<span style="color:red">floodgate</span>/'),
     'pass'          => array('Floodgate Password', 'floodgate'),
+    'acct_guid'     => array('ei8t.com Account GUID', '','ie: 8hjGfHJCkKJ'),
     'client_name'   => array('Client\'s Name', 'Client\'s Name'),
     'reseller_name' => array('Reseller Name', 'FLOODtech'),
     'logo'          => array('Company Logo', ei8_plugins_url('/images/logo.png'), 'ie: http://yoursite.com/images/logo.png'),
@@ -74,19 +75,19 @@ $floodgateOptionDefaults= array();
 foreach($floodgateOptionSettings as $key=>$vals) $floodgateOptionDefaults[$key]=$vals[1];
 $floodgateOptions = array_keys($floodgateOptionDefaults);
 
-$floodgateTypes = array(
+$floodgateMediaTypes = array(
     'video' => 'Video',
     'audio' => 'Audio',
     'text'  => 'Text',
     'image' => 'Image'
 );
 
-function ei8_xmlrpc_floodgate_get_types($getAll='') {
-    global $floodgateTypes;
-    if(empty($getAll)) return $floodgateTypes;
+function ei8_xmlrpc_floodgate_get_media_types($getAll='') {
+    global $floodgateMediaTypes;
+    if(empty($getAll)) return $floodgateMediaTypes;
     $myFgTypes = array_merge(
         array('home'=>'Home'),
-        $floodgateTypes,
+        $floodgateMediaTypes,
         array('support'=>'Support')
     );
     return $myFgTypes;
