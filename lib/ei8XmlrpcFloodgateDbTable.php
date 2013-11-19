@@ -112,7 +112,7 @@ class ei8XmlrpcFloodgateDbTableTargets extends ei8XmlrpcFloodgateDbTable
             `target` TEXT NOT NULL,
             `media_type` TEXT NOT NULL,
             `orderer` INT( 3 ) NOT NULL DEFAULT  '5',
-            PRIMARY KEY ( `ID` )
+            PRIMARY KEY ( `id` )
             );";
     }
     
@@ -124,7 +124,7 @@ class ei8XmlrpcFloodgateDbTableTargets extends ei8XmlrpcFloodgateDbTable
                 orderer = %d",
             $data->title,
             addslashes($data->target),
-            $data->mediat_type,
+            $data->media_type,
             $data->orderer
         );
         ei8_xmlrpc_admin_query($sql);
@@ -133,7 +133,7 @@ class ei8XmlrpcFloodgateDbTableTargets extends ei8XmlrpcFloodgateDbTable
 
     public function delete_target($id) {
         $sql = $this->db->prepare("DELETE FROM {$this->table_name} WHERE id=%d",
-            $this->id
+            $id
         );
         ei8_xmlrpc_admin_query($sql);
         //$this->db->flush();

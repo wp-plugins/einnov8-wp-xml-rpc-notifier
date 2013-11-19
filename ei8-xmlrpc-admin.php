@@ -287,7 +287,7 @@ function ei8_xmlrpc_floodgate_settings() {
 <form method="post" action="<?php echo $ei8AdminUrl; ?>">
     <?php /*wp_nonce_field('update-options');*/ ?>
     <?php $form_render(); ?>
-    <?php echo $form->make_field_hidden('tabaction', 'process_'.$currentTab); ?>
+    <input type="hidden" name="tabaction" value="process" />
     <?php if($currentTab!='order') { ?><p class="submit"><input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p><?php } ?>
 </form>
 </div>
@@ -319,7 +319,11 @@ function ei8_xmlrpc_floodgate_process_settings() {
         if(!strstr($v,$floodgateTargetVarPre)) continue;
         list($ignore,$ident) = explode($floodgateTargetVarPre,$v);
         list($id,$var) = explode('_',$ident,2);
-        if(!in_array($id,array_keys($targets))) $targets[$id] = new ei8XmlrpcFloodgateTarget($id);
+        if(!in_array($id,array_keys($targets))) {
+            $targets[$id] = new ei8XmlrpcFloodgateTarget();
+            $targets[$id]->id = $id;
+            $targets[$id]->dbdata = new ei8XmlrpcFloodgateTarget($id);
+        }
         $targets[$id]->$var = $val;
         /*ei8_xmlrpc_admin_log("<p>Processing submitted target:
             <br>floodgateTargetVarPre: $floodgateTargetVarPre
@@ -334,16 +338,19 @@ function ei8_xmlrpc_floodgate_process_settings() {
     ei8_xmlrpc_admin_log("<p>(".count($targets).") floodgate targets found to process.</p>");
     //ei8_xmlrpc_admin_log("<p>Targets <pre>$showTargets</pre></p>");
     if(count($targets)>=1) foreach($targets as $id=>$target) {
-        $showTarget = print_r($target,true);
-        //ei8_xmlrpc_admin_log("<p>Processing target: <pre>$showTarget</pre></p>");
-        //handle empties
-        if($target->target=='') {
-            if($id=='new') continue;
-            $target->delete();
-        } else $target->update();
-    }
+        if($id=='new') {
+            $fgT = new ei8XmlrpcFloodgateTargets();
+            $rT = $fgT->remoteTargets[$target->target];
+            //echo "<p>New Target<pre>"; print_r($rT); echo "</pre></p>"; exit;
+            $target->media_type = $rT->media_type;
+            if(empty($target->title)) $target->title = $rT->title;
+        } //else $target->target = $target->dbdata->target;
 
-    ei8_xmlrpc_admin_log("<p>Your Floodgate Settings have been updated.</p>",1);
+        //echo "<p>Updating Target<pre>"; print_r($target); echo "</pre></p>";
+        if(empty($target->title)) $target->delete();
+        else $target->update();
+    }
+    //ei8_xmlrpc_admin_log("<p>Your Floodgate Settings have been updated.</p>",1);
 }
 
 function ei8_xmlrpc_floodgate_process_order() {
@@ -407,47 +414,73 @@ function ei8_xmlrpc_floodgate_render_settings() {
     }
 ?>
     <tr><td><h3>Floodgate Targets</h3></td></tr>
+    <tr valign="top">
+        <th scope="col"><h4>Type</h4></th>
+        <th scope="col"><h4>Local Title</h4></th>
+        <th scope="col"><h4>Remote Title</h4></th>
+        <th scope="col"><h4>Target guid</h4></th>
+    </tr>
 <?php
     $floodgateMediaTypes = ei8_xmlrpc_floodgate_get_media_types();
     $fgT = new ei8XmlrpcFloodgateTargets();
-    foreach($floodgateMediaTypes as $type=>$title) {
-        echo "<tr><td><h4>{$title}</h4></td></tr>";
-
-    }
+    //foreach($floodgateMediaTypes as $type=>$title) {
+        //echo "<tr><td><h4>{$title}</h4></td></tr>";
+        foreach($fgT->targets as $target) {
+            $targetVarPre = $floodgateTargetVarPre.$target->id.'_';
 ?>
     <tr valign="top">
-        <th scope="col">Title</th>
-        <th scope="col">Target</th>
-        <th scope="col">Video</th>
-        <th scope="col">Audio</th>
-        <th scope="col">Text</th>
-        <th scope="col">Image</th>
-    </tr>
-<?php
-    $ft = new ei8XmlrpcFloodgateTargets();
-    foreach($ft->targets as $target) {
-        $targetVarPre = $floodgateTargetVarPre.$target->id.'_';
-?>
-    <tr valign="top">
+        <td><?php echo $target->media_type; ?><input type='hidden' name='<?php echo $targetVarPre.'media_type' ?>' value='<?php echo $target->media_type ?>'></td>
         <td><input type="text" name="<?php echo $targetVarPre.'title' ?>" size=35 value="<?php echo $target->title ?>" /></td>
-        <td><input type="text" name="<?php echo $targetVarPre.'target' ?>" size=35 value="<?php echo $target->target ?>" /></td>
-        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_video',$target->is_video); ?></td>
-        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_audio',$target->is_audio); ?></td>
-        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_text',$target->is_text); ?></td>
-        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_image',$target->is_image); ?></td>
+        <td><?php echo $fgT->remoteTargets[$target->target]->title ?></td>
+        <td><?php echo $target->target ?><input type='hidden' name='<?php echo $targetVarPre.'target' ?>' value='<?php echo $target->target ?>'></td>
     </tr>
 <?php
-    }
+
+        }
+    //}
     $targetVarPre = $floodgateTargetVarPre.'new_';
 ?>
-    <tr><th colspan=3>Create A New Target <br>(<small>ex. http://www.ei8t.com/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small>)</th></tr>
     <tr valign="top">
-        <td><input type="text" name="<?php echo $targetVarPre.'title' ?>" size=35 value="New Target" /></td>
-        <td><input type="text" name="<?php echo $targetVarPre.'target' ?>" size=35 value="" /></td>
-        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_video',false); ?></td>
-        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_audio',false); ?></td>
-        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_text',false); ?></td>
-        <td><?php echo ei8_xmlrpc_form_boolean($targetVarPre.'is_image',false); ?></td>
+        <td><strong>Add A New Target</strong></td>
+        <td><input type="text" name="<?php echo $targetVarPre.'title' ?>" size=35 value="" /></td>
+        <td><select name='<?php echo $targetVarPre.'target' ?>'>
+            <option selected> --- CHOOSE ONE --- </option>
+<?php
+    $types = array();
+    $spacerOption = "<option disabled></option>";
+    $nested = array();
+    //build an array of just the guids for the current targets
+    $myTargets = array();
+    foreach($fgT->targets as $target) $myTargets[] = $target->target;
+    //build the select array for the remote Targets
+    foreach ($fgT->remoteTargets as $target ) {
+        //determine if this is a new media type and show the title
+        if(!in_array($target->media_type,$types)) {
+            echo $spacerOption;
+            echo "<option disabled>{$target->media_type}</option>";
+            $types[] = $target->media_type;
+        }
+        //determine if this target is already being used
+        $doDisabled = (in_array($target->target,$myTargets)) ? 'disabled' : '' ;
+        //handle nesting of subfolders
+        if(empty($target->parent_folder_id)) $nested = array();
+        else {
+            if(!in_array($target->parent_folder_id,$nested)) $nested[] = $target->parent_folder_id;
+            else {
+                $oldNested = $nested;
+                $nested = array();
+                foreach($oldNested as $id) {
+                    $nested[] = $id;
+                    if($id==$target->parent_folder_id) break;
+                }
+            }
+        }
+        $spacer = " &nbsp ";
+        foreach($nested as $n) $spacer .= "--- ";
+        echo "<option value='".$target->target."' $doDisabled>".$spacer.$target->title."</option>";
+    }
+?>
+                        </select></td>
     </tr>
     </table>
 <?php
@@ -1051,20 +1084,21 @@ function ei8_xmlrpc_email_options() {
 
 function ei8_xmlrpc_form_text($var,$val) {
     //moved to oop
-    $fgForm = new ei8XmlrpcFloodgateFormHandler();
-    return $fgForm->make_field_text($var,$val);
+    $f = new ei8XmlrpcFloodgateFormFieldText($var,$val);
+    return $f->render_field();
 }
 
 function ei8_xmlrpc_form_textarea($var,$val,$rows='') {
     //moved to oop
-    $fgForm = new ei8XmlrpcFloodgateFormHandler();
-    return $fgForm->make_field_text($var,$val,$rows);
+    $args = (empty($rows)) ? array() : array('rows'=>$rows) ;
+    $f = new ei8XmlrpcFloodgateFormFieldTextarea($var,$val,$args);
+    return $f->render_field();
 }
 
 function ei8_xmlrpc_form_boolean($var,$val) {
     //moved to oop
-    $fgForm = new ei8XmlrpcFloodgateFormHandler();
-    return $fgForm->make_field_boolean($var,$val);
+    $f = new ei8XmlrpcFloodgateFormFieldSelectBoolean($var,$val);
+    return $f->render_field();
 }
 
 function ei8_xmlrpc_get_blog_option($val) {
@@ -1423,8 +1457,8 @@ function ei8_xmlrpc_admin_install() {
         `title` VARCHAR( 100 ) NOT NULL ,
         `target` TEXT NOT NULL,
         `media_type` TEXT NOT NULL,
-        `orderer` INT( 3 ) NOT NULL DEFAULT  '5'
-        PRIMARY KEY ( `ID` )
+        `orderer` INT( 3 ) NOT NULL DEFAULT  '5',
+        PRIMARY KEY ( `id` )
         );";
 
     if($wp_version < 3) require_once(ABSPATH . 'wp-admin/includes/upgrade.php');

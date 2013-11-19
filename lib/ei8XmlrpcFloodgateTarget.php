@@ -12,12 +12,13 @@ class ei8XmlrpcFloodgateTarget {
     public $target;
     public $media_type;
     public $orderer;
+    public $remoteTargetExists;
 
     private $table;
 
     public function __construct($id='') {
         $this->table = new ei8XmlrpcFloodgateDbTableTargets();
-        if($id!='') $this->get($id);
+        if($id!='' && is_numeric($id)) $this->get($id);
         return $this;
     }
 
@@ -85,5 +86,27 @@ class ei8XmlrpcFloodgateTarget {
         return $guids;
     }
 
+
+}
+
+class ei8XmlrpcFloodgateTargetRemote extends ei8XmlrpcFloodgateTarget {
+    public $folder_id;
+    public $parent_folder_id;
+
+    public function __construct($import='') {
+        if(!empty($import)) return $this->importFromXml($import);
+    }
+
+    public function importFromXml($target) {
+        $elements = array(
+            'guid'              => 'target',
+            'name'              => 'title',
+            'folder_type'       => 'media_type',
+            'folder_id'         => 'folder_id',
+            'parent_folder_id'  => 'parent_folder_id'
+        );
+        foreach($elements as $rKey=>$lKey) $this->$lKey = (string) $target->$rKey;
+        return $this;
+    }
 
 }

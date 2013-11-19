@@ -17,17 +17,19 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
     public function __construct($type='') {
         global $wpdb;
         $this->db = &$wpdb;
-        $this->table = $this->db->prefix . "ei8_floodgate_targets";
+        $this->table = $this->db->prefix . "ei8_floodgate_targets" ;
         $this->type = $type;
         $this->getTargets();
         $this->getAccountGuid();
         $this->getRemoteTargets();
+        $this->matchTargetsToRemoteTargets();
         return $this;
     }
 
     public function getAccountGuid() {
-        $op = ei8XmlrpcFloodgateOption('acct_guid');
-        $this->acct_guid = $op->get();
+        //$op = new ei8XmlrpcFloodgateOption('acct_guid');
+        //$this->acct_guid = $op->get();
+        $this->acct_guid = '8hjGfHJCkKJ';
         return $this->acct_guid;
     }
 
@@ -41,11 +43,11 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
             );
         } else {
             $sql = sprintf(
-                "SELECT %s FROM %s WHERE %s=1 ORDER BY %s ASC",
+                "SELECT %s FROM %s WHERE media_type='%s' ORDER BY %s ASC",
                 'id',
                 $this->table,
-                'is_'.$this->type,
-                $this->type.'_order'
+                $this->type,
+                'orderer'
             );
         }
         $results = $this->db->get_results($sql);
@@ -60,8 +62,18 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
     public function getRemoteTargets(){
         $api = new ei8XmlrpcFloodgateAPI($this->acct_guid);
         $info = $api->getAccountInfo();
-        $this->remoteTargets = (empty($this->type)) ? $info->folders : $info->folders->{$this->type};
+        $this->remoteTargets = array();
+        $this->getRemoteTargetsRecursive($info->folders);
         return $this->remoteTargets;
+    }
+
+    public function getRemoteTargetsRecursive($folders) {
+        foreach($folders->children() as $folder) {
+            if(empty($this->type) || $folder->folder_type==$this->type) {
+                $this->remoteTargets[(string)$folder->guid] = new ei8XmlrpcFloodgateTargetRemote($folder);
+                $this->getRemoteTargetsRecursive($folder->folders);
+            }
+        }
     }
 
     public function importCustomFolders() {
@@ -86,6 +98,21 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
             } //else ei8_xmlrpc_admin_log("<p>Skipping custom folder: ".$folder['title']." (no target to import)</p>");
         }
         //we could delete the custom folders at this point...but there isn't really a need, and they *could* be useful
+    }
+
+    public function matchTargetsToRemoteTargets($targets='',$remoteTargets='') {
+        if(empty($targets)) $targets = $this->targets;
+        if(empty($remoteTargets)) $remoteTargets = $this->remoteTargets;
+
+        if(is_array($targets)) foreach($targets as $target) {
+            $target->remoteTargetExists = (array_key_exists($target->target,$remoteTargets));
+        }
+        //$this->targets = $myTargets;
+
+        //echo "<p>Targets:<pre>"; print_r($this->targets); echo "</pre></p>";
+        //echo "<p>Remote Targets:<pre>"; print_r($this->remoteTargets); echo "</pre></p>";
+        //exit;
+
     }
 
 }
