@@ -64,14 +64,14 @@ class ei8XmlrpcFloodgateTarget {
     }
 
     public function update_order($type,$position) {
-        $col = $type.'_order';
+        $col = 'orderer';
         $this->$col = $position;
         return $this->table->update_order($this->id, $col, $position);
     }
 
     public function getGuidFromOldTarget($target,$type) {
         $guids = self::getGuidsFromOldTarget($target);
-        return $guids[$target];
+        return $guids[$type];
     }
 
     public function getGuidsFromOldTarget($target) {

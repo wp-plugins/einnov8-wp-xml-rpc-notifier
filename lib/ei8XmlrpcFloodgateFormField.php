@@ -112,9 +112,13 @@ class ei8XmlrpcFloodgateFormFieldTextEmail extends ei8XmlrpcFloodgateFormFieldTe
 
 class ei8XmlrpcFloodgateFormFieldTextUrl extends ei8XmlrpcFloodgateFormFieldText
 {
-    public function validate($url) {
-        if(strstr($url, ' ') || preg_match('/^http(s?):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?/i', $url)) return $this->throw_error();
+    public function validate() {
+        if(!$this->validate_url($this->value)) return $this->throw_error();
         return parent::validate();
+    }
+
+    public function validate_url($url) {
+        return preg_match('/^http(s?):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?/i', trim($url));
     }
 }
 

@@ -19,21 +19,24 @@ function ei8_xmlrpc_validate_data($input) {
     //validate the email
     $tEmail = ei8_xmlrpc_get_option('ei8_xmlrpc_email_notify');
     //if(!empty($tEmail) && !ei8_isValidEmails($tEmail)) {
-    if(!empty($tEmail) && !$form->validate_emails($tEmail)) {
-        echo "<div id='akismet-warning' class='error fade'><b>At least one of the notification email addresses are not valid.  <a href='$optionP'>Please fix or email notifications will not be received. </a>($tEmail)</b></div>";
+    if(!empty($tEmail)) {
+        $f = new ei8XmlrpcFloodgateFormFieldTextEmail('test',$tEmail);
+        if(!$f->validate()) echo "<div id='akismet-warning' class='error fade'><b>At least one of the notification email addresses are not valid.  <a href='$optionP'>Please fix or email notifications will not be received. </a>($tEmail)</b></div>";
     }
     //validate the email
     $tEmail = ei8_xmlrpc_get_option('email_from_addr');
     //if(!empty($tEmail) && !ei8_isValidEmail($tEmail)) {
-    if(!empty($tEmail) && !$form->validate_email($tEmail)) {
-        echo "<div id='akismet-warning' class='error fade'><b>The email notification 'From' address is is not valid.  <a href='$optionE'>Please fix or your emails may be marked as spam. </a>($tEmail)</b></div>";
+    if(!empty($tEmail)) {
+        $f = new ei8XmlrpcFloodgateFormFieldTextEmail('test',$tEmail);
+        if(!$f->validate()) echo "<div id='akismet-warning' class='error fade'><b>The email notification 'From' address is is not valid.  <a href='$optionE'>Please fix or your emails may be marked as spam. </a>($tEmail)</b></div>";
     }
 
     //validate the ping url
     $tPing = ei8_xmlrpc_get_option('ei8_xmlrpc_ping');
     //if(!empty($tPing) && !ei8_isValidUrl($tPing)) {
-    if(!empty($tPing) && !$form->validate_url($tPing)) {
-        echo "<div id='akismet-warning' class='error fade'><b>This is not a valid URL to be pinged.  <a href='$optionP'>Please fix or ping notifications will not be sent. </a>($tPing)</b></div>";
+    if(!empty($tPing)) {
+        $f = new ei8XmlrpcFloodgateFormFieldTextUrl('test',$tPing);
+        if(!$f->validate()) echo "<div id='akismet-warning' class='error fade'><b>This is not a valid URL to be pinged.  <a href='$optionP'>Please fix or ping notifications will not be sent. </a>($tPing)</b></div>";
     }
 
 }
@@ -389,6 +392,13 @@ function ei8_xmlrpc_floodgate_process_text() {
 function ei8_xmlrpc_floodgate_render_settings() {
     global $floodgateOptionSettings;
     $floodgateTargetVarPre = 'ei8_xmlrpc_floodgate_target_';
+
+    $fgT = new ei8XmlrpcFloodgateTargets();
+    //if there are no valid targets...attempt to import and setup the acct guid
+    if(count($fgT->targets)<1) {
+        $fgT->importCustomFolders();
+        $fgT = new ei8XmlrpcFloodgateTargets();
+    }
 ?>
 
 <table class="form-table">
@@ -415,17 +425,17 @@ function ei8_xmlrpc_floodgate_render_settings() {
 ?>
     <tr><td><h3>Floodgate Targets</h3></td></tr>
     <tr valign="top">
-        <th scope="col"><h4>Type</h4></th>
+        <th scope="col"><h4>Media Type</h4></th>
         <th scope="col"><h4>Local Title</h4></th>
         <th scope="col"><h4>Remote Title</h4></th>
         <th scope="col"><h4>Target guid</h4></th>
     </tr>
 <?php
     $floodgateMediaTypes = ei8_xmlrpc_floodgate_get_media_types();
-    $fgT = new ei8XmlrpcFloodgateTargets();
-    //foreach($floodgateMediaTypes as $type=>$title) {
+    foreach($floodgateMediaTypes as $type=>$title) {
         //echo "<tr><td><h4>{$title}</h4></td></tr>";
         foreach($fgT->targets as $target) {
+            if($target->media_type!=$type) continue;
             $targetVarPre = $floodgateTargetVarPre.$target->id.'_';
 ?>
     <tr valign="top">
@@ -437,7 +447,7 @@ function ei8_xmlrpc_floodgate_render_settings() {
 <?php
 
         }
-    //}
+    }
     $targetVarPre = $floodgateTargetVarPre.'new_';
 ?>
     <tr valign="top">
@@ -1457,7 +1467,7 @@ function ei8_xmlrpc_admin_install() {
         `title` VARCHAR( 100 ) NOT NULL ,
         `target` TEXT NOT NULL,
         `media_type` TEXT NOT NULL,
-        `orderer` INT( 3 ) NOT NULL DEFAULT  '5',
+        `orderer` INT( 3 ) NOT NULL DEFAULT 5,
         PRIMARY KEY ( `id` )
         );";
 

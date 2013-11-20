@@ -1,6 +1,6 @@
 <?php
 //uncomment this line below to enable verbose install logging & display sql errors
-//$ei8_xmlrpc_debug = 1;
+$ei8_xmlrpc_debug = 1;
 
 
 //set up customFolders for submit pages

@@ -42,11 +42,11 @@ class ei8XmlrpcFloodgateOption
 //this class only exists to handle the floodgate specific options that have a special prefix for the option names
 class ei8XmlrpcFloodgateOptionFG extends ei8XmlrpcFloodgateOption
 {
-    public function get($name) {
+    public function get($name='') {
         return parent::get($this->build_name($name));
     }
 
-    public function load($name) {
+    public function load($name='') {
         parent::load($this->build_name($name));
     }
 
@@ -54,7 +54,9 @@ class ei8XmlrpcFloodgateOptionFG extends ei8XmlrpcFloodgateOption
         parent::set($this->build_name($name),$value);
     }
 
-    public function build_name($name) {
+    public function build_name($name='') {
+        if($name=='') $name = $this->name;
+        if($name=='') return '';
         $prefix = 'ei8_floodgate_';
         return (strstr($name,$prefix)) ? $name : $prefix.$name ;
     }

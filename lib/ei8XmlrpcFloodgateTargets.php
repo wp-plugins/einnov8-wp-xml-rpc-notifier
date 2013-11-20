@@ -27,10 +27,17 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
     }
 
     public function getAccountGuid() {
-        //$op = new ei8XmlrpcFloodgateOption('acct_guid');
-        //$this->acct_guid = $op->get();
-        $this->acct_guid = '8hjGfHJCkKJ';
-        return $this->acct_guid;
+        $op = new ei8XmlrpcFloodgateOptionFG();
+        $this->acct_guid = $acct_guid = $op->get('acct_guid');
+        //$this->acct_guid = '8hjGfHJCkKJ';
+        return $acct_guid;
+    }
+
+    public function storeAccountGuid($guid) {
+        $op = new ei8XmlrpcFloodgateOptionFG('acct_guid');
+        $this->acct_guid = $op->value = $guid;
+        $op->update();
+        return $guid;
     }
 
     public function getTargets(){
@@ -63,7 +70,7 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
         $api = new ei8XmlrpcFloodgateAPI($this->acct_guid);
         $info = $api->getAccountInfo();
         $this->remoteTargets = array();
-        $this->getRemoteTargetsRecursive($info->folders);
+        if($info->folders) $this->getRemoteTargetsRecursive($info->folders);
         return $this->remoteTargets;
     }
 
@@ -80,24 +87,43 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
         $customFolders = ei8_xmlrpc_getCustomFolders();
         $cfCT = count($customFolders);
         //ei8_xmlrpc_admin_log("<p>Found $cfCT Custom Folders</p>");
-        if($cfCT>=1) foreach($customFolders as $folder) {
-            //ei8_xmlrpc_admin_log("<p>Processing custom folder <pre>".print_r($folder)."</pre></p>",1);
-            if($folder['value']!='') {
-                $t = new ei8XmlrpcFloodgateTarget();
-                $t->title = $folder['title'];
-                ei8_xmlrpc_admin_log("<p>Importing custom folder: ".$t->title." (video)</p>",1);
-                $t->target = $t->getGuidFromOldTarget($folder['value'],'video');
-                $t->is_video = 1;
-                $t->update();
-                $t = new ei8XmlrpcFloodgateTarget();
-                $t->title = $folder['title'];
-                ei8_xmlrpc_admin_log("<p>Importing custom folder: ".$t->title." (audio)</p>",1);
-                $t->target = $t->getGuidFromOldTarget($folder['value'],'audio');
-                $t->is_audio = 1;
-                $t->update();
-            } //else ei8_xmlrpc_admin_log("<p>Skipping custom folder: ".$folder['title']." (no target to import)</p>");
+        if($cfCT>=1) {
+            foreach($customFolders as $folder) {
+                //ei8_xmlrpc_admin_log("<p>Processing custom folder <pre>".print_r($folder)."</pre></p>",1);
+                if($folder['value']!='') {
+                    //process video
+                    $t = new ei8XmlrpcFloodgateTarget();
+                    $t->title = $folder['title'];
+                    ei8_xmlrpc_admin_log("<p>Importing custom folder: ".$t->title." (video)</p>",1);
+                    $t->target = $t->getGuidFromOldTarget($folder['value'],'video');
+                    $t->media_type = 'video';
+                    $t->update();
+                    $this->importAcctGuidFromFolderGuid($t->target);
+
+                    //process audio
+                    $t = new ei8XmlrpcFloodgateTarget();
+                    $t->title = $folder['title'];
+                    ei8_xmlrpc_admin_log("<p>Importing custom folder: ".$t->title." (audio)</p>",1);
+                    $t->target = $t->getGuidFromOldTarget($folder['value'],'audio');
+                    $t->media_type = 'audio';
+                    $t->update();
+                    $this->importAcctGuidFromFolderGuid($t->target);
+                } //else ei8_xmlrpc_admin_log("<p>Skipping custom folder: ".$folder['title']." (no target to import)</p>");
+            }
         }
         //we could delete the custom folders at this point...but there isn't really a need, and they *could* be useful
+    }
+
+    public function importAcctGuidFromFolderGuid($guid) {
+        $db_acct_guid = $this->getAccountGuid();
+        //echo "<p>running importAcctGuidFromFolderGuid($guid)...stored acct_guid({$db_acct_guid})</p>";
+        if(empty($db_acct_guid)) {
+            $api = new ei8XmlrpcFloodgateAPI();
+            $info = $api->getFolderInfo($guid);
+            $new_acct_guid = $info->account->guid;
+            if(!empty($new_acct_guid)) return $this->storeAccountGuid($new_acct_guid);
+        }
+        return $db_acct_guid;
     }
 
     public function matchTargetsToRemoteTargets($targets='',$remoteTargets='') {

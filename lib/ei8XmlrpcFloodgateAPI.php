@@ -9,14 +9,16 @@
 class ei8XmlrpcFloodgateAPI
 {
     public $guid;
-    public $baseUrl = 'http://www.dev.ei8t.com/api/';
+    public $baseUrl = 'http://www.ei8t.com/api/';
+    //public $baseUrl = 'http://www.dev.ei8t.com/api/';
 
     public function __construct($guid='') {
         if(!empty($guid)) $this->guid=$guid;
     }
 
-    public function getInfo($type) {
-        $url = $this->baseUrl.'list/'.$type.'/'.$this->guid.'/';
+    public function getInfo($type,$guid='') {
+        if(empty($guid)) $guid = $this->guid;
+        $url = $this->baseUrl.'list/'.$type.'/'.$guid.'/';
         //load the xml from the url
         $xml = simplexml_load_file(rawurlencode($url));
         //parse the xml
@@ -26,19 +28,19 @@ class ei8XmlrpcFloodgateAPI
     public function getAccountInfo($guid='') {
         if(empty($guid)) $guid = $this->guid;
         if(empty($guid)) return false;
-        return $this->getInfo('account');
+        return $this->getInfo('account',$guid);
     }
 
     public function getFolderInfo($guid='') {
         if(empty($guid)) $guid = $this->guid;
         if(empty($guid)) return false;
-        return $this->getInfo('folder');
+        return $this->getInfo('folder',$guid);
     }
 
     public function getMediaInfo($guid='') {
         if(empty($guid)) $guid = $this->guid;
         if(empty($guid)) return false;
-        return $this->getInfo('media');
+        return $this->getInfo('media',$guid);
     }
 
 
