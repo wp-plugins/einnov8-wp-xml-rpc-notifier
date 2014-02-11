@@ -12,9 +12,11 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
     public $targets;
     public $acct_guid;
     public $remoteTargets;
+    public $accountInfo;
+    public $table;
 
 
-    public function __construct($type='') {
+    public function __construct($type='',$filterActive=false) {
         global $wpdb;
         $this->db = &$wpdb;
         $this->table = $this->db->prefix . "ei8_floodgate_targets" ;
@@ -23,7 +25,15 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
         $this->getAccountGuid();
         $this->getRemoteTargets();
         $this->matchTargetsToRemoteTargets();
+        if($filterActive) $this->filterOutMissingTargets();
         return $this;
+    }
+
+    public function filterOutMissingTargets() {
+        $oldTargets = $this->targets;
+        $targets = array();
+        foreach($oldTargets as $key=>$target) if($target->remoteTargetExists) $targets[$key] = $target;
+        $this->targets = $targets;
     }
 
     public function getAccountGuid() {
@@ -69,6 +79,7 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
     public function getRemoteTargets(){
         $api = new ei8XmlrpcFloodgateAPI($this->acct_guid);
         $info = $api->getAccountInfo();
+        $this->accountInfo = $info->account;
         $this->remoteTargets = array();
         if($info->folders) $this->getRemoteTargetsRecursive($info->folders);
         return $this->remoteTargets;

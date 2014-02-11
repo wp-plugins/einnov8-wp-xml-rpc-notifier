@@ -18,6 +18,7 @@ class ei8XmlrpcFloodgateTarget {
 
     public function __construct($id='') {
         $this->table = new ei8XmlrpcFloodgateDbTableTargets();
+        $this->orderer = 100;
         if($id!='' && is_numeric($id)) $this->get($id);
         return $this;
     }

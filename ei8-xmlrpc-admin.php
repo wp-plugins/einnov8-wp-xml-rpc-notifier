@@ -326,6 +326,7 @@ function ei8_xmlrpc_floodgate_process_settings() {
             $targets[$id] = new ei8XmlrpcFloodgateTarget();
             $targets[$id]->id = $id;
             $targets[$id]->dbdata = new ei8XmlrpcFloodgateTarget($id);
+            $targets[$id]->orderer = $targets[$id]->dbdata->orderer;
         }
         $targets[$id]->$var = $val;
         /*ei8_xmlrpc_admin_log("<p>Processing submitted target:
@@ -414,7 +415,19 @@ function ei8_xmlrpc_floodgate_render_settings() {
         $extra = $vals[2];
         //$val = ei8_xmlrpc_get_floodgate_option($var);
 
+        if($name=='acct_guid' && !empty($val)) {
+            //find the account name and show it
+            $api = new ei8XmlrpcFloodgateAPI($val);
+            $info = $api->getAccountInfo();
+            $extra = sprintf(" Selected account: %s - %s,%s - %s",
+                $info->account->login,
+                $info->account->last_name,
+                $info->account->first_name,
+                $info->account->company
+            );
+        }
         $showExtra = (empty($extra)) ? '' : '<br><small>('.$extra.')</small>' ;
+
 ?>
     <tr valign="top">
         <th scope="row"><?php echo $title ?></th>
@@ -432,16 +445,25 @@ function ei8_xmlrpc_floodgate_render_settings() {
     </tr>
 <?php
     $floodgateMediaTypes = ei8_xmlrpc_floodgate_get_media_types();
+    //echo "<p>Targets:<pre>"; print_r($fgT->targets); echo "</pre></p>";
+    //echo "<p>Remote Targets:<pre>"; print_r($fgT->remoteTargets); echo "</pre></p>";
+    //exit;
     foreach($floodgateMediaTypes as $type=>$title) {
         //echo "<tr><td><h4>{$title}</h4></td></tr>";
         foreach($fgT->targets as $target) {
             if($target->media_type!=$type) continue;
             $targetVarPre = $floodgateTargetVarPre.$target->id.'_';
+            $remoteTitle = $fgT->remoteTargets[$target->target]->title;
+            if(empty($remoteTitle)) {
+                $remoteTitle = "<span style='color:red;'>MISSING TARGET</span><br><small>This target has been deleted from ei8t.com and will not be displayed for users</small>";
+                $missingTitle = true;
+            } else $missingTitle = false;
+            $targetRowClass = (($missingTitle) || !($target->remoteTargetExists)) ? "class='missingtarget'" : "" ;
 ?>
-    <tr valign="top">
-        <td><?php echo $target->media_type; ?><input type='hidden' name='<?php echo $targetVarPre.'media_type' ?>' value='<?php echo $target->media_type ?>'></td>
+    <tr valign="top" <?php echo $targetRowClass; ?>>
+        <td><?php echo ucfirst($target->media_type); ?><input type='hidden' name='<?php echo $targetVarPre.'media_type' ?>' value='<?php echo $target->media_type ?>'></td>
         <td><input type="text" name="<?php echo $targetVarPre.'title' ?>" size=35 value="<?php echo $target->title ?>" /></td>
-        <td><?php echo $fgT->remoteTargets[$target->target]->title ?></td>
+        <td><?php echo $remoteTitle ?></td>
         <td><?php echo $target->target ?><input type='hidden' name='<?php echo $targetVarPre.'target' ?>' value='<?php echo $target->target ?>'></td>
     </tr>
 <?php
@@ -467,7 +489,7 @@ function ei8_xmlrpc_floodgate_render_settings() {
         //determine if this is a new media type and show the title
         if(!in_array($target->media_type,$types)) {
             echo $spacerOption;
-            echo "<option disabled>{$target->media_type}</option>";
+            echo "<option disabled>".strtoupper($target->media_type)."</option>";
             $types[] = $target->media_type;
         }
         //determine if this target is already being used
@@ -566,7 +588,8 @@ function ei8_xmlrpc_floodgate_render_text() {
     $settings = array(
         'textarea_rows' => '12',
         'editor_css'    => '<style>.wp-editor-wrap {width:500px;}</style>',
-        'media_buttons' => false
+        'media_buttons' => false,
+        'wpautop' => false
     );
 
     echo "<table class='form-table'>";

@@ -1,6 +1,6 @@
 <?php
 //uncomment this line below to enable verbose install logging & display sql errors
-$ei8_xmlrpc_debug = 1;
+//$ei8_xmlrpc_debug = 1;
 
 
 //set up customFolders for submit pages
@@ -64,7 +64,7 @@ $optionF = 'ei8-xmlrpc-floodgate-options';
 //$floodgateOptionPre     = 'ei8_floodgate_';
 $floodgateOptionSettings= array(
     //$name         => array($title,$default_value,$extra),
-    'name'          => array('Floodgate URL', 'floodgate', 'ie: http://yoursite.com/<span style="color:red">floodgate</span>/'),
+    'name'          => array('Floodgate URL', 'floodgate2', 'ie: http://yoursite.com/<span style="color:red">floodgate2</span>/'),
     'pass'          => array('Floodgate Password', 'floodgate'),
     'acct_guid'     => array('ei8t.com Account GUID', '','ie: 8hjGfHJCkKJ'),
     'client_name'   => array('Client\'s Name', 'Client\'s Name'),
@@ -78,8 +78,8 @@ $floodgateOptions = array_keys($floodgateOptionDefaults);
 $floodgateMediaTypes = array(
     'video' => 'Video',
     'audio' => 'Audio',
-    'text'  => 'Text',
-    'image' => 'Image'
+    'image' => 'Image',
+    'text'  => 'Text'
 );
 
 function ei8_xmlrpc_floodgate_get_media_types($getAll='') {

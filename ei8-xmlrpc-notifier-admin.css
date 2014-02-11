@@ -16,3 +16,19 @@ h2.subtitle {font-size: 15px; font-style: italic; font-weight: bold}
 */
 
 .clear {clear: both}
+
+.form-table td {
+    vertical-align: top;
+}
+.form-table h3 {
+    margin-left: 20px;
+}
+
+.missingtarget {
+    background-color: rgba(248, 64, 54, 0.52);
+    font-weight: bold;
+    border: 1px solid #4D4E4E;
+}
+.missingtarget td {
+    vertical-align: top;
+}

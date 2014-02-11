@@ -49,13 +49,13 @@ header.adminbuffer {
 
 #titles h1 {
     color: #fff;
-    font-size: 22px;
+    font-size: 20px;
     line-height: 40px;
 }
 
 #titles h2 {
     color: #A8A6A6;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 25px;
     font-weight: normal;
 }
@@ -74,7 +74,6 @@ header.adminbuffer {
 #mainnav ul ul {
     position: absolute;
     z-index: 500;
-    top: 68px;
     left: -1px;
 }
 
@@ -150,13 +149,14 @@ header.adminbuffer {
     padding-left: 350px;
     color: #1C0069;
     font-size: 18px;
-    line-height: 40px;
+    line-height: 24px;
 }
 
 /* Content */
 #content {
     padding: 20px;
     padding-left: 35px;
+    padding-top: 0px;
     /*
     background: url('images/logo.png') no-repeat;
     padding-top: 80px;
@@ -188,8 +188,11 @@ header.adminbuffer {
     margin-right: 0px;
 }
 
-.content-box,
-.content-box h2 {
+.content-box {
+    font-size: 12px;
+}
+
+.content-box h2, .content-box h3 {
     font-size: 14px;
 }
 
@@ -207,4 +210,175 @@ header.adminbuffer {
     width: 450px;
     float: none;
     margin: auto;
+}
+
+div.helpcontent {
+    padding: 20px;
+}
+
+div.helpcontent p {
+    padding-left:20px;
+    text-indent: -20px;
+}
+
+div.helpcontent ol, div.helpcontent ul, .content-box ol, .content-box ul {
+    padding-left:20px;
+}
+
+div.helpcontent h3, div.helpcontent:first-line {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+div.helpcontent .helpimg {
+    float: left;
+    border: 0px;
+    padding-right: 15px;
+}
+div.helpcontent, div.helpcontent * {
+    font-size: 12px;
+    font-family: Tahoma;
+    line-height: 15px;
+}
+
+/*************** Uploader stuff ***************/
+.ei8-form-wrapper {
+    text-align: center;
+    /*background-color: #f7f7f7;
+    border: 1px solid #cccccc;
+    padding: 15px;
+    border-radius:5px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    width: 225px;*/
+    margin: auto;
+}
+.ei8-form-line-double {
+    padding-top: 10px;
+}
+.ei8-form-line *, .ei8-form-label label {
+    font-family: Tahoma;
+    vertical-align: middle;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 300;
+}
+.ei8-form-line {
+    width: 220px;
+    text-align: left;
+}
+.ei8-form-label {
+    width: 120px;
+    text-align: left;
+    vertical-align: top;
+}
+.ei8-form-label, .ei8-form-field {
+    /*display: inline-block;*/
+    text-align: left;
+    font-weight: normal;
+}
+textarea, .ei8-form-field input {
+    width: 220px;
+}
+
+.ei8-form-button {
+	-moz-box-shadow:inset 0px 1px 0px 0px #808080;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #808080;
+	box-shadow:inset 0px 1px 0px 0px #808080;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #4d4e4e), color-stop(1, #888a8a) );
+	background:-moz-linear-gradient( center top, #4d4e4e 5%, #888a8a 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#4d4e4e', endColorstr='#888a8a');
+	background-color:#4d4e4e;
+	-webkit-border-top-left-radius:10px;
+	-moz-border-radius-topleft:10px;
+	border-top-left-radius:10px;
+	-webkit-border-top-right-radius:10px;
+	-moz-border-radius-topright:10px;
+	border-top-right-radius:10px;
+	-webkit-border-bottom-right-radius:10px;
+	-moz-border-radius-bottomright:10px;
+	border-bottom-right-radius:10px;
+	-webkit-border-bottom-left-radius:10px;
+	-moz-border-radius-bottomleft:10px;
+	border-bottom-left-radius:10px;
+	text-indent:0px;
+	border:1px solid #4d4e4e;
+	display:inline-block;
+	color:#ffffff;
+	font-family:Tahoma;
+	font-size:12px;
+	font-weight:normal;
+	height:30px;
+	line-height:30px;
+	width:110px;
+	text-decoration:none;
+	text-align:center;
+	text-shadow:1px 1px 0px #000000;
+    margin-top: 10px;
+}
+.ei8-form-button:hover {
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #888a8a), color-stop(1, #4d4e4e) );
+	background:-moz-linear-gradient( center top, #888a8a 5%, #4d4e4e 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#888a8a', endColorstr='#4d4e4e');
+	background-color:#888a8a;
+}
+.ei8-form-button:active {
+	position:relative;
+	top:1px;
+}
+
+.ei8-textarea-simple-submit {
+    height: 50px;
+}
+
+#fileQueue {
+    width: 220px;
+}
+.uploadifyQueueItem {
+    text-align: left;
+    border-bottom: 1px solid #4D4E4E;
+    padding-top: 7px;
+    padding-bottom: 3px;
+    margin-bottom: 3px;
+    margin-left: 20px;
+    position: relative;
+    width: 190px;
+}
+.uploadifyQueueItem .cancel {
+    position: absolute;
+    left: -18px;
+    display: inline-block;
+}
+.uploadifyQueueItem span {
+    font-size: 12px;
+    font-family: Tahoma;
+    display: block;
+    line-height: 14px;
+}
+.uploadifyProgress {
+	background-color: #D1D1D1;
+	border-top: 1px solid #4D4E4E;
+	border-left: 1px solid #4D4E4E;
+	border-right: 1px solid #C5C5C5;
+	border-bottom: 1px solid #C5C5C5;
+	margin-top: 10px;
+	width: 100%;
+}
+.uploadifyProgressBar {
+	background-color: #1C0069;
+	width: 1px;
+	height: 3px;
+}
+
+#colorboxes {
+    display: none;
+}
+
+.helpinfo img {
+    height: 18px;
+    border:0px;
+    margin:0px;
+    padding:0px;
+    float: right;
+    padding-left: 10px;
 }

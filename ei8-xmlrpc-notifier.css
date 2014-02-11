@@ -31,6 +31,13 @@
     text-align: right;
 }
 
+.ei8title {
+    visibility: hidden;
+}
+
+.ei8comment img, .ei8image {
+    width: 100%;
+}
 
 /* These are for the shortcode stylings */
 .ei8-web-recorder, .ei8-form-wrapper {

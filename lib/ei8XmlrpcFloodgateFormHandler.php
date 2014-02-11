@@ -127,6 +127,57 @@ EOT;
 class ei8XmlrpcFloodgateFormLogin extends ei8XmlrpcFloodgateFormHandler
 {
     public $session;
+    public $src;
+
+    public function set_fields() {
+        $this->fields = array();
+        $this->add_field(new ei8XmlrpcFloodgateFormFieldPassword('password','',array('label'=>'Please Enter Your Password')));
+        $this->fields['password']->label = 'Please Enter Your Password';
+        $this->fields['password']->required = true;
+        $this->add_field(new ei8XmlrpcFloodgateFormFieldHidden('action','login'));
+        $this->add_field(new ei8XmlrpcFloodgateFormFieldSubmit('submit','Submit'));
+    }
+
+    public function process() {
+        //echo "<p>REQUEST:<pre>"; print_r($_REQUEST); echo "</pre></p>"; exit;
+        if($this->status=='action' && $this->action=='login') {
+            $this->session = new ei8XmlrpcFloodgateSession();
+            //$session->validate();
+            $this->session->try_login($this->fields['password']->value);
+            if($this->session->is_valid()) {
+                //redirect
+                //echo '<p>YOU ARE LOGGED IN!<pre>'; print_r($this->session); echo '</pre></p>';
+                //$this->redirect($this->floodgateUrl);
+                $this->status='success';
+            } else {
+                //show fancy error message?
+                $this->status='error';
+                //$this->message = 'Please try again';
+                $this->fields['password']->label = 'Please try again';
+                //$title = "<span class='errormessage'>Please try again</span>";
+            }
+        }
+    }
+
+    public function render() {
+        $html = parent::render();
+        $passwordField = ei8XmlrpcFloodgateFormField::prep_var_name('password');
+        $js =<<<EOT
+            <script type="text/javascript" src="{$this->src}/jquery/jquery-1.3.2.min.js"></script>
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    $('#$passwordField').focus();
+                });
+            </script>
+EOT;
+
+        return $html.$js;
+    }
+}
+
+/*class ei8XmlrpcFloodgateFormTextSubmit extends ei8XmlrpcFloodgateFormHandler
+{
+    public $session;
 
     public function set_fields() {
         $this->fields = array();
@@ -158,6 +209,89 @@ class ei8XmlrpcFloodgateFormLogin extends ei8XmlrpcFloodgateFormHandler
         }
 
     }
+}*/
+
+class ei8XmlrpcFloodgateFormContentSubmit extends ei8XmlrpcFloodgateFormHandler
+{
+    public $src;
+    public $type;
+    public $guid;
+
+    public function __construct($type,$guid,$src) {
+        parent::__construct();
+        $this->type = $type;
+        $this->guid = $guid;
+        $this->src  = $src;
+    }
+
+    public function render() {
+        $api        = new ei8XmlrpcFloodgateAPI();
+        $submitURL  = $api->buildUploadURL($this->type,$this->guid);
+        $aName      = 'ei8fgcontentsubmit'.$this->type;
+        $returnURL  = $this->src."?submitted=".$aName;
+        //$selectFile = ($this->type=='text') ? 'Select file to upload:' : '' ;
+
+        if (($_REQUEST['submitted']==$aName)) {
+            $showConf  = ($_REQUEST['result']=='success') ? ei8_xmlrpc_conf_message() : ei8_xmlrpc_conf_message(false, 'We encountered an error while processing your submission', $_REQUEST['msg']);
+        } else $showConf = "";
+
+
+        $htmlText =<<<EOT
+    $showConf
+    <form action="$submitURL" enctype="multipart/form-data" method="post">
+    <div class="ei8-form-wrapper">
+        <div class="ei8-form-line">
+            <div class="ei8-form-label">Title:</div>
+            <div class="ei8-form-field"><input name="uptitle" size="40" type="text" /></div>
+        </div>
+        <div class="ei8-form-line">
+            <div class="ei8-form-label">Content:</div>
+            <div class="ei8-form-field"><textarea class="ei8-textarea-simple-submit" name="updesc"></textarea></div>
+        </div>
+        <div class="ei8-form-line">
+            <div class="ei8-form-line-double">Attach file: (optional) <input name="upfile" type="file" id="upfile" /></div>
+        </div>
+        <div class="ei8-form-line-spacer"></div>
+        <div class="ei8-form-line">
+            <div class="ei8-form-label"></div>
+            <div class="ei8-form-field">
+                <input type="hidden" name="returnURL" value="$returnURL">
+                <input name="Submit" type="submit" value="Submit" class="ei8-form-button" />
+            </div>
+        </div>
+    </div>
+    </form>
+EOT;
+
+
+        $htmlImage =<<<EOT
+    $showConf
+    <form action="$submitURL" enctype="multipart/form-data" method="post">
+    <div class="ei8-form-wrapper">
+        <div class="ei8-form-line">
+            <div class="ei8-form-line-double"><input name="upfile" type="file" id="upfile" /></div>
+        </div>
+        <div class="ei8-form-line">
+            <div class="ei8-form-label">Title:</div>
+            <div class="ei8-form-field"><input name="uptitle" size="40" type="text"  /></div>
+        </div>
+        <div class="ei8-form-line">
+            <div class="ei8-form-label">Content:</div>
+            <div class="ei8-form-field"><textarea class="ei8-textarea-simple-submit" name="updesc"></textarea></div>
+        </div>
+        <div class="ei8-form-line-spacer"></div>
+        <div class="ei8-form-line">
+            <div class="ei8-form-label"></div>
+            <div class="ei8-form-field">
+                <input type="hidden" name="returnURL" value="$returnURL">
+                <input name="Submit" type="submit" value="Submit" class="ei8-form-button" />
+            </div>
+        </div>
+    </div>
+    </form>
+EOT;
+        return ($this->type=='text') ? $htmlText : $htmlImage ;
+    }
 }
 
 class ei8XmlrpcFloodgateFormUploader extends ei8XmlrpcFloodgateFormHandler
@@ -184,6 +318,7 @@ class ei8XmlrpcFloodgateFormUploader extends ei8XmlrpcFloodgateFormHandler
     public function render() {
         //$uploadifyJS = ei8_plugins_url('uploadify.js');
         $xsid = json_encode(session_id());
+        $guids = ($this->type=='audio') ? "{$this->guid}/default" : "default/{$this->guid}";
         $html =<<<EOT
         <div class="uploader">
             <div class="content">
@@ -210,21 +345,8 @@ class ei8XmlrpcFloodgateFormUploader extends ei8XmlrpcFloodgateFormHandler
                         </div>
                     </div>
                 </div>
-            	<!-- <table>
-            	<tr>
-            		<td><strong>Title:</strong></td>
-            		<td><input type="text" name="uptitle" size="20" id="uptitle"></td>
-                </tr>
-                <tr>
-                	<td><strong>Description:</strong></td>
-                	<td><textarea name="updesc" rows="2" cols="20"  id="updesc"></textarea></td>
-                </tr>
-                </table>
-                <input type="file" name="uploadify" id="uploadify" />
-                <a href="javascript:jQuery('#uploadify').uploadifyClearQueue()" class="cancel_uploads">Cancel All Uploads</a>-->
             </div>
         </div>
-        <script type="text/javascript" src="{$this->src}/jquery/jquery-1.3.2.min.js"></script>
         <script type="text/javascript" src="{$this->src}/uploadify/swfobject.js"></script>
         <script type="text/javascript" src="{$this->src}/uploadify/jquery.uploadify.v2.1.0.js"></script>
         <script type="text/javascript">
@@ -233,15 +355,20 @@ class ei8XmlrpcFloodgateFormUploader extends ei8XmlrpcFloodgateFormHandler
         	// prepare file upload script
         	$("#uploadify").uploadify({
         		'uploader'       : '{$this->src}/uploadify/uploadify.swf',
-        		'script'         : 'http://www.ei8t.com/upload/{$this->afguid}/{$this->vfguid}/',
+        		'script'         : 'http://www.ei8t.com/upload/{$guids}/',
         		'scriptAccess'   : 'always',
         		'cancelImg'      : '{$this->src}/uploadify/cancel.png',
         		'folder'         : 'uploads',
         		'queueID'        : 'fileQueue',
-        		'multi'          : true,
+        		//'multi'          : true,
+        		'multi'          : false,
+        		//'hideButton'     : true,
+        		'wmode'          : 'transparent',
         		'auto'           : true,
+        		//'auto'           : false,
         		'scriptData'	 : {'uptitle': $('#uptitle').val(), 'updesc' : $('#updesc').val()},
         		'onSelect'       : function(event, data) {
+        		    //alert("GOT HERE :: SELECTED");
         		    var t=setTimeout("prepender()",100);
         		},
         		'onAllComplete'  : function(event, data) {
@@ -255,20 +382,30 @@ class ei8XmlrpcFloodgateFormUploader extends ei8XmlrpcFloodgateFormHandler
 
         	// change the title
         	$('#uptitle').change(function() {
+        	    //alert("UPDATING TITLE");
         		$('#uploadify').uploadifySettings('scriptData', {'uptitle' : $(this).val()});
+        	    //alert("UPDATED TITLE");
         	});
 
         	// change the description
         	$('#updesc').change(function() {
+        	    //alert("UPDATING DESCRIPTION");
         		$('#uploadify').uploadifySettings('scriptData', {'updesc' : $(this).val()});
+        	    //alert("UPDATED DESCRIPTION");
         	});
         });
 
         function prepender() {
-            var htmlStr = "<span>Title: " + $('#uptitle').val() + "</span><br><span>Description: " + $('#updesc').val() + "</span>";
+            var titleVal = $('#uptitle').val();
+            var descVal  = $('#updesc').val();
+            if(titleVal.length<1) titleVal = "(not set)";
+            if(descVal.length<1)  descVal += "(not set)";
+            var htmlStr = "<span>Title: " + titleVal + "</span><span>Content: " + descVal + "</span>";
+            //var htmlStr = "<span>Title: " + $('#uptitle').val() + "</span><br><span>Content: " + $('#updesc').val() + "</span>";
             $('div.uploadifyQueueItem:last').append(htmlStr);
             $('#uptitle').val("");
             $('#updesc').val("");
+            return true;
         }
         </script>
 EOT;

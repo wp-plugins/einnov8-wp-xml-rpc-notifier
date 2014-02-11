@@ -9,11 +9,17 @@
 class ei8XmlrpcFloodgateAPI
 {
     public $guid;
+    //TODO Make sure this is connecting to the correct dev/live API
     public $baseUrl = 'http://www.ei8t.com/api/';
     //public $baseUrl = 'http://www.dev.ei8t.com/api/';
 
     public function __construct($guid='') {
         if(!empty($guid)) $this->guid=$guid;
+    }
+
+    public function buildUploadUrl($type,$guid) {
+        $url = $this->baseUrl."upload/".$type."/".$guid."/";
+        return $url;
     }
 
     public function getInfo($type,$guid='') {

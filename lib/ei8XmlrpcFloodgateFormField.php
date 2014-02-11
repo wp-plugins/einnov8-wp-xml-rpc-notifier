@@ -8,10 +8,12 @@
  */
 class ei8XmlrpcFloodgateFormField
 {
+    const VAR_PRE = 'ei8_floodgate_form_var_';
+
     public $label;
     public $var;
     public $var_form;
-    public $var_pre = 'ei8_floodgate_form_var_';
+    //public $var_pre = 'ei8_floodgate_form_var_';
     public $value;
     public $default_value;
     public $type;
@@ -60,8 +62,9 @@ class ei8XmlrpcFloodgateFormField
         return (boolean) $this->required;
     }
 
-    public function prep_var_name($var) {
-        if(!strstr($var,$this->var_pre)) $var = $this->var_pre.$var;
+    public static function prep_var_name($var) {
+        //if(!strstr($var,$this->var_pre)) $var = $this->var_pre.$var;
+        if(!strstr($var,self::VAR_PRE)) $var = self::VAR_PRE.$var;
         return $var;
     }
 
@@ -93,7 +96,7 @@ class ei8XmlrpcFloodgateFormFieldText extends ei8XmlrpcFloodgateFormField
     public $type = 'text';
 
     public function render_field() {
-        return sprintf('<input type="text" name="%s" size=%d value="%s" />', $this->var_form, $this->size, $this->value);
+        return sprintf('<input type="text" name="%s" id="%s" size=%d value="%s" />', $this->var_form, $this->var_form, $this->size, $this->value);
     }
 }
 
@@ -127,7 +130,7 @@ class ei8XmlrpcFloodgateFormFieldPassword extends ei8XmlrpcFloodgateFormFieldTex
     public $type = 'password';
 
     public function render_field() {
-        return sprintf('<input type="password" name="%s" size=%d value="%s" />', $this->var_form, $this->size, $this->value);
+        return sprintf('<input type="password" name="%s" id="%s" size=%d value="%s" />', $this->var_form, $this->var_form, $this->size, $this->value);
     }
 }
 
@@ -151,7 +154,7 @@ class ei8XmlrpcFloodgateFormFieldTextarea extends ei8XmlrpcFloodgateFormField
 
     public function render_field() {
         $showRows = (!empty($this->rows)) ? 'rows="'.$this->rows.'"' : '' ;
-        return sprintf('<textarea class="ei8-textarea" cols=%d name="%s" %s>%s</textarea>', $this->cols, $this->var_form, $showRows, $this->value);
+        return sprintf('<textarea class="ei8-textarea" cols=%d name="%s" id=""%s" %s>%s</textarea>', $this->cols, $this->var_form, $this->var_form, $showRows, $this->value);
     }
 }
 
@@ -205,7 +208,7 @@ class ei8XmlrpcFloodgateFormFieldSelect extends ei8XmlrpcFloodgateFormField
     }
 
     public function render_field() {
-        $html = sprintf("<select name='%s'>",$this->var_form);
+        $html = sprintf("<select name='%s' id='%s'>",$this->var_form,$this->var_form);
         foreach($this->options as $option) {
             $selected = ($option->is_selected) ? "SELECTED" : "" ;
             $html .= sprintf("<option value='%s' %s>%s</option>", $option->value, $selected, $option->title);

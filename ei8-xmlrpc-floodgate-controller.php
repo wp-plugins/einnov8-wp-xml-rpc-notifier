@@ -45,4 +45,11 @@ function ei8_xmlrpc_floodgate_update_endpoint() {
     return $result;
 }
 
+function ei8_xmlrpc_floodgate_get_request_var() {
+    //global $floodgate;
+    $var = ei8_xmlrpc_floodgate_get_name();
+    global $$var;
+    //echo "<p><br><br>var: $var <br> var val: ".$$var."<br>floodgate: $floodgate</p>";
+    return $$var;
+}
 ?>

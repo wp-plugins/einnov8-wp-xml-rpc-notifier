@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 FLOODtech Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Floodtech system at ei8t.com as well as the wp native xml-rpc functionality.
-Version: 2.6.4
+Version: 3.0.0
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -318,6 +318,16 @@ function ei8_xmlrpc_recorder_wrap($type, $vars='') {
     $doError = false;
     if(empty($vars)) $doError = true;
     switch($type) {
+        case 'ft' :
+            $folder = "swffloodtech";
+            $height = 430;
+            $width  = 296;
+            break;
+        case 'fta' :
+            $folder = "swffloodtechaudio";
+            $height = 220;
+            $width  = 296;
+            break;
         case 'mini' :
             $folder = "swfmini";
             $height = 355;
@@ -634,6 +644,9 @@ function ei8_xmlrpc_filter_shortcode($content,$type='') {
 
     //filter out and handle playlists
     $content = ei8_xmlrpc_parse_playlist_shortcode($content);
+
+    //filter embed shortcodes
+    $content = ei8_xmlrpc_parse_embed_shortcode($content);
 
     //filter for player shortcodes
     return ei8_xmlrpc_parse_shortcode($content, $type);
@@ -1028,6 +1041,13 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
             continue;
         }
 
+        //skip embed stuff
+        if(preg_match('/(embed)/',$working)) {
+            $content .= '[ei8'.$part;
+            //echo "<p>FOUND AN [ei8 embed] shortcode!!</p>";
+            continue;
+        }
+
         //skip playlist blocks and everything in them (because they have already been parsed)
         if(preg_match('/(PlaylistEnd)/',$working)) {
             $playlistBlockSkip = false;
@@ -1154,6 +1174,79 @@ EOT;
         $content .= "<br>url: ".$myValues['url'];
         $content .= "</small>";
         */
+    }
+    return $content;
+}
+
+function ei8_xmlrpc_parse_embed_shortcode($content,$type='') {
+    $parts = explode('[ei8', $content);
+    $content_bak = $content; //make a copy before we start just in case we need to roll back
+    $content = "";
+    $skipFirst = false;
+    foreach($parts as $part) {
+        //echo "<p>parsing part:: <pre>$part</pre> ::</p>";
+        //skip the &nbsp; that was added for xmlrpc acceptance
+        if($part=='&nbsp;' || $part=='<p>&nbsp;' || $part=='</p>') {
+            $skipFirst = true;
+            continue;
+        }
+        //handle the first part that precedes the shortcode
+        if(!$skipFirst && empty($content)) {
+            $content = $part;
+            continue;
+        }
+
+
+        //now pull out the shortcode from the 'other' part of the content
+        list($working, $other) = explode("]", $part, 2);
+
+        $shortcode = "<!--[ei8".$working."]-->";
+
+        $working_bak = $working;
+
+        //remove unneeded whitespace, ensure correct formatting of needed whitespace
+        $working = trim($working);
+        $working = htmlspecialchars_decode($working);
+        $working = htmlspecialchars_decode($working);
+        $working = strip_tags($working);
+
+        //skip anything other than embed stuff
+        if(!preg_match('/(embed)/',$working)) {
+            $content .= '[ei8'.$part;
+            //echo "<p>FOUND AN [ei8 embed] shortcode!!</p>";
+            continue;
+        }
+
+        $mediaClass = 'ei8-embedded-content';
+
+        //split up the shortcode into the different values we have to work with
+        $values = explode(" ",$working);
+
+        $myValues = array(
+            'class' => $mediaClass,
+        );
+        foreach($values as $statement) {
+            if(!strstr($statement,"=")) {
+                //if(!isset($myValues['url'])) $name = 'url';
+                continue; //malformed expression
+            } //
+            list($name,$val) = explode("=",$statement,2);
+            if($name=='audio') $type='audio';
+            if($name=="audio" | $name=="video") $name = 'url';
+            //if($name=="align") $myAlign = "style='text-align:".trim($val)."';";
+            if($name=='class') continue;
+            //elseif($name=="align") $myAlign = trim($val);
+            else $myValues[trim($name)] = trim($val);
+        }
+
+        //we could parse additional values here and add to the embed code...
+
+        $final = sprintf("<div class='%s'>%s</div>",
+                $myValues['class'],
+                file_get_contents($myValues['embed'])
+        );
+
+        $content .= $shortcode.$final.$other;
     }
     return $content;
 }
