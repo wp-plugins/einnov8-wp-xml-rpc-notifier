@@ -318,12 +318,12 @@ class ei8XmlrpcFloodgateFormUploader extends ei8XmlrpcFloodgateFormHandler
     public function render() {
         //$uploadifyJS = ei8_plugins_url('uploadify.js');
         $xsid = json_encode(session_id());
-        $guids = ($this->type=='audio') ? "{$this->guid}/default" : "default/{$this->guid}";
+        //$guids = ($this->type=='audio') ? "{$this->guid}/default" : "default/{$this->guid}";
         $html =<<<EOT
         <div class="uploader">
             <div class="content">
                 <div class="ei8-form-wrapper">
-                    <div id="fileQueue"></div>
+                    <div id="eventsmessage"></div>
                     <div class="ei8-form-line">
                         <div class="ei8-form-label">Title:</div>
                         <div class="ei8-form-field"><input name="uptitle" type="text" id="uptitle" /></div>
@@ -334,79 +334,76 @@ class ei8XmlrpcFloodgateFormUploader extends ei8XmlrpcFloodgateFormHandler
                     </div>
                     <div class="ei8-form-line">
                         <div class="ei8-form-line-double">
-                            <input type="file" name="uploadify" id="uploadify" />
-                            <a href="javascript:jQuery('#uploadify').uploadifyClearQueue()" class="cancel_uploads">Cancel All Uploads</a>
+                            <div id="mediauploader">Choose File</div>
                         </div>
                     </div>
                     <div class="ei8-form-line">
                         <div class="ei8-form-line-double">
-                            Browse and then select video or audio file<br />
-                            The upload will start automatically
+                            <div id="startUpload" class='ei8-form-button'>Submit</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <script type="text/javascript" src="{$this->src}/uploadify/swfobject.js"></script>
-        <script type="text/javascript" src="{$this->src}/uploadify/jquery.uploadify.v2.1.0.js"></script>
         <script type="text/javascript">
-        var XSID = {$xsid};
-        $(document).ready(function() {
-        	// prepare file upload script
-        	$("#uploadify").uploadify({
-        		'uploader'       : '{$this->src}/uploadify/uploadify.swf',
-        		'script'         : 'http://www.ei8t.com/upload/{$guids}/',
-        		'scriptAccess'   : 'always',
-        		'cancelImg'      : '{$this->src}/uploadify/cancel.png',
-        		'folder'         : 'uploads',
-        		'queueID'        : 'fileQueue',
-        		//'multi'          : true,
-        		'multi'          : false,
-        		//'hideButton'     : true,
-        		'wmode'          : 'transparent',
-        		'auto'           : true,
-        		//'auto'           : false,
-        		'scriptData'	 : {'uptitle': $('#uptitle').val(), 'updesc' : $('#updesc').val()},
-        		'onSelect'       : function(event, data) {
-        		    //alert("GOT HERE :: SELECTED");
-        		    var t=setTimeout("prepender()",100);
-        		},
-        		'onAllComplete'  : function(event, data) {
-        		    $('#uptitle').val = "";
-        		    $('#updesc').val = "";
-        			alert("Uploading Complete!\\n\\n" +
-        			"Total uploaded: " + data.filesUploaded + "\\n" +
-        			"Total errors: " + data.errors + "\\n");
-        		}
-        	});
+            $(document).ready(function()
+            {
+                $("#startUpload").hide();
+                var uploadObj = $("#mediauploader").uploadFile({
+                    url:"http://www.ei8t.com/api/upload/{$this->type}/{$this->guid}/",
+                    //allowedTypes:"png,gif,jpg,jpeg",
+                    autoSubmit:false,
+                    fileName:"myfile",
+                    formData: {"uptitle":"File Upload","updesc":""},
+                    showStatusAfterSuccess:false,
+                    multiple:false,
+                    showFileCounter:false,
+                    showQueueDiv:false,
+                    uploadButtonClass:"ei8-form-button",
+                    dragDropStr:"<div class='dragdroptext'> Or Drag & Drop Files Here</div>",
+                    dynamicFormData: function()
+                    {
+                        var data ={ uptitle:$('#uptitle').val(), updesc:$('#updesc').val() }
+                        return data;
+                    },
+                    onSelect:function(files)
+                    {
+                        $("#startUpload").show();
+                        return files;
+                    },
+                    onSubmit:function(files)
+                    {
+                    	$("#startUpload").hide();
+                    },
+                    onSuccess:function(files,data,xhr)
+                    {
+                        response = JSON.parse(data);
 
-        	// change the title
-        	$('#uptitle').change(function() {
-        	    //alert("UPDATING TITLE");
-        		$('#uploadify').uploadifySettings('scriptData', {'uptitle' : $(this).val()});
-        	    //alert("UPDATED TITLE");
-        	});
+                        status = (response.result == 'success');
+                        title = '';
+                        msg = response.msg;
 
-        	// change the description
-        	$('#updesc').change(function() {
-        	    //alert("UPDATING DESCRIPTION");
-        		$('#uploadify').uploadifySettings('scriptData', {'updesc' : $(this).val()});
-        	    //alert("UPDATED DESCRIPTION");
-        	});
-        });
+                    	$("#eventsmessage").html(floodgate_response(status,title,msg));
+                    	$('#uptitle').val("");
+                    	$('#updesc').val("");
+                    	floodgate_response_hide();
+                    	$("#startUpload").hide();
 
-        function prepender() {
-            var titleVal = $('#uptitle').val();
-            var descVal  = $('#updesc').val();
-            if(titleVal.length<1) titleVal = "(not set)";
-            if(descVal.length<1)  descVal += "(not set)";
-            var htmlStr = "<span>Title: " + titleVal + "</span><span>Content: " + descVal + "</span>";
-            //var htmlStr = "<span>Title: " + $('#uptitle').val() + "</span><br><span>Content: " + $('#updesc').val() + "</span>";
-            $('div.uploadifyQueueItem:last').append(htmlStr);
-            $('#uptitle').val("");
-            $('#updesc').val("");
-            return true;
-        }
+                    },
+                    onError: function(files,status,errMsg)
+                    {
+                        $("#eventsmessage").html($("#eventsmessage").html()+"<br/>Error for: "+JSON.stringify(files));
+                    }
+                });
+                $("#startUpload").click(function()
+                {
+                    //var uptitle = $('#uptitle').val();
+                    //var updesc = $('#updesc').val();
+
+                    //uploadObj.formData = {"uptitle":uptitle,"updesc":updesc};
+                    uploadObj.startUpload();
+                });
+            });
         </script>
 EOT;
         return $html;

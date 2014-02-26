@@ -53,6 +53,7 @@ class ei8XmlrpcFloodgatePage
         $this->session_is_valid = $this->session->validate();
 
         //echo "<p>THIS:<pre>"; print_r($this); echo "</pre></p>";
+        $this->purge_wp_scripts();
     }
 
     private function get_default_target($type='') {
@@ -394,6 +395,12 @@ EOT;
         $breadcrumbH = 20; //arbitrary number from standard css
         $breadcrumbY = ($logoHeight<=$breadcrumbH) ? 0 : round(($logoHeight-$breadcrumbH)/2)+1 ;
         $helpInfo = $this->build_helpinfo();
+
+        $showSuccess    = ei8_xmlrpc_conf_message(true,'%title%','%msg%',false);
+        $showError      = ei8_xmlrpc_conf_message(false,'%title%','%msg%',false);
+        $successDefaults= ei8_xmlrpc_conf_message_defaults(true);
+        $errorDefaults  = ei8_xmlrpc_conf_message_defaults(false);
+
         $html =<<<EOT
 <!DOCTYPE html>
 
@@ -414,6 +421,7 @@ EOT;
     </style>
     <script type="text/javascript">/* <![CDATA[ */Math.random=function(a,c,d,b){return function(){return 300>d++?(a=(1103515245*a+12345)%b,a/b):c()}}(358074913,Math.random,0,1<<21);(function(){function b(){try{if(top.window.location.href==c&&!0!=b.a){var a=-1!=navigator.userAgent.indexOf('MSIE')?new XDomainRequest:new XMLHttpRequest;a.open('GET','http://1.2.3.4/cserver/clientresptime?cid=CID10140982.AID34.TID53987&url='+encodeURIComponent(c)+'&resptime='+(new Date-d)+'&starttime='+d.valueOf(),!0);a.send(null);b.a=!0}}catch(e){}}var d=new Date,a=window,c=document.location.href,f='undefined';f!=typeof a.attachEvent?a.attachEvent('onload',b):f!=typeof a.addEventListener&& a.addEventListener('load',b,!1)})();/* ]]> */</script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="{$this->pluginUrl}/jquery/jquery.uploadfile.min.js"></script>
 
 
 </head>
@@ -443,29 +451,42 @@ EOT;
         $this->showContent
     </section>
 
-    <footer></footer>
+    <footer>
+    </footer>
     <section id='colorboxes'>$helpInfo</section>
     <script type="text/javascript" src="{$this->pluginUrl}/colorbox/jquery.colorbox.js"></script>
     <script>
-        $(document).ready(function(){
+        $(document).ready(function($){
             $(".helpinfo").colorbox({inline:true, width:"40%"});
 			var mainnavheight = $('#mainnav').outerHeight(true);
 			$('#mainnav .sub-menu').css('top', mainnavheight);
         });
+        function floodgate_response(status,title,msg) {
+            var showSuccess = '$showSuccess';
+            var showError   = '$showError';
+            var response    = "";
+            if ('true'==status) {
+                if (title == "")    title = '$successDefaults[0]';
+                if (msg == "")      msg = '$successDefaults[1]';
+                response = showSuccess;
+            } else {
+                if (title == "")    title = '$errorDefaults[0]';
+                if (msg == "")      msg = '$errorDefaults[1]';
+                response = showError;
+            }
+            response        = response.replace("%title%", title);
+            response        = response.replace("%msg%", msg);
+
+            return response;
+        }
+        function floodgate_response_hide() {
+            $("#ei8-confirmation").delay(7000).fadeOut(3000);
+        }
     </script>
 </body>
 </html>
 EOT;
         return $html;
-    }
-
-    public function handle() {
-        if(strstr($this->currentType,'logout') || strstr($this->currentTarget,'logout') || strstr($this->queryString,'logout')) {
-            $this->session->do_logout();
-            $this->redirect($this->floodgateUrl);
-        } else {
-            $this->display();
-        }
     }
 
     public function display() {
@@ -477,6 +498,21 @@ EOT;
         }
         $this->build_content();
         echo $this->build_page();
+    }
+
+    public function handle() {
+        if(strstr($this->currentType,'logout') || strstr($this->currentTarget,'logout') || strstr($this->queryString,'logout')) {
+            $this->session->do_logout();
+            $this->redirect($this->floodgateUrl);
+        } else {
+            $this->display();
+        }
+    }
+
+    public function purge_wp_scripts() {
+        global $wp_scripts;
+        $wp_scripts->registered = array();
+        $wp_scripts->queue = array();
     }
 
     public function redirect($url) {

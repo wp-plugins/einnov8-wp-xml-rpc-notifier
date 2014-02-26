@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.8.1
-Stable tag: 3.0.0
+Stable tag: 3.0.1
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -40,7 +40,8 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
-	3.0.0   2013/12/15  UPDATE	Add new floodgate interface
+	3.0.1   2014/02/24  UPDATE	Convert media uploader flash->HTML5
+	3.0.0   2014/02/15  UPDATE	Add new floodgate interface
 	2.6.4   2013/08/15  BUG-FIX	Bugfix for proper playlist display in Firefox
 	2.6.3   2013/08/05  UPDATE	Add in playlist autoplay functionality
 	2.6.2   2013/07/29  UPDATE	Update Playlist display and admin options
@@ -157,6 +158,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.0.1 =
+Convert media uploader flash->HTML5
 
 = 3.0.0 =
 Added new floodgate interface

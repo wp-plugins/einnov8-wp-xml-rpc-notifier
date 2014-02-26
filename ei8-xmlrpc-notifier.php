@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 FLOODtech Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Floodtech system at ei8t.com as well as the wp native xml-rpc functionality.
-Version: 3.0.0
+Version: 3.0.1
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -381,21 +381,34 @@ function ei8_xmlrpc_get_plugin_url() {
     return $wpurl . ei8_xmlrpc_get_plugin_dir();
 }
 
+function ei8_xmlrpc_conf_message_defaults($success=true) {
+    if($success) {
+        $title  = "Submission Received";
+        $text   = "Your submission was submitted successfully and will be processed shortly.";
+    } else {
+        $title  = "We encountered an error while processing your submission";
+        $text   = "An unknown error has occurred";
+    }
+    return array($title,$text);
+}
 
-function ei8_xmlrpc_conf_message($success=true,$title='default',$text='default') {
-    if($title == 'default') $title  = "Submission Received";
-    if($text == 'default')  $text   = "Your submission was submitted successfully and will be processed shortly.";
+function ei8_xmlrpc_conf_message($success=true,$title='default',$text='default',$whiteSpace=true) {
+    $defaults = ei8_xmlrpc_conf_message_defaults($success);
+    if($title == 'default') $title  = $defaults[0];
+    if($text == 'default')  $text   = $defaults[1];
 
     $pluginDir = ei8_xmlrpc_get_plugin_url();
     $confImg   = ($success) ? "success.png" : "error.png";
-    $title     = ($success) ? $title : "<span style='color:red;'>$title</span>" ;
+    $title     = ($success) ? $title : '<span style="color:red;">'.$title.'</span>' ;
 
     $confMessage =<<<EOT
-<div class="ei8-confirmation">
+<div class="ei8-confirmation" id="ei8-confirmation">
     <div class="ei8-confirmation-img"><img src="{$pluginDir}{$confImg}"></div>
     <div class="ei8-confirmation-msg"><strong>$title</strong><br>$text</div>
 </div>
 EOT;
+
+    if($whiteSpace!=true) $confMessage = preg_replace('~>\s+<~', '><', $confMessage);
 
     return $confMessage;
 }
