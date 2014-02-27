@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 FLOODtech Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Floodtech system at ei8t.com as well as the wp native xml-rpc functionality.
-Version: 3.0.1
+Version: 3.0.2
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -261,8 +261,15 @@ function ei8_autolink_create_html_tags( &$value, $key, $other=null )
 */
 
 function ei8_xmlrpc_swf_wrap($url,$height,$width) {
-    $html =<<<EOT
+    /*$html =<<<EOT
 <p><object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="$width" height="$height" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="allowFullScreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="wmode" value="transparent" /><param name="src" value="$url" /><param name="allowfullscreen" value="true" /><embed type="application/x-shockwave-flash" width="$width" height="$height" src="$url" wmode="transparent" allowscriptaccess="always" allowfullscreen="true"></embed></object></p>
+EOT;*/
+    $id = uniqid("ei8swf_");
+    $html =<<<EOT
+    <div id="{$id}"><p><object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="$width" height="$height" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="allowFullScreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="wmode" value="transparent" /><param name="src" value="$url" /><param name="allowfullscreen" value="true" /><embed type="application/x-shockwave-flash" width="$width" height="$height" src="$url" wmode="transparent" allowscriptaccess="always" allowfullscreen="true"></embed></object></p></div>
+<script type="text/javascript">
+    swfobject.embedSWF("$url", "$id", $width, $height, "6");
+</script>
 EOT;
     return $html;
 }
@@ -362,7 +369,7 @@ function ei8_xmlrpc_recorder_wrap($type, $vars='') {
         $html = "<iframe src ='$url' class='ei8-form-iframe' frameborder='0'><p>Your browser does not support iframes.</p></iframe>";
     } else {
         $url = "{$service}{$folder}/{$vars}";
-        $html = "<div class='ei8-shortcode-wrapper'><div class='ei8-web-recorder ei8-web-recorder-$type'".ei8_xmlrpc_swf_wrap($url,$height,$width)."</div></div>";
+        $html = "<div class='ei8-shortcode-wrapper'><div class='ei8-web-recorder ei8-web-recorder-$type'>".ei8_xmlrpc_swf_wrap($url,$height,$width)."</div></div>";
     }
     return $html;
 }
@@ -592,6 +599,8 @@ function ei8_enqueue_scripts() {
     //wp_deregister_script( 'jquery' );
     //wp_register_script( 'jquery', 'http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js');
     wp_enqueue_script( 'jquery' );
+    wp_enqueue_script( 'swfobject' );
+
 
     //now load the local js
     wp_register_script( 'ei8-tweet-script', ei8_plugins_url('/ei8-xmlrpc-tweet.js'), array('jquery') );

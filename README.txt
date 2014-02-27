@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.8.1
-Stable tag: 3.0.1
+Stable tag: 3.0.2
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	3.0.2   2014/02/26  UPDATE	Use swfobject to load web recorders
 	3.0.1   2014/02/24  UPDATE	Convert media uploader flash->HTML5
 	3.0.0   2014/02/15  UPDATE	Add new floodgate interface
 	2.6.4   2013/08/15  BUG-FIX	Bugfix for proper playlist display in Firefox
@@ -158,6 +159,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.0.2 =
+Use swfobject to load web recorders
 
 = 3.0.1 =
 Convert media uploader flash->HTML5
