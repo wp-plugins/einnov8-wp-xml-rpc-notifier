@@ -1,0 +1,648 @@
+/*
+* Skeleton V1.2
+* Copyright 2011, Dave Gamache
+* www.getskeleton.com
+* Free to use under the MIT license.
+* http://www.opensource.org/licenses/mit-license.php
+* 6/20/2012
+*/
+
+/* Table of Content
+==================================================
+	#Site Styles
+	#Page Styles
+	#Media Queries
+	#Font-Face */
+
+/* #Site Styles
+================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Lucida Sans';
+}
+
+h1,h2,h3,h4,h5,h6 {
+    font-family: 'Lucida Sans';
+    font-weight: bold;
+    /*letter-spacing: 0.08em;*/
+}
+
+/* Header */
+header {
+    /*height: 70px;*/
+    background: #000;
+    /*overflow: visible !important;*/
+}
+
+header.adminbuffer {
+    margin-top: 28px;
+}
+
+#titles h1 {
+    color: #fff;
+    font-size: 20px;
+    line-height: 40px;
+    margin-bottom: 0px;
+    float: none;
+}
+
+#titles h2 {
+    color: #A8A6A6;
+    font-size: 12px;
+    line-height: 25px;
+    font-weight: normal;
+    margin-bottom: 0px;
+    float: none;
+}
+
+/*navigation*/
+nav.primary ul,
+nav.primary ul li {
+    margin: 0;
+    padding: 0;
+}
+
+nav.primary a {
+    font-size: 14px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav.primary select {
+    display: none;
+    width: 100%;
+    margin: 14px 0;
+    height: 28px;
+}
+
+nav.primary option {
+    text-align: center;
+}
+
+nav.primary a, nav.primary span {
+    display: block;
+    width: 80px;
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+}
+nav.primary ul li span {
+    display: none;
+}
+
+nav.primary ul li,
+nav.primary li {
+    margin: 0 1px;
+    background: #4D4E4E;
+    list-style-type: none;
+}
+
+nav.primary ul li {
+    display: inline;
+    float: left;
+    position: relative;
+    border-left-width: 1px;
+    border-color: #000;
+}
+
+nav.primary ul li a {
+    display: inline-block;
+    line-height: 70px;
+    width: 104px;
+}
+
+/*submenu*/
+nav.primary ul ul {
+    opacity: 0;
+    filter: alpha(opacity=0);
+
+    position: absolute;
+    z-index: 999;
+    min-width: 100%;
+
+    -webkit-transition: opacity 0.4s ease-out;
+    -moz-transition: opacity 0.4s ease-out;
+    -o-transition: opacity 0.4s ease-out;
+    -ms-transition: opacity 0.4s ease-out;
+    transition: opacity 0.4s ease-out;
+
+    -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+
+    height: 0px;
+    overflow: hidden;
+}
+
+nav.primary ul li:hover ul {
+    opacity: 10;
+    filter: alpha(opacity=100);
+
+    height: auto;
+    overflow: auto;
+}
+
+nav.primary ul ul li {
+    float: none;
+    display: list-item;
+    border-bottom: 1px solid #fff;
+    background: #929393;
+}
+
+nav.primary ul ul li a {
+    display: block;
+    line-height: 18px;
+    font-size: 0.9em;
+    background: #929393;
+    font-weight: bold;
+    padding: 7px 2px;
+}
+
+nav.primary li:hover,
+nav.primary li.active,
+nav.primary li:hover ul li a:hover,
+nav.primary li.active:hover ul li.active a {
+    background: #1C0069;
+}
+
+nav.primary ul li:hover > a {
+    background: #1C0069;
+}
+
+
+/* Header2 */
+
+#breadcrumb h1 {
+    color: #1C0069;
+    font-size: 18px;
+    line-height: 24px;
+}
+
+/* Content Boxes */
+
+.content-box {
+    padding: 2px;
+    background: #D1D1D1;
+    line-height: 20px;
+    margin-bottom: 20px;
+}
+
+.content-box-small, .content-col-small {
+    width: 260px;
+}
+
+.content-box-end, .content-col-end {
+    margin-right: 0px;
+}
+
+.content-box {
+    font-size: 12px;
+}
+
+.content-box h2, .content-box h3 {
+    font-size: 14px;
+}
+
+.content-box-inner {
+    padding: 10px;
+    background: #fff;
+    border-radius: 10px;
+}
+
+.content-box p {
+    color: #4D4E4E;
+}
+
+.content-login {
+    width: 450px;
+    float: none;
+    margin: auto;
+}
+
+.content-box ul {
+    list-style-type: disc;
+}
+
+.content-box ul,
+.content-box ol,
+.content-box li,
+.content-box p {
+    margin-bottom: 0px;
+}
+
+.content-box-recorder {
+    min-width: 320px;
+    display: block;
+}
+
+.content-box-uploader,
+.content-box-phone {
+    min-width: 260px;
+}
+
+/* Help Content */
+
+div.helpcontent {
+    padding: 20px;
+}
+
+div.helpcontent p {
+    padding-left:20px;
+    text-indent: -20px;
+}
+
+div.helpcontent ol, div.helpcontent ul, .content-box ol, .content-box ul {
+    padding-left:20px;
+}
+
+div.helpcontent h3, div.helpcontent:first-line {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+div.helpcontent .helpimg {
+    float: left;
+    border: 0px;
+    padding-right: 15px;
+}
+div.helpcontent, div.helpcontent * {
+    font-size: 12px;
+    font-family: Tahoma;
+    line-height: 15px;
+}
+
+/*************** Uploader stuff ***************/
+.ei8-form-wrapper {
+    text-align: center;
+    /*background-color: #f7f7f7;
+    border: 1px solid #cccccc;
+    padding: 15px;
+    border-radius:5px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    width: 225px;*/
+    margin: auto;
+}
+.ei8-form-line-double {
+    padding-top: 10px;
+}
+.ei8-form-line *, .ei8-form-label label {
+    font-family: Tahoma;
+    vertical-align: middle;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 300;
+}
+.ei8-form-line {
+    width: 220px;
+    text-align: left;
+}
+.ei8-form-label {
+    width: 120px;
+    text-align: left;
+    vertical-align: top;
+}
+.ei8-form-label, .ei8-form-field {
+    /*display: inline-block;*/
+    text-align: left;
+    font-weight: normal;
+}
+textarea, .ei8-form-field input {
+    width: 220px;
+}
+
+.ei8-form-button {
+	-moz-box-shadow:inset 0px 1px 0px 0px #808080;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #808080;
+	box-shadow:inset 0px 1px 0px 0px #808080;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #4d4e4e), color-stop(1, #888a8a) );
+	background:-moz-linear-gradient( center top, #4d4e4e 5%, #888a8a 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#4d4e4e', endColorstr='#888a8a');
+	background-color:#4d4e4e;
+	-webkit-border-top-left-radius:4px;
+	-moz-border-radius-topleft:4px;
+	border-top-left-radius:4px;
+	-webkit-border-top-right-radius:4px;
+	-moz-border-radius-topright:4px;
+	border-top-right-radius:4px;
+	-webkit-border-bottom-right-radius:4px;
+	-moz-border-radius-bottomright:4px;
+	border-bottom-right-radius:4px;
+	-webkit-border-bottom-left-radius:4px;
+	-moz-border-radius-bottomleft:4px;
+	border-bottom-left-radius:4px;
+	text-indent:0px;
+	border:1px solid #4d4e4e;
+	display:inline-block;
+	color:#ffffff;
+	font-family:Tahoma;
+	font-size:12px;
+	font-weight:normal;
+	height:30px;
+	line-height:30px;
+	width:110px;
+	text-decoration:none;
+	text-align:center;
+	text-shadow:1px 1px 0px #000000;
+    margin-top: 10px;
+}
+.ei8-form-button:hover {
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #888a8a), color-stop(1, #4d4e4e) );
+	background:-moz-linear-gradient( center top, #888a8a 5%, #4d4e4e 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#888a8a', endColorstr='#4d4e4e');
+	background-color:#888a8a;
+}
+.ei8-form-button:active {
+	position:relative;
+	top:1px;
+}
+
+.ei8-textarea-simple-submit {
+    height: 50px;
+}
+
+#fileQueue {
+    width: 220px;
+}
+.uploadifyQueueItem {
+    text-align: left;
+    border-bottom: 1px solid #4D4E4E;
+    padding-top: 7px;
+    padding-bottom: 3px;
+    margin-bottom: 3px;
+    margin-left: 20px;
+    position: relative;
+    width: 190px;
+}
+.uploadifyQueueItem .cancel {
+    position: absolute;
+    left: -18px;
+    display: inline-block;
+}
+.uploadifyQueueItem span {
+    font-size: 12px;
+    font-family: Tahoma;
+    display: block;
+    line-height: 14px;
+}
+.uploadifyProgress {
+	background-color: #D1D1D1;
+	border-top: 1px solid #4D4E4E;
+	border-left: 1px solid #4D4E4E;
+	border-right: 1px solid #C5C5C5;
+	border-bottom: 1px solid #C5C5C5;
+	margin-top: 10px;
+	width: 100%;
+}
+.uploadifyProgressBar {
+	background-color: #1C0069;
+	width: 1px;
+	height: 3px;
+}
+
+#colorboxes {
+    display: none;
+}
+
+.helpinfo img {
+    height: 18px;
+    border:0px;
+    margin:0px;
+    padding:0px;
+    float: right;
+    padding-left: 10px;
+}
+
+
+
+.ajax-file-upload-statusbar {
+    border: 1px solid #ddd;
+    margin-top: 10px;
+    width: 100%;
+    margin-right: 10px;
+    margin: 5px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    padding: 5px 5px 5px 5px;
+}
+
+.ajax-file-upload-filename {
+    width: 100%;
+    height: auto;
+    margin: 0 5px 5px 10px;
+    color: #807579;
+}
+
+.ajax-file-upload-progress {
+    margin: 0 10px 5px 10px;
+    position: relative;
+    width: 90px;
+    border: 1px solid #ddd;
+    padding: 1px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.ajax-file-upload-bar {
+    background-color: #1C0069;
+    width: 0;
+    height: 20px;
+    border-radius: 3px;
+    color:#FFFFFF;
+}
+
+.ajax-file-upload-percent {
+    position: absolute;
+    display: inline-block;
+    top: 3px;
+    left: 48%;
+}
+
+.ajax-file-upload-red {
+    -moz-box-shadow: inset 0 39px 0 -24px #e67a73;
+    -webkit-box-shadow: inset 0 39px 0 -24px #e67a73;
+    box-shadow: inset 0 39px 0 -24px #e67a73;
+    background-color: #e4685d;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    display: inline-block;
+    color: #fff;
+    font-family: arial;
+    font-size: 13px;
+    font-weight: normal;
+    padding: 4px 15px;
+    text-decoration: none;
+    text-shadow: 0 1px 0 #b23e35;
+    cursor: pointer;
+    vertical-align: top;
+    margin-right:5px;
+}
+
+.ajax-file-upload-green {
+    background-color: #77b55a;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    color: #fff;
+    font-family: arial;
+    font-size: 13px;
+    font-weight: normal;
+    padding: 4px 15px;
+    text-decoration: none;
+    cursor: pointer;
+    text-shadow: 0 1px 0 #5b8a3c;
+    vertical-align: top;
+    margin-right:5px;
+}
+
+.ajax-file-upload {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 15px 20px;
+    cursor:pointer;
+    line-height:20px;
+    height:25px;
+    margin:0 10px 10px 0;
+    display: inline-block;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    color: #888;
+    text-decoration: none;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -moz-box-shadow: 0 2px 0 0 #e8e8e8;
+    -webkit-box-shadow: 0 2px 0 0 #e8e8e8;
+    box-shadow: 0 2px 0 0 #e8e8e8;
+    padding: 6px 10px 4px 10px;
+    color: #fff;
+    background: #2f8ab9;
+    border: none;
+    -moz-box-shadow: 0 2px 0 0 #13648d;
+    -webkit-box-shadow: 0 2px 0 0 #13648d;
+    box-shadow: 0 2px 0 0 #13648d;
+    vertical-align:middle;
+}
+
+.ajax-file-upload:hover {
+      -moz-box-shadow: 0 2px 0 0 #C5C5C5;
+      -webkit-box-shadow: 0 2px 0 0 #C5C5C5;
+      box-shadow: 0 2px 0 0 #1C0069;
+}
+
+.ajax-upload-dragdrop {
+    text-align:left;
+    vertical-align:middle;
+}
+.dragdroptext {
+    color: #888a8a;
+    border:2px dotted #C5C5C5;
+    font-size: 11px;
+    padding:10px;
+    margin: 5px 0px;
+}
+.dragdroptext:hover {
+    border-style: double;
+}
+
+
+
+/* #Page Styles
+================================================== */
+
+/* #Media Queries
+================================================== */
+
+	/* Smaller than standard 960 (devices and browsers) */
+	@media only screen and (max-width: 959px) {
+
+        #titles h1 {
+            line-height: 28px;
+        }
+
+        #titles h2 {
+            line-height: 21px;
+        }
+
+        nav.primary ul li a {
+            line-height: 49px;
+            width: 82px;
+        }
+
+        .six.columns .content-box-recorder {
+            display: none;
+        }
+    }
+
+	/* Tablet Portrait size to standard 960 (devices and browsers) */
+	@media only screen and (min-width: 768px) and (max-width: 959px) {}
+
+	/* All Mobile Sizes (devices and browser) */
+	@media only screen and (max-width: 767px) {
+
+        #titles h1 {
+            float: right;
+            line-height: 21px;
+            font-size: 18px;
+        }
+
+        #titles h2 {
+            float: left;
+        }
+
+        nav.primary select {
+            display: block;
+        }
+
+        nav.primary ul {
+            display: none;
+        }
+
+        #breadcrumb h1 {
+            margin-top: 7px;
+        }
+
+        .content-box-recorder {
+            display: none;
+        }
+    }
+
+	/* Mobile Landscape Size to Tablet Portrait (devices and browsers) */
+	@media only screen and (min-width: 480px) and (max-width: 767px) {}
+
+	/* Mobile Portrait Size to Mobile Landscape Size (devices and browsers) */
+	@media only screen and (max-width: 479px) {
+
+        #breadcrumb h1 {
+            font-size: 16px;
+            line-height: 16px;
+        }
+
+    }
+
+
+/* #Font-Face
+================================================== */
+/* 	This is the proper syntax for an @font-face file
+		Just create a "fonts" folder at the root,
+		copy your FontName into code below and remove
+		comment brackets */
+
+/*	@font-face {
+	    font-family: 'FontName';
+	    src: url('../fonts/FontName.eot');
+	    src: url('../fonts/FontName.eot?iefix') format('eot'),
+	         url('../fonts/FontName.woff') format('woff'),
+	         url('../fonts/FontName.ttf') format('truetype'),
+	         url('../fonts/FontName.svg#webfontZam02nTh') format('svg');
+	    font-weight: normal;
+	    font-style: normal; }
+*/

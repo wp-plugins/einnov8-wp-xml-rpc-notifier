@@ -81,53 +81,54 @@ class ei8XmlrpcFloodgatePage
     private function build_content() {
         $col    = array();
         $col[1] = $col[2] = $col[3] = array();
-        $col[1][] = $this->build_content_welcome();
+        $col[1]['welcome'] = $this->build_content_welcome();
 
         switch($this->currentType) {
             default:
             case 'home':
                 break;
             case 'video':
-                $col[2][] = $this->build_content_web_recorder();
-                $col[3][] = $this->build_content_media_uploader();
+                $col[2]['recorder'] = $this->build_content_web_recorder();
+                $col[3]['uploader'] = $this->build_content_media_uploader();
                 break;
             case 'audio':
-                $col[2][] = $this->build_content_web_recorder();
-                $col[3][] = $this->build_content_media_uploader();
-                $col[3][] = $this->build_content_phone();
+                $col[2]['recorder'] = $this->build_content_web_recorder();
+                $col[3]['uploader'] = $this->build_content_media_uploader();
+                $col[3]['phone']    = $this->build_content_phone();
                 break;
             case 'text':
-                $col[2][] = $this->build_content_submit_text();
+                $col[2]['uploader'] = $this->build_content_submit_text();
                 break;
             case 'image':
-                $col[2][] = $this->build_content_submit_image();
+                $col[2]['uploader'] = $this->build_content_submit_image();
                 break;
             case 'support':
-                $col[2][] = $this->build_content_support();
+                $col[2]['support'] = $this->build_content_support();
                 break;
             case 'login':
                 $col[1] = array();
-                $col[1][] = $this->build_content_login();
+                $col[2]['login'] = $this->build_content_login();
                 break;
         }
 
         $this->showContent = "";
         //foreach($col as $colNum=>$contents) foreach($contents as $content) {
         for($colNum=1;$colNum<=3;$colNum++) {
-            if($this->currentType=='login') $extra = 'content-login';
-            else $extra = ($colNum==3) ? ' content-col-small content-col-end' : '' ;
-            $this->showContent .= '<div class="content-col '.$extra.'">';
-            foreach($col[$colNum] as $content) {
+            //handle grid for columns
+            /*if($colNum==2 && empty($col[3])) $cols = "eleven columns" ;
+            else */$cols = ($colNum==2) ? "six columns" : "five columns" ;
+
+            $this->showContent .= '<div class="'.$cols.'">';
+            foreach($col[$colNum] as $key=>$content) {
                 list($title,$html) = $content;
-                //$extra = ($colNum==3) ? ' content-box-small content-box-end' : '' ;
+                $extra = 'content-box-'.$key;
                 $showTitle = ($title=='') ? '' : "<h2>$title</h2>" ;
-                $extra = '';
                 $this->showContent .=<<<EOT
         		<div class="content-box $extra">
-        		<div class="content-box-inner">
-        			$showTitle
-        			<p>$html</p>
-        		</div>
+                    <div class="content-box-inner">
+                        $showTitle
+                        <p>$html</p>
+                    </div>
         		</div>
 EOT;
             }
@@ -365,17 +366,17 @@ EOT;
 
         //could change the class here if no subs
         if ($requireSubsMissing) {
-            $html = sprintf('<li class="menu-item sated" title="There are no targets set up for this type"><span>%s</span>', $title);
+            $html = sprintf('<li title="There are no targets set up for this type"><a>%s</a>', $title);
         } else {
             //$showActive = ($showDeactivate=='' && $this->currentType==$type) ? 'active' : '' ;
             $showActive = ($this->currentType==$type) ? 'active' : '' ;
-            $html = sprintf('<li class="menu-item %s"><a href="%s">%s</a>',$showActive, $url, $title);
+            $html = sprintf('<li class="%s"><a href="%s">%s</a>',$showActive, $url, $title);
         }
         if($subsCT>=1) {
-            $html .= '<ul class="sub-menu">';
+            $html .= '<ul>';
             foreach($ft->targets as $target) {
                 $showActive = ($this->currentTarget==$target->id) ? 'active' : '' ;
-                $html .= sprintf('<li class="menu-item %s"><a href="%s">%s</a></li>', $showActive, $url.$target->id.'/', $target->title);
+                $html .= sprintf('<li class="%s"><a href="%s"><span>- </span>%s</a></li>', $showActive, $url.$target->id.'/', $target->title);
             }
             $html .= '</ul>';
         }
@@ -396,6 +397,8 @@ EOT;
         $breadcrumbY = ($logoHeight<=$breadcrumbH) ? 0 : round(($logoHeight-$breadcrumbH)/2)+1 ;
         $helpInfo = $this->build_helpinfo();
 
+        $pageTitle = $this->resellerName." ".$this->clientName;
+
         $showSuccess    = ei8_xmlrpc_conf_message(true,'%title%','%msg%',false);
         $showError      = ei8_xmlrpc_conf_message(false,'%title%','%msg%',false);
         $successDefaults= ei8_xmlrpc_conf_message_defaults(true);
@@ -403,63 +406,137 @@ EOT;
 
         $html =<<<EOT
 <!DOCTYPE html>
-
-<html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"> <!--<![endif]-->
 <head>
-    <link rel="stylesheet" href="$this->css" type="text/css" media="screen,projection" />
+
+	<!-- Basic Page Needs
+  ================================================== -->
+	<meta charset="utf-8">
+	<title>$pageTitle</title>
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<!-- Mobile Specific Metas
+  ================================================== -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<!-- CSS
+  ================================================== -->
+	<link rel="stylesheet" href="{$this->pluginUrl}/css/base.css">
+	<link rel="stylesheet" href="{$this->pluginUrl}/css/skeleton.css">
+
+	<!--[if lt IE 9]>
+		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<!-- Favicons
+	================================================== -->
+	<link rel="shortcut icon" href="{$this->pluginUrl}/images/favicon.ico">
+	<link rel="apple-touch-icon" href="{$this->pluginUrl}/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="{$this->pluginUrl}/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="{$this->pluginUrl}/images/apple-touch-icon-114x114.png">
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{$this->pluginUrl}/colorbox/colorbox.css" type="text/css" media="screen,projection" />
     <style media="screen,projection">
-        #header2 {
+        .logo {
             background: url('$this->logo') no-repeat;
-            background-position-x: 6px;
-            background-position-y: {$headerPadding}px;
-            height: {$headerHeight}px;
+            margin: 4px 0px 0px 6px;
+            height: 63px;
         }
         #breadcrumb h1 {
-            margin-top: {$breadcrumbY}px;
+            margin-top: 21px;
         }
     </style>
+    <link rel="stylesheet" href="{$this->pluginUrl}/css/layout.css">
+
+    <!-- Javascript -->
     <script type="text/javascript">/* <![CDATA[ */Math.random=function(a,c,d,b){return function(){return 300>d++?(a=(1103515245*a+12345)%b,a/b):c()}}(358074913,Math.random,0,1<<21);(function(){function b(){try{if(top.window.location.href==c&&!0!=b.a){var a=-1!=navigator.userAgent.indexOf('MSIE')?new XDomainRequest:new XMLHttpRequest;a.open('GET','http://1.2.3.4/cserver/clientresptime?cid=CID10140982.AID34.TID53987&url='+encodeURIComponent(c)+'&resptime='+(new Date-d)+'&starttime='+d.valueOf(),!0);a.send(null);b.a=!0}}catch(e){}}var d=new Date,a=window,c=document.location.href,f='undefined';f!=typeof a.attachEvent?a.attachEvent('onload',b):f!=typeof a.addEventListener&& a.addEventListener('load',b,!1)})();/* ]]> */</script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="{$this->pluginUrl}/jquery/jquery.uploadfile.min.js"></script>
     <script type="text/javascript" src="http://www.ei8t.com/js/swfobject/swfobject.js"></script>
 
 </head>
 
 <body>
-    <header class="floatarea $adminBuffer">
-        <section id="innerheader" class="wrap">
-            <div id="titles">
+
+    <header class="$adminBuffer">
+        <div class="container">
+            <div id="titles" class="five columns">
                 <h2>$this->resellerName</h2>
                 <h1>$this->clientName</h1>
             </div>
-            <nav id="mainnav">
-                <ul class="menu">
+            <nav class="eleven columns primary">
+                <ul>
                     $this->showNav
                 </ul>
             </nav>
-        </section>
+        </div>
     </header>
 
-    <section id="header2" class="wrap floatarea">
-        <div id="breadcrumb">
+    <div class="container">
+        <div class="five columns logo"></div>
+        <div id="breadcrumb" class="eleven columns">
             <h1>$this->breadCrumb</h1>
         </div>
-    </section>
+    </div>
 
-    <section id="content" class="wrap floatarea">
+    <div id="content" class="container">
         $this->showContent
-    </section>
+    </div>
 
     <footer>
     </footer>
+
     <section id='colorboxes'>$helpInfo</section>
+
+    <!-- Javascript -->
+    <script src="{$this->pluginUrl}/jquery/jquery.uploadfile.min.js"></script>
     <script type="text/javascript" src="{$this->pluginUrl}/colorbox/jquery.colorbox.js"></script>
-    <script>
+    <script type="text/javascript">
         $(document).ready(function($){
+            //setup helpinfo
             $(".helpinfo").colorbox({inline:true, width:"40%"});
+
+            //nav fix
 			var mainnavheight = $('#mainnav').outerHeight(true);
 			$('#mainnav .sub-menu').css('top', mainnavheight);
+        });
+
+        //responsive nav
+        $(document).ready(function() {
+            //build dropdown
+            $("<select />").appendTo("nav.primary");
+
+            //Create default option "Go to..."
+            $("<option />", {
+                "selected"  : "selected",
+                "value"     : "",
+                "text"      : "Go to..."
+            }).appendTo("nav.primary select");
+
+            //Populate dropdowns with the first menu items
+            $("nav.primary li a").each(function() {
+                var el = $(this);
+                $("<option />", {
+                    "value" : el.attr("href"),
+                    "text"  : el.text()
+                }).appendTo("nav.primary select");
+            });
+
+            //make responsive dropdown menu actually work
+            $("nav.primary select").change(function() {
+                window.location = $(this).find("option:selected").val();
+            });
+
+
+            //alert($("nav.primary select option").length);
+            if( $("nav.primary select option").length <= 1 ) {
+                $("nav.primary select").css("display","none");
+                $("header .container").css("padding","7px 0");
+            }
         });
         function floodgate_response(status,title,msg) {
             var showSuccess = '$showSuccess';
