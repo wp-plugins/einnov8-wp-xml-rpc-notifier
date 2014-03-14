@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.8.1
-Stable tag: 3.0.2
+Stable tag: 3.1.0
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	3.1.0   2014/03/14  UPDATE	Mobile responsive design for floodgate
 	3.0.2   2014/02/26  UPDATE	Use swfobject to load web recorders
 	3.0.1   2014/02/24  UPDATE	Convert media uploader flash->HTML5
 	3.0.0   2014/02/15  UPDATE	Add new floodgate interface
@@ -159,6 +160,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.1.0 =
+Mobile responsive design for floodgate
 
 = 3.0.2 =
 Use swfobject to load web recorders
