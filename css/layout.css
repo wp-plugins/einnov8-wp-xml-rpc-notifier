@@ -58,6 +58,7 @@ header.adminbuffer {
 }
 
 /*navigation*/
+
 nav.primary ul,
 nav.primary ul li {
     margin: 0;
@@ -170,6 +171,25 @@ nav.primary li.active:hover ul li.active a {
 nav.primary ul li:hover > a {
     background: #1C0069;
 }
+
+/*Responsive Navigation*/
+
+nav.mobile {
+    clear: both;
+}
+
+nav.mobile,
+nav.mobile ul {
+    display: none;
+}
+
+.sub-menu-toggle,
+.menu-toggle {
+	display: none;
+	visibility: hidden;
+}
+
+
 
 
 /* Header2 */
@@ -589,21 +609,13 @@ textarea, .ei8-form-field input {
 	@media only screen and (max-width: 767px) {
 
         #titles h1 {
-            float: right;
+            /*float: right;
             line-height: 21px;
-            font-size: 18px;
+            font-size: 18px;*/
         }
 
         #titles h2 {
-            float: left;
-        }
-
-        nav.primary select {
-            display: block;
-        }
-
-        nav.primary ul {
-            display: none;
+            /*float: left;*/
         }
 
         #breadcrumb h1 {
@@ -613,6 +625,207 @@ textarea, .ei8-form-field input {
         .content-box-recorder {
             display: none;
         }
+
+        /* responsive navigation */
+
+        nav.primary,
+        nav.primary ul {
+            display: none;
+        }
+
+        /*nav.primary select {*/
+        nav.mobile ul {
+            display: block;
+            /*visibility: visible;*/
+        }
+
+        nav.mobile {
+       		display: none;
+       		position: relative;
+       	}
+
+        button.menu-toggle {
+            font-size: 30px;
+        }
+
+        button.sub-menu-toggle {
+            font-size: 15px;
+            line-height: 35px;
+        }
+
+
+        button.menu-toggle,
+        button.menu-toggle:hover,
+        button.menu-toggle:active,
+        button.menu-toggle:visited,
+        button.sub-menu-toggle,
+        button.sub-menu-toggle:hover,
+        button.sub-menu-toggle:active,
+        button.sub-menu-toggle:visited {
+            background: transparent;
+            border: 0;
+            margin: 0;
+            padding: 0 15px;
+            font-weight: normal;
+            display: block;
+            color: #A8A6A6;
+            text-shadow: 0 0;
+            -webkit-border-radius: 0px;
+            border-radius: 0px;
+        }
+
+        button.menu-toggle:hover,
+        button.sub-menu-toggle:hover,
+        nav.mobile li:hover button,
+        nav.mobile li.active button {
+            background-color: #1C0069;
+        }
+
+        .menu-toggle:focus,
+        .sub-menu-toggle:focus {
+            outline: none;
+        }
+
+        nav.mobile ul,
+        nav.mobile li {
+            background-color: #4D4E4E;
+            border: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav.mobile ul ul,
+        nav.mobile ul ul li {
+            background-color: #6a6868;
+            color: #000000;
+        }
+
+        nav.mobile {
+        	position: relative;
+        }
+
+        nav.mobile a {
+            color: #ffffff;
+            text-decoration: none;
+            padding-left: 15px;
+            line-height: 40px;
+        }
+
+        nav.mobile a:hover {
+            text-decoration: none;
+        }
+
+        nav.mobile ul,
+        nav.mobile li {
+            display: block;
+            margin-bottom: 0px;
+        }
+
+        nav.mobile ul {
+        }
+
+        nav.mobile li {
+            border-top: 1px solid #000000;
+            position: relative;
+            text-align: left;
+        }
+
+        nav.mobile li:hover {
+            position: relative;
+        }
+
+        nav.mobile li:hover,
+        nav.mobile li.active,
+        nav.mobile li:hover ul li a:hover,
+        nav.mobile li.active:hover ul li.active a {
+            background: #1C0069;
+        }
+
+        .menu-toggle,
+        .sub-menu-toggle {
+        	display: block;
+        	margin: 0 auto;
+        	overflow: hidden;
+        	text-align: center;
+        	visibility: visible;
+        }
+
+        button.menu-toggle,
+        button.sub-menu-toggle {
+        	background-color: #4D4E4E;
+        	color: #ffffff;
+        }
+
+        .menu-toggle {
+            text-align: right;
+            line-height: 49px;
+        }
+
+        button.menu-toggle *,
+        button.sub-menu-toggle * {
+            font-weight: bold;
+            font-size: 20px;
+            font-family: 'Lucida Sans';
+        }
+
+        .menu-toggle,
+        .sub-menu-toggle {
+        	padding: 18px;
+        	padding: 1.8rem;
+        	position: absolute;
+        	right: 0;
+        	top: 0;
+        }
+        .menu-toggle span {
+            font-size: 14px;
+        }
+
+        .menu-toggle:after {
+        	content: " \2261";
+        }
+
+        .menu-toggle.activated:after {
+        	/*content: "\2191";*/
+            content: "\2261";
+        }
+
+        .sub-menu-toggle:before {
+        	content: "+";
+        }
+
+        .sub-menu-toggle.activated:before {
+        	content: "-";
+        }
+
+        nav.mobile .sub-menu {
+       	    clear: both;
+            display: none;
+            opacity: 1;
+            position: static;
+            width: 100%;
+        }
+
+        nav.mobile .sub-menu a {
+            border-left: 0;
+            position: relative;
+            width: auto;
+            padding-left: 30px;
+        }
+
+        nav.mobile .sub-menu .sub-menu {
+            margin: 0;
+        }
+
+        nav.mobile .sub-menu .sub-menu a {
+            background-color: #f5f5f5;
+            padding-left: 45px;
+        }
+
+        nav.mobile .sub-menu .sub-menu .sub-menu a {
+            background-color: #fff;
+            padding-left: 60px;
+        }
+
     }
 
 	/* Mobile Landscape Size to Tablet Portrait (devices and browsers) */

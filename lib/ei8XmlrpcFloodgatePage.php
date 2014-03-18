@@ -370,13 +370,14 @@ EOT;
         } else {
             //$showActive = ($showDeactivate=='' && $this->currentType==$type) ? 'active' : '' ;
             $showActive = ($this->currentType==$type) ? 'active' : '' ;
-            $html = sprintf('<li class="%s"><a href="%s">%s</a>',$showActive, $url, $title);
+            $showHasSubs = ($subsCT>=1) ? "has-submenu" : "" ;
+            $html = sprintf('<li class="%s %s"><a href="%s">%s</a>',$showActive, $showHasSubs, $url, $title);
         }
         if($subsCT>=1) {
-            $html .= '<ul>';
+            $html .= '<ul class="sub-menu">';
             foreach($ft->targets as $target) {
                 $showActive = ($this->currentTarget==$target->id) ? 'active' : '' ;
-                $html .= sprintf('<li class="%s"><a href="%s"><span>- </span>%s</a></li>', $showActive, $url.$target->id.'/', $target->title);
+                $html .= sprintf('<li class="%s"><a href="%s"><span></span>%s</a></li>', $showActive, $url.$target->id.'/', $target->title);
             }
             $html .= '</ul>';
         }
@@ -455,7 +456,7 @@ EOT;
 
     <!-- Javascript -->
     <script type="text/javascript">/* <![CDATA[ */Math.random=function(a,c,d,b){return function(){return 300>d++?(a=(1103515245*a+12345)%b,a/b):c()}}(358074913,Math.random,0,1<<21);(function(){function b(){try{if(top.window.location.href==c&&!0!=b.a){var a=-1!=navigator.userAgent.indexOf('MSIE')?new XDomainRequest:new XMLHttpRequest;a.open('GET','http://1.2.3.4/cserver/clientresptime?cid=CID10140982.AID34.TID53987&url='+encodeURIComponent(c)+'&resptime='+(new Date-d)+'&starttime='+d.valueOf(),!0);a.send(null);b.a=!0}}catch(e){}}var d=new Date,a=window,c=document.location.href,f='undefined';f!=typeof a.attachEvent?a.attachEvent('onload',b):f!=typeof a.addEventListener&& a.addEventListener('load',b,!1)})();/* ]]> */</script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="{$this->pluginUrl}/jquery/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="http://www.ei8t.com/js/swfobject/swfobject.js"></script>
 
 </head>
@@ -469,6 +470,11 @@ EOT;
                 <h1>$this->clientName</h1>
             </div>
             <nav class="eleven columns primary">
+                <ul>
+                    $this->showNav
+                </ul>
+            </nav>
+            <nav class="sixteen columns mobile">
                 <ul>
                     $this->showNav
                 </ul>
@@ -495,6 +501,7 @@ EOT;
     <!-- Javascript -->
     <script src="{$this->pluginUrl}/jquery/jquery.uploadfile.min.js"></script>
     <script type="text/javascript" src="{$this->pluginUrl}/colorbox/jquery.colorbox.js"></script>
+    <script type="text/javascript" src="{$this->pluginUrl}/lib/js//responsive-menu.js"></script>
     <script type="text/javascript">
         $(document).ready(function($){
             //setup helpinfo

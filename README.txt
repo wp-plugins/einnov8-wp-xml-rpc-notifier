@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.8.1
-Stable tag: 3.1.0
+Stable tag: 3.1.1
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	3.1.1   2014/03/17  UPDATE	Updated mobile nav for floodgate
 	3.1.0   2014/03/14  UPDATE	Mobile responsive design for floodgate
 	3.0.2   2014/02/26  UPDATE	Use swfobject to load web recorders
 	3.0.1   2014/02/24  UPDATE	Convert media uploader flash->HTML5
@@ -160,6 +161,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.1.1 =
+Updated mobile nav for floodgate
 
 = 3.1.0 =
 Mobile responsive design for floodgate
@@ -366,12 +370,4 @@ This version will now support automatic upgrades
 
 = 2.0.5 =
 Converts the plugin for compatibility with WP3 multi site networks
-
-
---prefix=/usr --libdir=/usr/lib --shlibdir=/usr/lib --mandir=/usr/share/man --enable-shared --enable-runtime-cpudetect --enable-gpl --enable-version3 --enable-postproc --enable-avfilter --enable-pthreads --enable-x11grab --enable-vdpau --disable-avisynth --enable-libdc1394 --enable-libgsm --enable-libmp3lame --enable-libnut --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-librtmp --enable-libtheora --enable-libvorbis --enable-libx264 --enable-libxavs --enable-libxvid --extra-cflags='-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m32 -march=i386 -mtune=generic -fasynchronous-unwind-tables' --disable-stripping
-
---prefix=/usr --libdir=/usr/lib --shlibdir=/usr/lib --mandir=/usr/share/man --enable-shared --enable-runtime-cpudetect --enable-gpl --enable-version3 --enable-postproc --enable-avfilter --enable-pthreads --enable-x11grab --enable-vdpau --disable-avisynth --enable-libdc1394 --enable-libgsm --enable-libmp3lame --enable-libnut --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-librtmp --enable-libtheora --enable-libvorbis --enable-libx264 --enable-libxavs --enable-libxvid --extra-cflags='-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m32 -march=i386 -mtune=generic -fasynchronous-unwind-tables' --disable-stripping
-
-
---enable-libvorbis --enable-libvpx
 
