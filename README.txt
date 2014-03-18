@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.8.1
-Stable tag: 3.1.1
+Stable tag: 3.1.2
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	3.1.2   2014/03/17  UPDATE	Updated mobile nav elements for floodgate
 	3.1.1   2014/03/17  UPDATE	Updated mobile nav for floodgate
 	3.1.0   2014/03/14  UPDATE	Mobile responsive design for floodgate
 	3.0.2   2014/02/26  UPDATE	Use swfobject to load web recorders
@@ -161,6 +162,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.1.2 =
+Updated mobile nav elements for floodgate
 
 = 3.1.1 =
 Updated mobile nav for floodgate
