@@ -231,11 +231,11 @@ textarea {
 }
 
 .jThumbnailScroller .jTscrollerNextButton {
-    background: #000 url(nextArrow.png) center center;
+    background: #000 url(../images/nextArrow.png) center center;
 }
 
 .jThumbnailScroller .jTscrollerPrevButton {
-    background: #000 url(prevArrow.png) center center;
+    background: #000 url(../images/prevArrow.png) center center;
 }
 
 .jThumbnailScroller .jTscrollerNextButton:hover, .jThumbnailScroller .jTscrollerPrevButton:hover {
@@ -443,7 +443,7 @@ textarea {
     padding:3px 10px
 }
 .expand a:link, .expand a:visited {
-    background-image:url('arrow-down.gif');
+    background-image:url('../images/arrow-down.gif');
     background-repeat:no-repeat;
     background-position:98% 50%;
     color: #555;
@@ -458,7 +458,7 @@ textarea {
     color: #555;
 }
 .expand a.open:link, .expand a.open:visited {
-    background-image: url('arrow-up.gif');
+    background-image: url('../images/arrow-up.gif');
 }
 
 

@@ -196,6 +196,7 @@ class ei8XmlrpcFloodgateFormFieldOption
 class ei8XmlrpcFloodgateFormFieldSelect extends ei8XmlrpcFloodgateFormField
 {
     public $type = 'select';
+    public $default = '';
     public $options;
 
     public function __construct($var,$value='',$options='',$args='') {
@@ -204,17 +205,23 @@ class ei8XmlrpcFloodgateFormFieldSelect extends ei8XmlrpcFloodgateFormField
     }
 
     public function add_option($title,$value,$selected='') {
+        //handle default selections
+        if($selected=='' && $this->default!='') $selected = ($title==$default);
         $this->options[] = new ei8XmlrpcFloodgateFormFieldOption($title,$value,$selected);
     }
 
     public function render_field() {
         $html = sprintf("<select name='%s' id='%s'>",$this->var_form,$this->var_form);
         foreach($this->options as $option) {
-            $selected = ($option->is_selected) ? "SELECTED" : "" ;
+            $selected = ($option->is_selected()) ? "SELECTED" : "" ;
             $html .= sprintf("<option value='%s' %s>%s</option>", $option->value, $selected, $option->title);
         }
         $html .= "</select>";
         return $html;
+    }
+
+    public function set_default($var) {
+        $this->default = $var;
     }
 
     public function set_value($value) {
@@ -228,7 +235,8 @@ class ei8XmlrpcFloodgateFormFieldSelectBoolean extends ei8XmlrpcFloodgateFormFie
 {
     public $type = 'boolean';
 
-    public function __construct($var,$value='',$args='') {
+    public function __construct($var,$value='',$args='',$default='No') {
+        $this->set_default($default);
         $this->add_option("No",'2');
         $this->add_option("Yes",'1');
         parent::__construct($var,$value,$this->options,$args);

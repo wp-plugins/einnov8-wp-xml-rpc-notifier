@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 FLOODtech Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Floodtech system at ei8t.com as well as the wp native xml-rpc functionality.
-Version: 3.1.2
+Version: 3.1.3
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -120,7 +120,7 @@ function ei8_email_notify($post_id, $tEmail) {
         $message .= admin_url("post.php?action=edit&post=$post_id") . "\r\n\r\n";
         //$message .= sprintf( __('Delete: %s'), admin_url("post.php?action=delete&post=$post_id&_wpnonce=$nonce") ) . "\r\n";
         //$message .= sprintf( __('Spam it: %s'), admin_url("comment.php?action=cdc&dt=spam&c=$comment_id") ) . "\r\n";
-        $siteName = ei8_xmlrpc_get_site_type_name($siteType);
+        $siteName = ei8_xmlrpc_get_site_type_name();
         //if($siteType=="flood") $message .= sprintf( __('Update '.$siteName.' system settings: %s'), admin_url("options-general.php?page=" . plugin_basename( __FILE__ ) ) ) . "\r\n\r\n";
     }
 
@@ -364,7 +364,7 @@ function ei8_xmlrpc_recorder_wrap($type, $vars='') {
         $html = "<p style='color: #ff0000; size: 13px; font-weight: bold;'>ERROR LOADING eInnov8 Tech $showType Recorder - please notify website administrator support@einnov8.com</p>";
     } elseif($type=="media") {
         parse_str($vars);
-        $css = urlencode(ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_file_uploader_css'), ei8_plugins_url('/ei8-file-uploader.css')));
+        $css = urlencode(ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_file_uploader_css'), ei8_plugins_url('/css/ei8-file-uploader.css')));
         $url = "{$service}{$folder}/{$a}/{$v}/?externcss={$css}";
         $html = "<iframe src ='$url' class='ei8-form-iframe' frameborder='0'><p>Your browser does not support iframes.</p></iframe>";
     } else {
@@ -410,7 +410,7 @@ function ei8_xmlrpc_conf_message($success=true,$title='default',$text='default',
 
     $confMessage =<<<EOT
 <div class="ei8-confirmation" id="ei8-confirmation">
-    <div class="ei8-confirmation-img"><img src="{$pluginDir}{$confImg}"></div>
+    <div class="ei8-confirmation-img"><img src="{$pluginDir}images/{$confImg}"></div>
     <div class="ei8-confirmation-msg"><strong>$title</strong><br>$text</div>
 </div>
 EOT;
@@ -603,11 +603,11 @@ function ei8_enqueue_scripts() {
 
 
     //now load the local js
-    wp_register_script( 'ei8-tweet-script', ei8_plugins_url('/ei8-xmlrpc-tweet.js'), array('jquery') );
+    wp_register_script( 'ei8-tweet-script', ei8_plugins_url('/lib/js/ei8-xmlrpc-tweet.js'), array('jquery') );
     wp_enqueue_script( 'ei8-tweet-script' );
 
     //wp_register_script( 'ei8-xmlrpc-notifier', ei8_plugins_url('/ei8-xmlrpc-notifier.js') , array('jquery', 'jquery-ui-core','jquery-effects-core','jquery-effects-fade','jquery-effects-slide','jquery-ui-slider') );
-    wp_register_script( 'ei8-xmlrpc-notifier', ei8_plugins_url('/ei8-xmlrpc-notifier.js') , array('jquery') );
+    wp_register_script( 'ei8-xmlrpc-notifier', ei8_plugins_url('/lib/js/ei8-xmlrpc-notifier.js') , array('jquery') );
     wp_enqueue_script( 'ei8-xmlrpc-notifier' );
 
     //jwplayer
@@ -615,11 +615,11 @@ function ei8_enqueue_scripts() {
     wp_enqueue_script( 'ei8-xmlrpc-jwplayer' );
 
     //thumbnail scroller
-    wp_register_script( 'ei8-jquery-custom', ei8_plugins_url('/jquery-ui-1.8.13.custom.min.js'), array('jquery') );
+    wp_register_script( 'ei8-jquery-custom', ei8_plugins_url('/lib/js/jquery-ui-1.8.13.custom.min.js'), array('jquery') );
     wp_enqueue_script( 'ei8-jquery-custom' );
 
     //thumbnail scroller
-    wp_register_script( 'ei8-thumbnail_scroller', ei8_plugins_url('/jquery.thumbnailScroller.js'), array('jquery') );
+    wp_register_script( 'ei8-thumbnail_scroller', ei8_plugins_url('/lib/js/jquery.thumbnailScroller.js'), array('jquery') );
     wp_enqueue_script( 'ei8-thumbnail_scroller' );
 
 }
@@ -627,7 +627,7 @@ add_action('wp_enqueue_scripts', 'ei8_enqueue_scripts');
 
 //add styles to admin
 function ei8_register_head() {
-    $url = ei8_plugins_url('/ei8-xmlrpc-notifier.css');
+    $url = ei8_plugins_url('/css/ei8-xmlrpc-notifier.css');
     echo "<link rel='stylesheet' type='text/css' href='$url' />\n";
 
     //$url = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css';

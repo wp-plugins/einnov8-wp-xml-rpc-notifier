@@ -77,13 +77,14 @@ function ei8_xmlrpc_settings_link($links, $file) {
 add_action('admin_menu', 'ei8_xmlrpc_options_menu');
 
 function ei8_xmlrpc_options_menu() {
-    global $optionP, $optionE, $optionF;
+    global $optionP, $optionE, $optionF, $optionL;
     $hideOptions = ei8_xmlrpc_get_option('ei8_xmlrpc_hide_admin_options');
     if(empty($hideOptions) || current_user_can('edit_users')) {
         add_menu_page('eInnov8 Settings', 'eInnov8 Options', 'edit_others_posts', $optionP, 'ei8_xmlrpc_admin_options');
         add_submenu_page( $optionP, 'eInnov8 Settings', 'Preferences', 'edit_others_posts', $optionP, 'ei8_xmlrpc_admin_options');
         add_submenu_page( $optionP, 'ei8 Email Options', 'Email Notifications', 'edit_others_posts', $optionE, 'ei8_xmlrpc_email_options');
         add_submenu_page( $optionP, 'ei8 Floodgate Settings', 'Floodgate Settings', 'edit_others_posts', $optionF, 'ei8_xmlrpc_floodgate_settings');
+        add_submenu_page( $optionP, 'ei8 Embed Settings', 'Embed Settings', 'edit_others_posts', $optionL, 'ei8_xmlrpc_legacy_settings');
         add_submenu_page( $optionP, 'ei8 Shortcodes', '[ei8 shortcodes]', 'activate_plugins', 'ei8-shortcodes', 'ei8_xmlrpc_shortcode_options');
         add_submenu_page( $optionP, 'ei8 CSS', '[ei8 css]', 'activate_plugins', 'ei8-css', 'ei8_xmlrpc_css_options');
     }
@@ -623,13 +624,13 @@ function ei8_xmlrpc_css_options() {
         <tr><td colspan=2><strong>Shortcodes now use css stylings to allow for greater compatibility within each website.<br>
             You can look at the included css and overwrite any of the styles as you see fit by updating the css files within your chosen theme.<br><br>
             DO NOT MAKE ANY CHANGES TO THE INCLUDED PLUGIN CSS FILES OR YOUR CHANGES WILL BE OVERWRITTEN WITH THE NEXT PLUGIN UPDATE<br>
-            <a href="<?php echo ei8_plugins_url('/ei8-xmlrpc-notifier.css'); ?>" target="_blank">Click here to access the included css.</a></strong></td>
+            <a href="<?php echo ei8_plugins_url('/css/ei8-xmlrpc-notifier.css'); ?>" target="_blank">Click here to access the included css.</a></strong></td>
         </tr>
         <tr><td colspan=2>Additionally, the media uploader ([ei8 MediaUploader]) is loaded in an iFrame directly from ei8t.com<br>
             This can be styled as using an external css file, that is pasted into the preferences page.<br>
             There is an included default css file that you can look at and use as a guide, <br>
             <strong>but please note that your new external file will replace this default file entirely</strong><br>
-            <a href="<?php echo ei8_plugins_url('/ei8-file-uploader.css'); ?>" target="_blank">Click here to access the default media uploader css.</a></strong></td>
+            <a href="<?php echo ei8_plugins_url('/css/ei8-file-uploader.css'); ?>" target="_blank">Click here to access the default media uploader css.</a></strong></td>
         </tr>
     </table>
 </div>
@@ -638,9 +639,9 @@ function ei8_xmlrpc_css_options() {
 
 function ei8_xmlrpc_admin_options() {
     global $optionP;
-    $postStatus      = ei8_xmlrpc_get_option('ei8_xmlrpc_post_status');
-    $postType        = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
-    $mediaAlign      = ei8_xmlrpc_get_option('ei8_xmlrpc_media_align');
+    //$postStatus      = ei8_xmlrpc_get_option('ei8_xmlrpc_post_status');
+    //$postType        = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
+    //$mediaAlign      = ei8_xmlrpc_get_option('ei8_xmlrpc_media_align');
     $ei8AdminUrl     = "admin.php?page=".$optionP;
 
     if($_POST['action']=="update") {
@@ -658,7 +659,13 @@ function ei8_xmlrpc_admin_options() {
         ei8_xmlrpc_update_option($var, $_POST[$var]);
 
         if (current_user_can('edit_others_posts')) {
-            $var = 'ei8_xmlrpc_site_type';
+            $var = 'ei8_xmlrpc_hide_admin_options';
+            ei8_xmlrpc_update_option($var, $_POST[$var]);
+
+            $var = 'ei8_xmlrpc_media_align';
+            ei8_xmlrpc_update_option($var, $_POST[$var]);
+
+/*            $var = 'ei8_xmlrpc_site_type';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
 
             $var = 'ei8_xmlrpc_recorder_vars';
@@ -673,30 +680,12 @@ function ei8_xmlrpc_admin_options() {
             $var = 'ei8_xmlrpc_file_uploader_css';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
 
-            $var = 'ei8_xmlrpc_media_align';
-            ei8_xmlrpc_update_option($var, $_POST[$var]);
-
-            $var = 'ei8_xmlrpc_playlist_align';
-            ei8_xmlrpc_update_option($var, $_POST[$var]);
-
-            $var = 'ei8_xmlrpc_playlist_layout';
-            ei8_xmlrpc_update_option($var, $_POST[$var]);
-
-            $var = 'ei8_xmlrpc_playlist_show_title';
-            ei8_xmlrpc_update_option($var, $_POST[$var]);
-
-            $var = 'ei8_xmlrpc_playlist_show_description';
-            ei8_xmlrpc_update_option($var, $_POST[$var]);
-
-            $var = 'ei8_xmlrpc_hide_admin_options';
-            ei8_xmlrpc_update_option($var, $_POST[$var]);
-
             //update the custom folders values
             $customFolders = ei8_xmlrpc_getCustomFolders();
             foreach($customFolders as $folder=>$info) {
                 ei8_xmlrpc_storeCustomFolder($folder, $_POST[$info['var']]);
             }
-
+*/
 
 /*
              * $var = 'ei8_xmlrpc_default_width_audio';
@@ -717,29 +706,7 @@ function ei8_xmlrpc_admin_options() {
         //echo "<div id='akismet-warning' class='updated fade'><p>$msg</p></div>";
 
         //force page reload
-        if ( !headers_sent() ) {
-            wp_redirect($ei8AdminUrl);
-        } else {
-            $ei8AdminUrl = admin_url($ei8AdminUrl);
-
-?>
-
-        <meta http-equiv="Refresh" content="0; URL=<?php echo $ei8AdminUrl; ?>">
-        <script type="text/javascript">
-            <!--
-            document.location.href = "<?php echo $ei8AdminUrl; ?>"
-            //-->
-        </script>
-        </head>
-        <body>
-        Sorry. Please use this <a href="<?php echo $ei8AdminUrl; ?>" title="New Post">link</a>.
-        </body>
-        </html>
-
-<?php
-        }
-        exit();
-
+        ei8XmlrpcFloodgatePage::redirect($ei8AdminUrl);
 
     }
 
@@ -796,7 +763,171 @@ function ei8_xmlrpc_admin_options() {
         </tr> -->
 <?php
             if (current_user_can('edit_others_posts')) {
-                $siteType           = ei8_xmlrpc_get_site_type();
+                //$useCaptcha         = ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha');
+                /*$f_submitForm       = 'ei8_xmlrpc_submit_form';
+                $v_submitForm       = ei8_xmlrpc_get_option($f_submitForm);
+                $f_recorderVars     = 'ei8_xmlrpc_recorder_vars';
+                $v_recorderVars     = ei8_xmlrpc_get_option($f_recorderVars);
+
+                $f_twitterUser      = 'ei8_xmlrpc_twitter_username';
+                $v_twitterUser      = ei8_xmlrpc_get_option($f_twitterUser);
+                $f_twitterPass      = 'ei8_xmlrpc_twitter_password';
+                $v_twitterPass      = ei8_xmlrpc_get_option($f_twitterPass);
+                $f_uploaderCSS      = 'ei8_xmlrpc_file_uploader_css';
+                $v_uploaderCSS      = ei8_xmlrpc_get_option($f_uploaderCSS);
+                if(empty($v_submitForm)) $v_submitForm = '/submit/' ;
+
+                //default heights and widths for video and audio playback using ei8 shortcodes
+                $f_defaultWidthAudio    = 'ei8_xmlrpc_default_width_audio';
+                $v_defaultWidthAudio    = ei8_coalesce(ei8_xmlrpc_get_option($f_defaultWidthAudio), 500);
+                //$f_defaultHeightAudio   = 'ei8_xmlrpc_default_height_audio';
+                //$v_defaultHeightAudio   = ei8_coalesce(ei8_xmlrpc_get_option($f_defaultHeightAudio), 20);
+                $f_defaultWidthVideo    = 'ei8_xmlrpc_default_width_video';
+                $v_defaultWidthVideo    = ei8_coalesce(ei8_xmlrpc_get_option($f_defaultWidthVideo), 320);
+                //$f_defaultHeightVideo   = 'ei8_xmlrpc_default_height_video';
+                //$v_defaultHeightVideo   = ei8_coalesce(ei8_xmlrpc_get_option($f_defaultHeightVideo), 260);*/
+
+?>
+            <!-- <tr><td><h3>Admin Specific Settings</h3></td></tr>-->
+            <tr valign="top">
+                <th scope="row">Show eInnov8 Options:</th>
+                <td><select name='ei8_xmlrpc_hide_admin_options'>
+                    <option value="" <?php if(empty($hideAdmin)) echo "SELECTED"; ?>>visible to ALL(Authors, Editors, & Administrators)</option>
+                    <option value="admin" <?php if(!empty($hideAdmin)) echo "SELECTED"; ?>>visible only to Administrators</option>
+                </select></td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">Default media alignment:</th>
+                <td><select name='ei8_xmlrpc_media_align'>
+<?php
+                        foreach ($align_options as $align ) {
+                            $selected = ($align==$mediaAlign || (empty($mediaAlign) && $align=="left")) ? "SELECTED" : "" ;
+                            echo "<option value=\"$align\" $selected>$align</option>";
+                        }
+?>
+                    </select></td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">Default playlist alignment:</th>
+                <td><select name='ei8_xmlrpc_playlist_align'>
+<?php
+                        foreach ($align_options as $align ) {
+                            $selected = ($align==$playlistAlign || (empty($playlistAlign) && $align=="left")) ? "SELECTED" : "" ;
+                            echo "<option value=\"$align\" $selected>$align</option>";
+                        }
+?>
+                    </select></td>
+            </tr>
+<!--            <tr valign="top">
+                <th scope="row">Default playlist layout:</th>
+                <td><select name='ei8_xmlrpc_playlist_layout'>
+<?php
+                        foreach ($playlist_layout_options as $layout ) {
+                            $selected = ($layout==$playlistLayout || (empty($playlistLayout) && $layout=="horizontal")) ? "SELECTED" : "" ;
+                            echo "<option value=\"$layout\" $selected>$layout</option>";
+                        }
+?>
+                    </select></td>
+            </tr>
+                <tr valign="top">
+                <th scope="row">Playlist show title:</th>
+                <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_playlist_show_title',$playlist_show_title); ?></td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">Playlist show description:</th>
+                <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_playlist_show_description',$playlist_show_description); ?></td>
+            </tr>
+-->
+<?php
+            } //end admin only options
+?>
+                    </table>
+        <input type="hidden" name="action" value="update">
+        <input type="hidden" name="page_options" value="ei8_xmlrpc_post_status,ei8_xmlrpc_email_notify,ei8_xmlrpc_ping" />
+        <p class="submit"><input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p>
+    </form>
+</div>
+<?php
+}
+
+function ei8_xmlrpc_legacy_settings() {
+    global $optionL;
+    $formVarPre = ei8XmlrpcFloodgateFormField::VAR_PRE; //TODO This is half implemented...where the old form methods are now using the new form class
+    $ei8AdminUrl     = "admin.php?page=".$optionL;
+
+    if($_POST['action']=="update") {
+
+        if (current_user_can('edit_others_posts')) {
+
+            $var = 'ei8_xmlrpc_recorder_vars';
+            ei8_xmlrpc_update_option($var, ei8_xmlrpc_admin_parse_recorder_vars($_POST[$formVarPre.$var]));
+
+            $var = 'ei8_xmlrpc_submit_form';
+            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
+
+            //$var = 'ei8_xmlrpc_use_captcha';
+            //ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
+
+            $var = 'ei8_xmlrpc_file_uploader_css';
+            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
+
+            $var = 'ei8_xmlrpc_media_align';
+            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
+
+            $var = 'ei8_xmlrpc_playlist_align';
+            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
+
+            $var = 'ei8_xmlrpc_playlist_layout';
+            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
+
+            $var = 'ei8_xmlrpc_playlist_show_title';
+            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
+
+            $var = 'ei8_xmlrpc_playlist_show_description';
+            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
+
+            //update the custom folders values
+            $customFolders = ei8_xmlrpc_getCustomFolders();
+            foreach($customFolders as $folder=>$info) {
+                ei8_xmlrpc_storeCustomFolder($folder, $_POST[$formVarPre.$info['var']]);
+            }
+
+
+/*
+             * $var = 'ei8_xmlrpc_default_width_audio';
+            $val = $_POST[$var];
+            if(intval($val)<1) $val = '';
+            ei8_xmlrpc_update_option($var, $val);
+
+            $var = 'ei8_xmlrpc_default_width_video';
+            $val = $_POST[$var];
+            if(intval($val)<1) $val = '';
+            ei8_xmlrpc_update_option($var, $val);
+*/
+        }
+
+        $siteName = ei8_xmlrpc_get_site_type_name();
+        ei8_xmlrpc_admin_log("<p>Your $siteName preferences have been updated.</p>",1);
+
+        //echo "<div id='akismet-warning' class='updated fade'><p>$msg</p></div>";
+
+        //force page reload
+        ei8XmlrpcFloodgatePage::redirect($ei8AdminUrl);
+
+
+    }
+
+?>
+<div class="wrap">
+    <?php ei8_screen_icon(); ?>
+
+    <h2>Embed (Legacy) Options:</h2>
+    <p></p>
+    <form method="post" action="<?php echo $ei8AdminUrl; ?>">
+        <?php wp_nonce_field('update-options'); ?>
+        <table class="form-table">
+<?php
+            if (current_user_can('edit_others_posts')) {
                 //$useCaptcha         = ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha');
                 $f_submitForm       = 'ei8_xmlrpc_submit_form';
                 $v_submitForm       = ei8_xmlrpc_get_option($f_submitForm);
@@ -821,15 +952,12 @@ function ei8_xmlrpc_admin_options() {
                 //$f_defaultHeightVideo   = 'ei8_xmlrpc_default_height_video';
                 //$v_defaultHeightVideo   = ei8_coalesce(ei8_xmlrpc_get_option($f_defaultHeightVideo), 260);
 
+                $align_options   = array('left','center','right');
+                $playlist_layout_options    = array('horizontal','vertical','list');
+                $playlist_show_title        = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_show_title');
+                $playlist_show_description  = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_show_description');
+
 ?>
-            <tr><td><h3>Admin Specific Settings</h3></td></tr>
-            <tr valign="top">
-                <th scope="row">Show eInnov8 Options:</th>
-                <td><select name='ei8_xmlrpc_hide_admin_options'>
-                    <option value="" <?php if(empty($hideAdmin)) echo "SELECTED"; ?>>visible to ALL(Authors, Editors, & Administrators)</option>
-                    <option value="admin" <?php if(!empty($hideAdmin)) echo "SELECTED"; ?>>visible only to Administrators</option>
-                </select></td>
-            </tr>
             <tr valign="top">
                 <th scope="row">Form-Submit redirect URL:</th>
                 <td><?php echo ei8_xmlrpc_form_text($f_submitForm,$v_submitForm); ?><!-- <br>
@@ -946,28 +1074,6 @@ function ei8_xmlrpc_admin_options() {
                     <small>ex. http://www.einnov8.com/css/media_uploader.css</small>
                 </td>
             </tr>
-            <tr valign="top">
-                <th scope="row">Default media alignment:</th>
-                <td><select name='ei8_xmlrpc_media_align'>
-<?php
-                        foreach ($align_options as $align ) {
-                            $selected = ($align==$mediaAlign || (empty($mediaAlign) && $align=="left")) ? "SELECTED" : "" ;
-                            echo "<option value=\"$align\" $selected>$align</option>";
-                        }
-?>
-                    </select></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row">Default playlist alignment:</th>
-                <td><select name='ei8_xmlrpc_playlist_align'>
-<?php
-                        foreach ($align_options as $align ) {
-                            $selected = ($align==$playlistAlign || (empty($playlistAlign) && $align=="left")) ? "SELECTED" : "" ;
-                            echo "<option value=\"$align\" $selected>$align</option>";
-                        }
-?>
-                    </select></td>
-            </tr>
 <!--            <tr valign="top">
                 <th scope="row">Default playlist layout:</th>
                 <td><select name='ei8_xmlrpc_playlist_layout'>
@@ -979,7 +1085,8 @@ function ei8_xmlrpc_admin_options() {
 ?>
                     </select></td>
             </tr>
-            <tr valign="top">
+-->
+                <tr valign="top">
                 <th scope="row">Playlist show title:</th>
                 <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_playlist_show_title',$playlist_show_title); ?></td>
             </tr>
@@ -987,10 +1094,9 @@ function ei8_xmlrpc_admin_options() {
                 <th scope="row">Playlist show description:</th>
                 <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_playlist_show_description',$playlist_show_description); ?></td>
             </tr>
--->
             <tr>
                 <td><h3>Web Recorder Settings</h3></td>
-                <td><small>ex. http://www.ei8t.com/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small></td>
+                <td style="vertical-align: middle;"><small>ex. http://www.ei8t.com/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small></td>
             </tr>
 <?php
     $customFolders = ei8_xmlrpc_getCustomFolders();
@@ -1022,12 +1128,14 @@ function ei8_xmlrpc_admin_options() {
 </div>
 <?php
 }
+
 function ei8_xmlrpc_email_options() {
     global $optionE;
+    $formVarPre = ei8XmlrpcFloodgateFormField::VAR_PRE;
     $ei8AdminUrl     = "admin.php?page=".$optionE;
-    $defaultSettings = ei8_xmlrpc_get_message_defaults($siteType);
 
     if($_POST['action']=="update") {
+
         if($_POST['ei8_xmlrpc_reset_to_defaults']==1) {
             $defaults = ei8_xmlrpc_get_message_defaults();
             foreach($defaults as $var=>$val) {
@@ -1036,34 +1144,16 @@ function ei8_xmlrpc_email_options() {
         } else {
             $vars = ei8_xmlrpc_get_message_variables();
             foreach($vars as $var) {
-                ei8_xmlrpc_update_option($var, $_POST[$var]);
+                ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
             }
         }
 
         ei8_xmlrpc_admin_log("<p>Your email notification preferences have been updated.</p>",1);
 
         //force page reload
-        if ( !headers_sent() ) {
-            wp_redirect($ei8AdminUrl);
-        } else {
-            $ei8AdminUrl = admin_url($ei8AdminUrl);
-?>
-          <meta http-equiv="Refresh" content="0; URL=<?php echo $ei8AdminUrl; ?>">
-            <script type="text/javascript">
-                <!--
-                document.location.href = "<?php echo $ei8AdminUrl; ?>"
-                //-->
-            </script>
-            </head>
-            <body>
-                Sorry. Please use this <a href="<?php echo $ei8AdminUrl; ?>">link</a>.
-            </body>
-            </html>
-
-<?php
-        }
-        exit();
+        ei8XmlrpcFloodgatePage::redirect($ei8AdminUrl);
     }
+
 ?>
 <div class="wrap">
     <?php ei8_screen_icon(); ?>
@@ -1073,18 +1163,9 @@ function ei8_xmlrpc_email_options() {
         <?php wp_nonce_field('update-options'); ?>
         <table class="form-table">
             <tr><td><h3>Notification Email Settings</h3></td></tr>
-            <!--<tr valign="top">
-                <th scope="row">Website type: </th>
-                <td><select name='ei8_xmlrpc_site_type'>
-                    <option value="boon" <?php if('boon'==$siteType) echo "SELECTED"; ?>><?php echo ei8_xmlrpc_get_site_type_name('boon'); ?></option>
-                    <option value="flood" <?php if('flood'==$siteType) echo "SELECTED"; ?>><?php echo ei8_xmlrpc_get_site_type_name('flood'); ?></option>
-                    <option value="videoaudio" <?php if('videoaudio'==$siteType) echo "SELECTED"; ?>><?php echo ei8_xmlrpc_get_site_type_name('videoaudio'); ?></option>
-                    <option value="soupedup" <?php if('soupedup'==$siteType) echo "SELECTED"; ?>><?php echo ei8_xmlrpc_get_site_type_name('soupedup'); ?></option>
-                </select></td>
-            </tr>-->
             <?php
             $message_variables = ei8_xmlrpc_get_message_variables(1);
-            $message_settings  = ei8_xmlrpc_get_message_settings($siteType);
+            $message_settings  = ei8_xmlrpc_get_message_settings();
             foreach($message_variables as $var=>$form_vars) {
                 list($form_type,$form_title) = $form_vars;
                 switch($form_type) {
@@ -1142,45 +1223,11 @@ function ei8_xmlrpc_get_blog_option($val) {
 function ei8_xmlrpc_get_option($id) {
     $db = new ei8XmlrpcFloodgateDbTableOptions();
     return $db->get_option($id);
-    /*
-    global $wpdb;
-    $wpdb->flush();
-    $table   = $wpdb->prefix . "ei8_xmlrpc_options";
-    $sql     = "SELECT option_value FROM $table WHERE option_name='$id' LIMIT 1";
-    $results = $wpdb->get_results($sql);
-    $result = stripslashes($results[0]->option_value);
-    return $result;
-    */
 }
 
 function ei8_xmlrpc_update_option($id, $value) {
     $db = new ei8XmlrpcFloodgateDbTableOptions();
     $db->update_option($id,addslashes($value));
-    /*
-    global $wpdb;
-    $table = $wpdb->prefix . "ei8_xmlrpc_options";
-    //check first to see if the option already exists
-    $sql = "SELECT ID FROM $table WHERE option_name='$id'";
-    $results = $wpdb->get_results($sql);
-    $option_id = $results[0]->ID;
-    $value = addslashes($value);
-    if(!empty($option_id)) {
-        $sql = $wpdb->prepare(
-            "UPDATE $table SET option_value='%s' WHERE ID='%s'",
-            $value,
-            $option_id
-        );
-    } else {
-        $sql = $wpdb->prepare(
-            "INSERT INTO $table SET option_name='%s', option_value='%s' ON DUPLICATE KEY UPDATE option_value='%s'",
-            $id,
-            $value,
-            $value
-        );
-    }
-    $wpdb->query($sql);
-    $wpdb->flush();
-    */
 }
 
 function ei8_xmlrpc_admin_parse_recorder_vars($vars) {
@@ -1201,19 +1248,6 @@ function ei8_xmlrpc_admin_parse_recorder_vars($vars) {
 
 function ei8_xmlrpc_get_site_type() {
     return 'flood';
-    /*
-    $siteType = ei8_xmlrpc_get_option('ei8_xmlrpc_site_type');
-    if(empty($siteType)) {
-        $domain = $_SERVER['HTTP_HOST'];
-        if(strstr($domain,'1tme1'))     $siteType = 'boon';
-        elseif(strstr($domain,'1wcf1')) $siteType = 'flood';
-        elseif(strstr($domain,'1vaf1')) $siteType = 'videoaudio';
-        elseif(strstr($domain,'1blg1')) $siteType = 'soupedup';
-        elseif(strstr($domain,'local')) $siteType = 'flood';
-        else                          $siteType = 'boon';
-    }
-    return $siteType;
-    */
 }
 
 function ei8_xmlrpc_get_upload_dir($url='') {
@@ -1275,154 +1309,30 @@ function ei8_xmlrpc_get_login() {
     return array($userName, $passWord);
 }
 
-function ei8_xmlrpc_get_site_type_name($siteType='') {
-    //overrride siteType
-    $siteType = 'floodtech';
-
-    if(empty($siteType)) $siteType = ei8_xmlrpc_get_site_type();
-    //$siteName = ($siteType=="flood") ? 'webcontentFLOOD' : 'testiBOONials' ;
-    switch ($siteType) {
-        case "flood":
-            $siteName = "webcontentFLOOD";
-            break;
-        case "videoaudio":
-            $siteName = "Video-Audio Forums";
-            break;
-        case "soupedup":
-            $siteName = "Souped-Up Blogs";
-            break;
-        case "boon":
-            $siteName = "testiBOONials";
-        default:
-            $siteName = "Floodgate";
-    }
-
-    return $siteName;
+function ei8_xmlrpc_get_site_type_name() {
+    return "Floodgate";
 }
 
-function ei8_xmlrpc_get_message_defaults($siteType='') {
-    $siteType = 'floodgate';
-    $defaults = array();
-    if(empty($siteType)) $siteType = ei8_xmlrpc_get_site_type();
-    $siteName = ei8_xmlrpc_get_site_type_name($siteType);
-    list($referral_id) = explode('.',$_SERVER['HTTP_HOST']);
+function ei8_xmlrpc_get_message_defaults() {
 
-    if($siteType=="flood") {
-        $defaults['email_from_name']             = "Web Content Flood";
-        $defaults['email_from_addr']             = "submit@webcontentflood.com";
-        $defaults['email_subject']               = "New [Customer Name] Submission";
-        $defaults['message_intro']               = "[Customer Name] has made a new flood submission:
-[[post_title]]";
+    $defaults = array(
+        'email_from_name'               => "Website Name",
+        'email_from_addr'               => "submit@sitename.com",
+        'email_subject'                 => "New Floodtech Submission",
+        'message_intro'                 => "A new Floodtech submission has arrived at your website with this title:
+    [[post_title]]",
 
-        $defaults['message_post_status_intro']   = "This submission";
-        $defaults['message_post_status_draft']   = " is waiting for review within the customer's WCF account.";
-        $defaults['message_post_status_publish'] = " has been published to the customer's WCF public page.";
-        $defaults['message_post_status_unknown'] = " is available for review within the customer's WCF account.";
+        'message_post_status_intro'     => "This submission",
+        'message_post_status_draft'     => " is waiting for review within the your website administration area.",
+        'message_post_status_publish'   => " has been published as a post on your website.",
+        'message_post_status_unknown'   => " is available for review within your website administration area.",
 
-        $defaults['message_thank_you']           = "Let's \"FLOOD\" it!";
-        $defaults['message_quick_links_show']    = 1;
-        $defaults['message_quick_links_intro']   = "Here is the link to edit the submission:";
-        $defaults['message_referral_show']       = 0;
-        $defaults['message_referral_text']       = "";
-    } elseif ($siteType=="boon") {
-        $defaults['email_from_name']             = "testiBOONials";
-        $defaults['email_from_addr']             = "submit@testiboonials.com";
-        $defaults['email_subject']               = "New Testimonial Submission";
-        $defaults['message_intro']               = "A new testimonial has been submitted with this title:
-[[post_title]]";
-
-        $defaults['message_post_status_intro']   = "This testimonial";
-        $defaults['message_post_status_draft']   = " is waiting for review within your testiBOONials account.";
-        $defaults['message_post_status_publish'] = " has been published to your testiBOONials public page.";
-        $defaults['message_post_status_unknown'] = " is available for review within your testiBOONials account.";
-
-        $defaults['message_thank_you']           = "Thank you for being a testiBOONials subscriber";
-        $defaults['message_quick_links_show']    = 1;
-        $defaults['message_quick_links_intro']   = "Here is the link to edit the testimonial:";
-        $defaults['message_referral_show']       = 1;
-        $defaults['message_referral_text']       = "If you know of others who'd benefit from subscribing to
-testiBOONials, we'd very much appreciate a referral.
-Just send them to http://testiboonials.com.";
-    } elseif ($siteType=="videoaudio") {
-        $defaults['email_from_name']             = "Video-Audio Forums";
-        $defaults['email_from_addr']             = "submit@videoaudioforums.com";
-        $defaults['email_subject']               = "New Forum Entry";
-        $defaults['message_intro']               = "A new forum entry has been submitted with this title:
-[[post_title]]";
-
-        $defaults['message_post_status_intro']   = "This entry";
-        $defaults['message_post_status_draft']   = " is waiting for review within your Video-Audio Forums account.";
-        $defaults['message_post_status_publish'] = " has been published to your Video-Audio Forums public page.";
-        $defaults['message_post_status_unknown'] = " is available for review within your Video-Audio Forums account.";
-
-        $defaults['message_thank_you']           = "Thank you for being a Video-Audio Forums subscriber";
-        $defaults['message_quick_links_show']    = 1;
-        $defaults['message_quick_links_intro']   = "Here is the link to edit the entry:";
-        $defaults['message_referral_show']       = 1;
-        $defaults['message_referral_text']       = "If you know of others who'd benefit from subscribing to
-Video-Audio Forums, we'd very much appreciate a referral.
-Just send them to: http://videoaudioforums.com.";
-    } elseif ($siteType=="soupedup") {
-        $defaults['email_from_name']             = "Souped-Up Blogs";
-        $defaults['email_from_addr']             = "submit@soupedupblogs.com";
-        $defaults['email_subject']               = "Your New Blog Post";
-        $defaults['message_intro']               = "Your Souped-Up Blogs post has been successfully processed:
-[[post_title]]";
-
-        $defaults['message_post_status_intro']   = "This post";
-        $defaults['message_post_status_draft']   = " is waiting for review within your Souped-Up Blogs account.";
-        $defaults['message_post_status_publish'] = " has been published to your Souped-Up Blogs public page.";
-        $defaults['message_post_status_unknown'] = " is available for review within your Souped-Up Blogs account.";
-
-        $defaults['message_thank_you']           = "Thank you for being a Souped-Up Blogs subscriber.";
-        $defaults['message_quick_links_show']    = 1;
-        $defaults['message_quick_links_intro']   = "Here is the link to edit the post:";
-        $defaults['message_referral_show']       = 1;
-        $defaults['message_referral_text']       = "If you know of others who'd benefit from subscribing to
-Souped-Up Blogs, we'd very much appreciate a referral.
-Just send them to: http://soupedupblogs.com.";
-    } else {
-
-        $defaults['email_from_name']             = "Website Name";
-        $defaults['email_from_addr']             = "submit@sitename.com";
-        $defaults['email_subject']               = "New Floodtech Submission";
-        $defaults['message_intro']               = "A new Floodtech submission has arrived at your website with this title:
-[[post_title]]";
-
-        $defaults['message_post_status_intro']   = "This submission";
-        $defaults['message_post_status_draft']   = " is waiting for review within the your website administration area.";
-        $defaults['message_post_status_publish'] = " has been published as a post on your website.";
-        $defaults['message_post_status_unknown'] = " is available for review within your website administration area.";
-
-        $defaults['message_thank_you']           = "Thank you for being a customer of eInnov8 Marketing.";
-        $defaults['message_quick_links_show']    = 1;
-        $defaults['message_quick_links_intro']   = "Click on this link (and log in, if necessary) to review, edit and publish this submission:";
-        $defaults['message_referral_show']       = 1;
-        $defaults['message_referral_text']       = "Learn more about us at http://einnov8.com.";
-    }
-
-    /*
-        $defaults['email_from_name']             = "{$siteName}.com";
-        $defaults['email_from_addr']             = "admin@{$siteName}.com";
-        $defaults['email_subject']               = "New {$siteName} Post";
-        $defaults['message_intro']               = "A new {$postName} was submitted a few minutes ago to your {$siteName} system -- with the following title:
-
-    Title: [[post_title]]";
-
-        $defaults['message_post_status_intro']   = "According to your {$siteName} system settings, this {$postName}";
-        $defaults['message_post_status_draft']   = " is waiting in Draft status within your {$siteName} account.";
-        $defaults['message_post_status_publish'] = " will be published immediately to your {$siteName} posting page.";
-        $defaults['message_post_status_unknown'] = " is either:
-    * Published immediately to your {$siteName} posting page
-    * Is waiting in Draft status within your {$siteName} account
-    In either case, you can now modify/delete the {$postName} from with-in your {$siteName} account.";
-
-        $defaults['message_thank_you']           = "Thank you for being a {$siteName} subscriber.";
-        $defaults['message_quick_links_show']    = 1;
-        $defaults['message_quick_links_intro']   = "Quick Links:";
-        $defaults['message_referral_show']       = 1;
-        $defaults['message_referral_text']       = "Earn $25.00 for each new {$siteName} subscriber who signs up via this link: http://{$siteName}.com/{$referral_id}";
-    */
+        'message_thank_you'           => "Thank you for being a customer of eInnov8 Marketing.",
+        'message_quick_links_show'    => 1,
+        'message_quick_links_intro'   => "Click on this link (and log in, if necessary) to review, edit and publish this submission:",
+        'message_referral_show'       => 1,
+        'message_referral_text'       => "Learn more about us at http://einnov8.com."
+    );
 
     return $defaults;
 }
@@ -1462,7 +1372,7 @@ function ei8_xmlrpc_admin_init() {
     wp_enqueue_script('jQuery');
     wp_enqueue_script('jquery-ui-sortable');
 
-    wp_register_style('ei8AdminStyleSheets', ei8_plugins_url('/ei8-xmlrpc-notifier-admin.css'));
+    wp_register_style('ei8AdminStyleSheets', ei8_plugins_url('/css/ei8-xmlrpc-notifier-admin.css'));
     wp_enqueue_style( 'ei8AdminStyleSheets');
 
     ei8_xmlrpc_admin_install();

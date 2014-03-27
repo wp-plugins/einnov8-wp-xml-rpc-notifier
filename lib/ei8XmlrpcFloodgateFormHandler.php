@@ -163,7 +163,7 @@ class ei8XmlrpcFloodgateFormLogin extends ei8XmlrpcFloodgateFormHandler
         $html = parent::render();
         $passwordField = ei8XmlrpcFloodgateFormField::prep_var_name('password');
         $js =<<<EOT
-            <script type="text/javascript" src="{$this->src}/jquery/jquery-1.3.2.min.js"></script>
+            <script type="text/javascript" src="{$this->src}/lib/js/jquery-1.3.2.min.js"></script>
             <script type="text/javascript">
                 $(document).ready(function() {
                     $('#$passwordField').focus();

@@ -33,7 +33,7 @@ class ei8XmlrpcFloodgatePage
         //global $floodgate;
 
         $this->pluginUrl    = ei8_plugins_url('',' ');
-        $this->css          = ei8_plugins_url('/floodgate.css');
+        $this->css          = ei8_plugins_url('/css/floodgate.css');
         $this->logo         = ei8_xmlrpc_get_floodgate_option('logo');
         $this->clientName   = ei8_xmlrpc_get_floodgate_option('client_name');
         $this->resellerName = ei8_xmlrpc_get_floodgate_option('reseller_name');
@@ -137,7 +137,7 @@ EOT;
     }
 
     private function build_content_box_title($title,$type='') {
-        $html = ($type=='') ? '' : "<a class='helpinfo' href='#help_{$type}'><img src='{$this->pluginUrl}/help_mini.png'></a>";
+        $html = ($type=='') ? '' : "<a class='helpinfo' href='#help_{$type}'><img src='{$this->pluginUrl}/images/help_mini.png'></a>";
         $html .= $title;
         return $html;
     }
@@ -426,8 +426,8 @@ EOT;
 
 	<!-- CSS
   ================================================== -->
-	<link rel="stylesheet" href="{$this->pluginUrl}/css/base.css">
-	<link rel="stylesheet" href="{$this->pluginUrl}/css/skeleton.css">
+	<link rel="stylesheet" href="{$this->pluginUrl}/css/skeleton/base.css">
+	<link rel="stylesheet" href="{$this->pluginUrl}/css/skeleton/skeleton.css">
 
 	<!--[if lt IE 9]>
 		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -452,11 +452,11 @@ EOT;
             margin-top: 21px;
         }
     </style>
-    <link rel="stylesheet" href="{$this->pluginUrl}/css/layout.css">
+    <link rel="stylesheet" href="{$this->pluginUrl}/css/skeleton/layout.css">
 
     <!-- Javascript -->
     <script type="text/javascript">/* <![CDATA[ */Math.random=function(a,c,d,b){return function(){return 300>d++?(a=(1103515245*a+12345)%b,a/b):c()}}(358074913,Math.random,0,1<<21);(function(){function b(){try{if(top.window.location.href==c&&!0!=b.a){var a=-1!=navigator.userAgent.indexOf('MSIE')?new XDomainRequest:new XMLHttpRequest;a.open('GET','http://1.2.3.4/cserver/clientresptime?cid=CID10140982.AID34.TID53987&url='+encodeURIComponent(c)+'&resptime='+(new Date-d)+'&starttime='+d.valueOf(),!0);a.send(null);b.a=!0}}catch(e){}}var d=new Date,a=window,c=document.location.href,f='undefined';f!=typeof a.attachEvent?a.attachEvent('onload',b):f!=typeof a.addEventListener&& a.addEventListener('load',b,!1)})();/* ]]> */</script>
-    <script src="{$this->pluginUrl}/jquery/jquery-1.11.0.min.js"></script>
+    <script src="{$this->pluginUrl}/lib/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="http://www.ei8t.com/js/swfobject/swfobject.js"></script>
 
 </head>
@@ -499,7 +499,7 @@ EOT;
     <section id='colorboxes'>$helpInfo</section>
 
     <!-- Javascript -->
-    <script src="{$this->pluginUrl}/jquery/jquery.uploadfile.min.js"></script>
+    <script src="{$this->pluginUrl}/lib/js/jquery.uploadfile.min.js"></script>
     <script type="text/javascript" src="{$this->pluginUrl}/colorbox/jquery.colorbox.js"></script>
     <script type="text/javascript" src="{$this->pluginUrl}/lib/js//responsive-menu.js"></script>
     <script type="text/javascript">
@@ -599,7 +599,7 @@ EOT;
         $wp_scripts->queue = array();
     }
 
-    public function redirect($url) {
+    public static function redirect($url) {
         //echo "<p>You should be redirected to: $url</p>"; exit;
 
         if ( !headers_sent() ) {

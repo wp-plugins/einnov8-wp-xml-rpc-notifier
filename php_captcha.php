@@ -7,7 +7,7 @@ $ResultStr = substr($RandomStr,0,5);//trim 5 digit
 
 $_SESSION['captcha_key'] = $ResultStr;// carry the data through session
 
-$NewImage =imagecreatefromjpeg("./img.jpg");//image create by existing image and as back ground 
+$NewImage =imagecreatefromjpeg("./images/img.jpg");//image create by existing image and as back ground
 
 $LineColor = imagecolorallocate($NewImage,233,239,239);//line color 
 $TextColor = imagecolorallocate($NewImage, 255, 255, 255);//text color-white

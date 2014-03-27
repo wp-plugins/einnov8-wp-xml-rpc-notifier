@@ -56,6 +56,7 @@ function ei8_xmlrpc_storeCustomFolder($folder,$val) {
 $optionP = 'ei8-xmlrpc-options';
 $optionE = 'ei8-xmlrpc-email-options';
 $optionF = 'ei8-xmlrpc-floodgate-options';
+$optionL = 'ei8-xmlrpc-legacy-options';
 
 
 
