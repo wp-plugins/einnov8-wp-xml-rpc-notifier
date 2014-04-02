@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.8.1
-Stable tag: 3.1.3
+Stable tag: 3.1.4
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -40,6 +40,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	3.1.4   2014/04/02  BUG-FIX	Updated handling of text fields in admin screens
 	3.1.3   2014/03/27  UPDATE	Rearranged admin screens
 	                            Refactored file structure and lots of code!
 	                            Fixed issue with admin elements not updating correctly
@@ -165,6 +166,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.1.4 =
+Updated handling of text fields in admin screens
 
 = 3.1.3 =
 Rearranged admin screens

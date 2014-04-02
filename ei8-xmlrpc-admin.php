@@ -385,7 +385,7 @@ function ei8_xmlrpc_floodgate_process_text() {
 
     foreach($fgTypes as $type=>$title) {
         $var = $fgVarPre.$type;
-        ei8_xmlrpc_update_option($var, $_POST[$var]);
+        ei8_xmlrpc_update_option($var, $_POST[$var], FALSE);
     }
 
     ei8_xmlrpc_admin_log("<p>Your Floodgate Text Settings have been updated.</p>",1);
@@ -415,6 +415,7 @@ function ei8_xmlrpc_floodgate_render_settings() {
         $title = $vals[0];
         $extra = $vals[2];
         //$val = ei8_xmlrpc_get_floodgate_option($var);
+        $val = htmlentities($val);
 
         if($name=='acct_guid' && !empty($val)) {
             //find the account name and show it
@@ -597,7 +598,7 @@ function ei8_xmlrpc_floodgate_render_text() {
 
     foreach($fgTypes as $type=>$title) {
         $var = $fgVarPre.$type;
-        $val = ei8_xmlrpc_get_option($var);
+        $val = stripslashes(ei8_xmlrpc_get_option($var));
 ?>
     <tr valign="top">
         <th scope="row"><?php echo $title ?>:</th>
@@ -1225,9 +1226,10 @@ function ei8_xmlrpc_get_option($id) {
     return $db->get_option($id);
 }
 
-function ei8_xmlrpc_update_option($id, $value) {
+function ei8_xmlrpc_update_option($id, $value, $addslashes=TRUE) {
     $db = new ei8XmlrpcFloodgateDbTableOptions();
-    $db->update_option($id,addslashes($value));
+    if($addslashes) $value = addslashes($value);
+    $db->update_option($id,$value);
 }
 
 function ei8_xmlrpc_admin_parse_recorder_vars($vars) {
