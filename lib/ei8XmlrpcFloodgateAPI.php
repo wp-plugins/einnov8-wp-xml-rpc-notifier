@@ -23,10 +23,24 @@ class ei8XmlrpcFloodgateAPI
     }
 
     public function getInfo($type,$guid='') {
+        //echo "<p>Running ei8XmlrpcFloodgateAPI::getInfo() for type: $type, guid: $guid</p>";
         if(empty($guid)) $guid = $this->guid;
-        $url = $this->baseUrl.'list/'.$type.'/'.$guid.'/';
-        //load the xml from the url
-        $xml = simplexml_load_file(rawurlencode($url));
+        $key = 'list/'.$type.'/'.$guid.'/';
+        //first check to see if this key is cached
+        $cache = new ei8XmlrpcFloodgateCache($key);
+        $data=$cache->get();
+        if($data && !empty($data)) {
+            //echo "<p>FOUND CACHED DATA</p>";
+            //data exists...load into object
+            $xml = simplexml_load_string($data);
+        } else {
+            //echo "<p>NO cache...loading from remote</p>";
+            //data doesn't exist...load from url
+            $url = $this->baseUrl.$key;
+            $xml = simplexml_load_file(rawurlencode($url));
+            //cache the data for later retrieval
+            $cache->set($xml->asXML());
+        }
         //parse the xml
         return $xml;
     }

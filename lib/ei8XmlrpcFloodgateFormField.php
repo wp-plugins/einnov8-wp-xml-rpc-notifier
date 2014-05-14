@@ -206,7 +206,7 @@ class ei8XmlrpcFloodgateFormFieldSelect extends ei8XmlrpcFloodgateFormField
 
     public function add_option($title,$value,$selected='') {
         //handle default selections
-        if($selected=='' && $this->default!='') $selected = ($title==$default);
+        if($selected=='' && $this->default!='') $selected = ($title==$this->default);
         $this->options[] = new ei8XmlrpcFloodgateFormFieldOption($title,$value,$selected);
     }
 
