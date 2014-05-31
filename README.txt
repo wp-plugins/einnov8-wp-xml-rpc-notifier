@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.9.1
-Stable tag: 3.1.6
+Stable tag: 3.1.7
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -11,12 +11,9 @@ Custom forms for submitting content to the wp xmlrpc server.
 
 == Description ==
 
-    * Set default status for new posts to draft or published
-    * Set custom email address for notifications when posts are received (optional)
-    * Manage email notification content when posts are received.
-    * Short tags for custom form inclusion within posts 
-    * Captcha authentication for form submissions
-    * Optional twitter integration for status updates
+ * A wordpress plugin to support integration with ei8t.com API for content submission
+ * Manage email notifications when posts are received.
+ * Short tags for custom form inclusion within posts
 
 
 == Supported Languages ==
