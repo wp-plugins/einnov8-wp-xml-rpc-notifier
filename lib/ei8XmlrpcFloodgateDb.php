@@ -10,6 +10,9 @@ class ei8XmlrpcFloodgateDb
 {
     public $db;
     public $db_prefix;
+    public $cache;
+
+    public $table_pre = '';
 
     public function __construct() {
         global $wpdb;

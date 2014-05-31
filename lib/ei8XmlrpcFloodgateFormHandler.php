@@ -34,7 +34,7 @@ class ei8XmlrpcFloodgateFormHandler
 
         //echo "<p>REQUEST:<pre>"; print_r($_REQUEST); echo "</pre></p>"; exit;
 
-        if($_REQUEST[$this->var_pre . 'action']!='') {
+        if(isset($_REQUEST[$this->var_pre . 'action']) && $_REQUEST[$this->var_pre . 'action']!='') {
             //echo "<p>We've got an action!</p>"; exit;
             $this->status = 'action';
             $this->action = $_REQUEST[$this->var_pre . 'action'];

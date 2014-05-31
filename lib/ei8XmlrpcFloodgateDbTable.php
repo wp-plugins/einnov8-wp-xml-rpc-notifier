@@ -71,6 +71,7 @@ class ei8XmlrpcFloodgateDbTableOptions extends ei8XmlrpcFloodgateDbTable
         $this->db->flush();
         $sql     = "SELECT option_value FROM {$this->table_name} WHERE option_name='$name' LIMIT 1";
         $results = $this->db->get_results($sql);
+        if(!$results) return '';
         $result = stripslashes($results[0]->option_value);
         return $result;
     }

@@ -1,7 +1,7 @@
 === eInnov8 FLOODtech Plugin ===
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
-Tested up to: 3.8.1
+Tested up to: 3.9.1
 Stable tag: 3.1.6
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
@@ -40,7 +40,9 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
-	3.1.6   2014/05/15  UPDATE	Created API Request Caching
+	3.1.7   2014/05/30  UPDATE	Improved system performance in db queries
+	3.1.6   2014/05/19  UPDATE	Created API Request Caching
+	                            WP3.9 compatible
 	3.1.5   2014/04/02  BUG-FIX	Removed test code
 	3.1.4   2014/04/02  BUG-FIX	Updated handling of text fields in admin screens
 	3.1.3   2014/03/27  UPDATE	Rearranged admin screens
@@ -169,8 +171,12 @@ None, yet!
 
 == Upgrade Notice ==
 
+= 3.1.7 =
+Improved system performance in db queries
+
 = 3.1.6 =
 Created API Request Caching
+WP3.9 compatible
 
 = 3.1.5 =
 Removed test code
