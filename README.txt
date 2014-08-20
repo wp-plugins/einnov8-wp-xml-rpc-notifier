@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.9.1
-Stable tag: 3.1.7
+Stable tag: 3.1.8
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com
 
 Custom integration with ei8t.com
@@ -37,6 +37,8 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	3.1.8   2014/08/20  UPDATE	Updated Floodgate remote caching to use db for caching
+	                            Plugin writes to .htaccess file to raise RLimit value
 	3.1.7   2014/05/30  UPDATE	Improved system performance in db queries
 	3.1.6   2014/05/19  UPDATE	Created API Request Caching
 	                            WP3.9 compatible
@@ -167,6 +169,10 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.1.8 =
+Updated Floodgate remote caching to use db for caching
+Plugin writes to .htaccess file to raise RLimit value
 
 = 3.1.7 =
 Improved system performance in db queries

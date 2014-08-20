@@ -3,7 +3,7 @@
 Plugin Name: eInnov8 FLOODtech Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Floodtech system at ei8t.com as well as the wp native xml-rpc functionality.
-Version: 3.1.7
+Version: 3.1.8
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2

@@ -281,6 +281,9 @@ function ei8_xmlrpc_floodgate_settings() {
         //force page reload
         $form->redirect($ei8AdminUrl,1);
 
+    } elseif (!empty($_GET['flushRemoteTargets'])) {
+        $fgT = new ei8XmlrpcFloodgateTargets();
+        $fgT->flushRemoteTargets();
     }
 
     //now render the form
@@ -396,6 +399,8 @@ function ei8_xmlrpc_floodgate_render_settings() {
     $floodgateTargetVarPre = 'ei8_xmlrpc_floodgate_target_';
 
     $fgT = new ei8XmlrpcFloodgateTargets();
+    list($currentTab,$currentTitle,$ei8AdminUrl) = ei8_xmlrpc_floodgate_get_tab();
+    $flushRemoteTargetsUrl = $ei8AdminUrl."&flushRemoteTargets=1";
     //if there are no valid targets...attempt to import and setup the acct guid
     if(count($fgT->targets)<1) {
         $fgT->importCustomFolders();
@@ -438,7 +443,12 @@ function ei8_xmlrpc_floodgate_render_settings() {
 <?php
     }
 ?>
-    <tr><td><h3>Floodgate Targets</h3></td></tr>
+    <tr>
+        <td colspan="4">
+            <h3>Floodgate Targets</h3>
+            <br>If you have recently updated folder settings on the remote server, <a href="<?php echo $flushRemoteTargetsUrl; ?>">click here to refresh the list of remote targets</a>
+        </td>
+    </tr>
     <tr valign="top">
         <th scope="col"><h4>Media Type</h4></th>
         <th scope="col"><h4>Local Title</h4></th>

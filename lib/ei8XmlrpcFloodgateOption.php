@@ -39,9 +39,11 @@ class ei8XmlrpcFloodgateOption
 
 }
 
-//this class only exists to handle the floodgate specific options that have a special prefix for the option names
-class ei8XmlrpcFloodgateOptionFG extends ei8XmlrpcFloodgateOption
+//this class only exists to handle specific options that have a special prefix for the option names
+class ei8XmlrpcFloodgateOptionPrefixed extends ei8XmlrpcFloodgateOption
 {
+    public $prefix = "ei8_fg_prefix_";
+
     public function get($name='') {
         return parent::get($this->build_name($name));
     }
@@ -54,10 +56,33 @@ class ei8XmlrpcFloodgateOptionFG extends ei8XmlrpcFloodgateOption
         parent::set($this->build_name($name),$value);
     }
 
+    public function set_prefix($prefix) {
+        $this->prefix = $prefix;
+    }
+
     public function build_name($name='') {
         if($name=='') $name = $this->name;
         if($name=='') return '';
-        $prefix = 'ei8_floodgate_';
-        return (strstr($name,$prefix)) ? $name : $prefix.$name ;
+        return (strstr($name,$this->prefix)) ? $name : $this->prefix.$name ;
+    }
+}
+
+class ei8XmlrpcFloodgateOptionFG extends ei8XmlrpcFloodgateOptionPrefixed
+{
+    public function __construct($name='',$value='') {
+        $this->set_prefix('ei8_floodgate_');
+        parent::__construct($name,$value);
+    }
+}
+
+class ei8XmlrpcFloodgateOptionCache extends ei8XmlrpcFloodgateOptionPrefixed
+{
+    public function __construct($name='',$value='') {
+        $this->set_prefix('ei8_fgcache_');
+        parent::__construct($name,$value);
+    }
+
+    public function flush() {
+        $this->table->flush_options($this->prefix);
     }
 }

@@ -36,6 +36,11 @@ class ei8XmlrpcFloodgateTargets extends ei8XmlrpcFloodgateTarget
         $this->targets = $targets;
     }
 
+    public function flushRemoteTargets() {
+        $api = new ei8XmlrpcFloodgateAPI($this->acct_guid);
+        $api->getAccountInfo($this->acct_guid,true);
+    }
+
     public function getAccountGuid() {
         $op = new ei8XmlrpcFloodgateOptionFG();
         $this->acct_guid = $acct_guid = $op->get('acct_guid');

@@ -67,6 +67,11 @@ class ei8XmlrpcFloodgateDbTableOptions extends ei8XmlrpcFloodgateDbTable
             );";
     }
 
+    public function flush_options($name) {
+        $sql     = "DELETE FROM {$this->table_name} WHERE option_name LIKE '$name%'";
+        return ei8_xmlrpc_admin_query($sql);
+    }
+
     public function get_option($name) {
         $this->db->flush();
         $sql     = "SELECT option_value FROM {$this->table_name} WHERE option_name='$name' LIMIT 1";
