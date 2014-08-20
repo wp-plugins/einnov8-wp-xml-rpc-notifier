@@ -38,7 +38,7 @@ None, yet!
 
     VERSION DATE        TYPE    CHANGES
 	3.1.8   2014/08/20  UPDATE	Updated Floodgate remote caching to use db for caching
-	                            Plugin writes to .htaccess file to raise RLimit value
+	                            Plugin writes to .htaccess file to raise RLimitMem value
 	3.1.7   2014/05/30  UPDATE	Improved system performance in db queries
 	3.1.6   2014/05/19  UPDATE	Created API Request Caching
 	                            WP3.9 compatible
@@ -172,7 +172,7 @@ None, yet!
 
 = 3.1.8 =
 Updated Floodgate remote caching to use db for caching
-Plugin writes to .htaccess file to raise RLimit value
+Plugin writes to .htaccess file to raise RLimitMem value
 
 = 3.1.7 =
 Improved system performance in db queries
