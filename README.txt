@@ -1,17 +1,17 @@
-=== eInnov8 FLOODtech Plugin ===
+=== Content XLerator Plugin ===
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 3.9.1
-Stable tag: 3.1.8
-Tags: eInnov8, xmlrpc, ei8t, ei8t.com
+Stable tag: 3.5.0
+Tags: eInnov8, xmlrpc, ei8t, ei8t.com, Content XLerator, CXL, cxl1.net
 
-Custom integration with ei8t.com
+Custom integration with cxl1.net
 Manage notification and display settings for posts received via xmlrpc.
 Custom forms for submitting content to the wp xmlrpc server.
 
 == Description ==
 
- * A wordpress plugin to support integration with ei8t.com API for content submission
+ * A wordpress plugin to support integration with cxl1.net API for content submission
  * Manage email notifications when posts are received.
  * Short tags for custom form inclusion within posts
 
@@ -37,9 +37,11 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	3.5.0   2014/08/27  UPDATE  Update to access cxl1.net instead of ei8t.com
+	                            Update shortcodes to use [cxl...], [ei8t shortcodes] still function
 	3.1.8   2014/08/20  UPDATE	Updated Floodgate remote caching to use db for caching
-	                            Plugin writes to .htaccess file to raise RLimitMem value
-	3.1.7   2014/05/30  UPDATE	Improved system performance in db queries
+                                Plugin writes to .htaccess file to raise RLimitMem value
+    3.1.7   2014/05/30  UPDATE	Improved system performance in db queries
 	3.1.6   2014/05/19  UPDATE	Created API Request Caching
 	                            WP3.9 compatible
 	3.1.5   2014/04/02  BUG-FIX	Removed test code
@@ -169,6 +171,10 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.5.0 =
+Update to access cxl1.net instead of ei8t.com
+Update shortcodes to use [cxl...], [ei8t shortcodes] still function
 
 = 3.1.8 =
 Updated Floodgate remote caching to use db for caching

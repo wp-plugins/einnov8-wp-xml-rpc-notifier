@@ -67,7 +67,7 @@ $floodgateOptionSettings= array(
     //$name         => array($title,$default_value,$extra),
     'name'          => array('Floodgate URL', 'floodgate2', 'ie: http://yoursite.com/<span style="color:red">floodgate2</span>/'),
     'pass'          => array('Floodgate Password', 'floodgate'),
-    'acct_guid'     => array('ei8t.com Account GUID', '','ie: 8hjGfHJCkKJ'),
+    'acct_guid'     => array('cxl1.net Account GUID', '','ie: 8hjGfHJCkKJ'),
     'client_name'   => array('Client\'s Name', 'Client\'s Name'),
     'reseller_name' => array('Reseller Name', 'FLOODtech'),
     'logo'          => array('Company Logo', ei8_plugins_url('/images/logo.png'), 'ie: http://yoursite.com/images/logo.png'),

@@ -456,7 +456,7 @@ EOT;
 
     <!-- Javascript -->
     <script src="{$this->pluginUrl}/lib/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="http://www.ei8t.com/js/swfobject/swfobject.js"></script>
+    <script type="text/javascript" src="http://www.cxl1.net/js/swfobject/swfobject.js"></script>
 
 </head>
 

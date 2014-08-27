@@ -350,7 +350,9 @@ class ei8XmlrpcFloodgateFormUploader extends ei8XmlrpcFloodgateFormHandler
             {
                 $("#startUpload").hide();
                 var uploadObj = $("#mediauploader").uploadFile({
-                    url:"http://www.ei8t.com/api/upload/{$this->type}/{$this->guid}/",
+                    //TODO Make sure this is connecting to the correct dev/live API
+                    url:"http://www.cxl1.net/api/upload/{$this->type}/{$this->guid}/",
+                    //url:"http://www.ei8t.com/api/upload/{$this->type}/{$this->guid}/",
                     //allowedTypes:"png,gif,jpg,jpeg",
                     autoSubmit:false,
                     fileName:"myfile",

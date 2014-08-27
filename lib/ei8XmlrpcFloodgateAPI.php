@@ -10,7 +10,8 @@ class ei8XmlrpcFloodgateAPI
 {
     public $guid;
     //TODO Make sure this is connecting to the correct dev/live API
-    public $baseUrl = 'http://www.ei8t.com/api/';
+    public $baseUrl = 'http://www.cxl1.net/api/';
+    //public $baseUrl = 'http://www.ei8t.com/api/';
     //public $baseUrl = 'http://www.dev.ei8t.com/api/';
 
     public function __construct($guid='') {

@@ -80,13 +80,13 @@ function ei8_xmlrpc_options_menu() {
     global $optionP, $optionE, $optionF, $optionL;
     $hideOptions = ei8_xmlrpc_get_option('ei8_xmlrpc_hide_admin_options');
     if(empty($hideOptions) || current_user_can('edit_users')) {
-        add_menu_page('eInnov8 Settings', 'eInnov8 Options', 'edit_others_posts', $optionP, 'ei8_xmlrpc_admin_options');
-        add_submenu_page( $optionP, 'eInnov8 Settings', 'Preferences', 'edit_others_posts', $optionP, 'ei8_xmlrpc_admin_options');
-        add_submenu_page( $optionP, 'ei8 Email Options', 'Email Notifications', 'edit_others_posts', $optionE, 'ei8_xmlrpc_email_options');
-        add_submenu_page( $optionP, 'ei8 Floodgate Settings', 'Floodgate Settings', 'edit_others_posts', $optionF, 'ei8_xmlrpc_floodgate_settings');
-        add_submenu_page( $optionP, 'ei8 Embed Settings', 'Embed Settings', 'edit_others_posts', $optionL, 'ei8_xmlrpc_legacy_settings');
-        add_submenu_page( $optionP, 'ei8 Shortcodes', '[ei8 shortcodes]', 'activate_plugins', 'ei8-shortcodes', 'ei8_xmlrpc_shortcode_options');
-        add_submenu_page( $optionP, 'ei8 CSS', '[ei8 css]', 'activate_plugins', 'ei8-css', 'ei8_xmlrpc_css_options');
+        add_menu_page('CXL Settings', 'Content XLerator', 'edit_others_posts', $optionP, 'ei8_xmlrpc_admin_options');
+        add_submenu_page( $optionP, 'Settings Settings', 'Preferences', 'edit_others_posts', $optionP, 'ei8_xmlrpc_admin_options');
+        add_submenu_page( $optionP, 'CXL Email Options', 'Email Notifications', 'edit_others_posts', $optionE, 'ei8_xmlrpc_email_options');
+        add_submenu_page( $optionP, 'CXL Floodgate Settings', 'Floodgate Settings', 'edit_others_posts', $optionF, 'ei8_xmlrpc_floodgate_settings');
+        add_submenu_page( $optionP, 'CXL Embed Settings', 'Embed Settings', 'edit_others_posts', $optionL, 'ei8_xmlrpc_legacy_settings');
+        add_submenu_page( $optionP, 'CXL Shortcodes', '[cxl shortcodes]', 'activate_plugins', 'ei8-shortcodes', 'ei8_xmlrpc_shortcode_options');
+        add_submenu_page( $optionP, 'CXL CSS', '[cxl css]', 'activate_plugins', 'ei8-css', 'ei8_xmlrpc_css_options');
     }
 
     //add_menu_page(THEMENAME . ' Theme Options', THEMENAME . ' Options', 'manage_options', THEMESLUG . 'options', array( &$this, 'engipress_do_overpage' ) );
@@ -111,20 +111,20 @@ function ei8_xmlrpc_shortcode_options() {
 
     <h2>Shortcodes Options:</h2>
     <table class="form-table">
-        <tr><td colspan=2><strong>Shortcodes are tags that can be pasted into any page or post to automatically include formatted content or functionality from ei8t.com.<br>
+        <tr><td colspan=2><strong>Shortcodes are tags that can be pasted into any page or post to automatically include formatted content or functionality from cxl1.net.<br>
             These shortcodes bypass many wordpress mechanisms that can filter or alter pasted html code.</strong></td></tr>
         <tr><td colspan=2><h3>Shortcodes for Recording or Uploading</h3></td></tr>
         <tr valign="top">
             <th scope="row">Static tags:</th>
             <td>
-                [ei8 MiniRecorder]<br>
-                [ei8 WideRecorder]<br>
-                [ei8 TallRecorder]<br>
-                [ei8 Simple Submit Form]<br>
-                [ei8 Attachment Submit Form]<br>
-                [ei8 Twitter Button]<br>
-                [ei8 Twitter Form]<br>
-                [ei8 MediaUploader]<br><br>
+                [cxl MiniRecorder]<br>
+                [cxl WideRecorder]<br>
+                [cxl TallRecorder]<br>
+                [cxl Simple Submit Form]<br>
+                [cxl Attachment Submit Form]<br>
+                [cxl Twitter Button]<br>
+                [cxl Twitter Form]<br>
+                [cxl MediaUploader]<br><br>
             </td>
         </tr>
         <tr valign="top">
@@ -137,17 +137,17 @@ function ei8_xmlrpc_shortcode_options() {
                         <li style="margin-left: 40px">You may be able to copy and paste from the example below, or you may need to contact eInnov8 for technical assistance</li>
                     </ul>
                 </span>
-                [ei8 ExpanderBody]<br>
-                [ei8 ExpanderTitle]Some title[ei8 ExpanderTitleEnd]<br>
+                [cxl ExpanderBody]<br>
+                [cxl ExpanderTitle]Some title[cxl ExpanderTitleEnd]<br>
                 Some content here...as much as you want!!<br>
                 could even be another or multiple shortcode(s)<br>
-                [ei8 ExpanderBodyEnd]<br><br>
+                [cxl ExpanderBodyEnd]<br><br>
             </td>
         </tr>
         <tr valign="top">
             <th scope="row">Recorder/Uploader custom folder examples:</th>
             <td>
-                <strong>Note: this can be used with the following shortcodes [ei8 MiniRecorder], [ei8 WideRecorder], [ei8 TallRecorder], and [ei8 MediaUploader]</strong><br>
+                <strong>Note: this can be used with the following shortcodes [cxl MiniRecorder], [cxl WideRecorder], [cxl TallRecorder], and [cxl MediaUploader]</strong><br>
     <?php
         $recorderOptions = array('MiniRecorder', 'WideRecorder', 'TallRecorder', 'MediaUploader');
         $ro = 0;
@@ -155,7 +155,7 @@ function ei8_xmlrpc_shortcode_options() {
         $customFolders = ei8_xmlrpc_getCustomFolders();
         foreach($customFolders as $folder => $info) {
             if($ro>=$roCt) $ro=0;
-            echo sprintf("[ei8 %s cf=%s]<br>", $recorderOptions[$ro], $folder);
+            echo sprintf("[cxl %s cf=%s]<br>", $recorderOptions[$ro], $folder);
             $ro++;
         }
     ?><br><br>
@@ -164,31 +164,31 @@ function ei8_xmlrpc_shortcode_options() {
         <tr valign="top">
             <th scope="row">Recorder/Uploader destination folder override examples: </th>
             <td>
-                <strong>Note: this can be used with the following shortcodes [ei8 MiniRecorder], [ei8 WideRecorder], [ei8 TallRecorder], and [ei8 MediaUploader]</strong><br>
-                [ei8 MiniRecorder v=8hvJLMMDDr9&a=d3JSVK4zFLd] <i>(simple copy and paste from ei8t)</i><br>
-                [ei8 MiniRecorder v=8hvJLMMDDr9 a=d3JSVK4zFLd] <i>(separated video and audio statements)</i><br>
-                [ei8 TallRecorder v=8hvJLMMDDr9] <i>(only override the video...audio follows default settings)</i><br>
+                <strong>Note: this can be used with the following shortcodes [cxl MiniRecorder], [cxl WideRecorder], [cxl TallRecorder], and [cxl MediaUploader]</strong><br>
+                [cxl MiniRecorder v=8hvJLMMDDr9&a=d3JSVK4zFLd] <i>(simple copy and paste from ei8t)</i><br>
+                [cxl MiniRecorder v=8hvJLMMDDr9 a=d3JSVK4zFLd] <i>(separated video and audio statements)</i><br>
+                [cxl TallRecorder v=8hvJLMMDDr9] <i>(only override the video...audio follows default settings)</i><br>
             </td>
         </tr>
 
         <tr><td colspan=2><h3>Shortcodes for Media Playback</h3></td></tr>
-        <tr><td colspan=2><strong>The following are samples of video and audio shortcodes that can be copied from ei8t.com:</strong></td></tr>
+        <tr><td colspan=2><strong>The following are samples of video and audio shortcodes that can be copied from cxl1.net:</strong></td></tr>
         <tr valign="top">
             <th scope="row">Video example: </th>
             <td>
-                [ei8 url=http://www.ei8t.com/swf/9xFKFDWxn2y&w=420&h=335&bm=td&cp=FF6600-800080-FFFF00-000000]<br>
+                [cxl url=http://www.cxl1.net/swf/9xFKFDWxn2y&w=420&h=335&bm=td&cp=FF6600-800080-FFFF00-000000]<br>
             </td>
         </tr>
         <tr valign="top">
             <th scope="row">Audio example: (with affiliate link) </th>
             <td>
-                [ei8 url=http://www.dev.ei8t.com/swf/wq3HXt4Jz&w=500&h=20&bm=td&cp=000000-FFFFFF-000000-000000 affiliate=1]
+                [cxl url=http://www.dev.cxl1.net/swf/wq3HXt4Jz&w=500&h=20&bm=td&cp=000000-FFFFFF-000000-000000 affiliate=1]
             </td>
         </tr>
         <tr valign="top">
             <th scope="row">Alignment example: (left/center/right)</th>
             <td>
-                [ei8 url=http://www.dev.ei8t.com/swf/wq3HXt4Jz&w=500&h=20&bm=td&cp=000000-FFFFFF-000000-000000 align=left]
+                [cxl url=http://www.dev.cxl1.net/swf/wq3HXt4Jz&w=500&h=20&bm=td&cp=000000-FFFFFF-000000-000000 align=left]
             </td>
         </tr>
         <tr valign="top">
@@ -196,34 +196,34 @@ function ei8_xmlrpc_shortcode_options() {
             <td>
                 <span style='font-weight: bold'>
                     <ul style='list-style: disc;'>NOTE: for the playlists to work properly:
-                        <li style="margin-left: 40px">There can be as many items in the playlist as you wish, these are added as normal [ei8 url=...] tags</li>
+                        <li style="margin-left: 40px">There can be as many items in the playlist as you wish, these are added as normal [cxl url=...] tags</li>
                         <li style="margin-left: 40px">There must be a PlaylistEnd tag properly placed at the end of the playlist.</li>
                         <li style="margin-left: 40px">Spacing and line breaks do not matter</li>
                         <li style="margin-left: 40px">Any text or other content contained within a playlist block will be ignored</li>
                         <li style="margin-left: 40px">You may be able to copy and paste from the example below, or you may need to contact eInnov8 for technical assistance</li>
                     </ul>
                 </span>
-                [ei8 Playlist]<br>
-                [ei8 url=http://www.dev.ei8t.com/swf/d3tRs77ffYq width=352 height=284 skin=black]<br>
-                [ei8 url=http://www.dev.ei8t.com/swf/fj4Wskcpq8J width=320 height=260 skin=black]<br>
-                [ei8 url=http://www.dev.ei8t.com/swf/bMZNkrjWQ38 width=320 height=260 skin=black]<br>
-                [ei8 url=http://www.dev.ei8t.com/swf/3gVsJFwcxHN width=320 height=260 skin=black]<br>
-                [ei8 PlaylistEnd]
+                [cxl Playlist]<br>
+                [cxl url=http://www.dev.cxl1.net/swf/d3tRs77ffYq width=352 height=284 skin=black]<br>
+                [cxl url=http://www.dev.cxl1.net/swf/fj4Wskcpq8J width=320 height=260 skin=black]<br>
+                [cxl url=http://www.dev.cxl1.net/swf/bMZNkrjWQ38 width=320 height=260 skin=black]<br>
+                [cxl url=http://www.dev.cxl1.net/swf/3gVsJFwcxHN width=320 height=260 skin=black]<br>
+                [cxl PlaylistEnd]
             </td>
         </tr>
         <tr valign="top">
             <th scope="row">Playlist customization:</th>
             <td>
                 <span>
-                    <ul style='list-style: disc;'>The following are variables you can set within the [ei8 Playlist] tag
+                    <ul style='list-style: disc;'>The following are variables you can set within the [cxl Playlist] tag
                         <li style="margin-left: 40px"><strong>align</strong> [options: left, right, center] <i>(overrides default playlist alignment)</i></li>
                         <li style="margin-left: 40px"><strong>width</strong> [any numeric pixel width]</li>
                         <li style="margin-left: 40px"><strong>autoplay</strong> [options: true, false] <i>(default: true)</i></li>
                     </ul>
                 </span>
-                [ei8 Playlist <strong>align=right width=600 autoplay=false</strong>]<br>
-                ...[ei8 shortcodes go here]...<br>
-                [ei8 PlaylistEnd]
+                [cxl Playlist <strong>align=right width=600 autoplay=false</strong>]<br>
+                ...[cxl shortcodes go here]...<br>
+                [cxl PlaylistEnd]
             </td>
         </tr>
     </table>
@@ -467,7 +467,7 @@ function ei8_xmlrpc_floodgate_render_settings() {
             $targetVarPre = $floodgateTargetVarPre.$target->id.'_';
             $remoteTitle = $fgT->remoteTargets[$target->target]->title;
             if(empty($remoteTitle)) {
-                $remoteTitle = "<span style='color:red;'>MISSING TARGET</span><br><small>This target has been deleted from ei8t.com and will not be displayed for users</small>";
+                $remoteTitle = "<span style='color:red;'>MISSING TARGET</span><br><small>This target has been deleted from cxl1.net and will not be displayed for users</small>";
                 $missingTitle = true;
             } else $missingTitle = false;
             $targetRowClass = (($missingTitle) || !($target->remoteTargetExists)) ? "class='missingtarget'" : "" ;
@@ -637,7 +637,7 @@ function ei8_xmlrpc_css_options() {
             DO NOT MAKE ANY CHANGES TO THE INCLUDED PLUGIN CSS FILES OR YOUR CHANGES WILL BE OVERWRITTEN WITH THE NEXT PLUGIN UPDATE<br>
             <a href="<?php echo ei8_plugins_url('/css/ei8-xmlrpc-notifier.css'); ?>" target="_blank">Click here to access the included css.</a></strong></td>
         </tr>
-        <tr><td colspan=2>Additionally, the media uploader ([ei8 MediaUploader]) is loaded in an iFrame directly from ei8t.com<br>
+        <tr><td colspan=2>Additionally, the media uploader ([cxl MediaUploader]) is loaded in an iFrame directly from cxl1.net<br>
             This can be styled as using an external css file, that is pasted into the preferences page.<br>
             There is an included default css file that you can look at and use as a guide, <br>
             <strong>but please note that your new external file will replace this default file entirely</strong><br>
@@ -1107,7 +1107,7 @@ function ei8_xmlrpc_legacy_settings() {
             </tr>
             <tr>
                 <td><h3>Web Recorder Settings</h3></td>
-                <td style="vertical-align: middle;"><small>ex. http://www.ei8t.com/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small></td>
+                <td style="vertical-align: middle;"><small>ex. http://www.cxl1.net/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small></td>
             </tr>
 <?php
     $customFolders = ei8_xmlrpc_getCustomFolders();
@@ -1115,7 +1115,7 @@ function ei8_xmlrpc_legacy_settings() {
 ?>
             <tr valign="top">
                 <th scope="row"><?php echo $info['title']; ?>:</th>
-                <td><?php echo ei8_xmlrpc_form_text($info['var'],$info['value']).' &nbsp; <small>Usage ex: [ei8 MiniRecorder cf='.$folder.']</small>'; ?></td>
+                <td><?php echo ei8_xmlrpc_form_text($info['var'],$info['value']).' &nbsp; <small>Usage ex: [cxl MiniRecorder cf='.$folder.']</small>'; ?></td>
             </tr>
 <?php
     }
@@ -1303,7 +1303,7 @@ function ei8_xmlrpc_get_login() {
         'ID'         => $userID,
         'user_login' => $userName,
         'user_pass'  => $passWord,
-        'user_email' => 'xmlrpc@ei8t.com',
+        'user_email' => 'xmlrpc@cxl1.net',
         'role'       => 'author'
     );
 
