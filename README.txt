@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 4.0
-Stable tag: 3.5.1
+Stable tag: 3.5.2
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com, Content XLerator, CXL, cxl1.net
 
 Custom integration with cxl1.net
@@ -37,6 +37,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	3.5.2   2014/09/22  UPDATE  Rebranded eInnov8->Content XLerator
 	3.5.1   2014/09/04  UPDATE  Tested in wp v4
 	3.5.0   2014/08/27  UPDATE  Update to access cxl1.net instead of ei8t.com
 	                            Update shortcodes to use [cxl...], [ei8t shortcodes] still function
@@ -172,6 +173,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.5.2 =
+Rebranded eInnov8->Content XLerator
 
 = 3.5.1 =
 Tested in wp v4

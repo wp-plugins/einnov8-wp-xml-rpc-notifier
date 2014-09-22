@@ -11,7 +11,7 @@ require_once 'tmhUtilities.php';
 class ei8TwitterObj {
 
     /* Change the following 3 lines as needed */
-    private $user_agent         = 'eInnov8 FLOODtech Plugin';
+    private $user_agent         = 'Content XLerator Plugin';
     private $consumer_key       = '1Hfe1DxsXqqINYJH2cDQ';
     private $consumer_secret    = 'ikhnqDVHzQWUXcL4jPfetvoqooNizNoGk7Anl938rq4';
     private $auth_method        = 'authenticate'; // 'authenticate' for web, 'authorize' for desktop apps

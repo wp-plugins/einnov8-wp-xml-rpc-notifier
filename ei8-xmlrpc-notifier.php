@@ -3,12 +3,12 @@
 Plugin Name: Content XLerator Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Content XLerator system at cxl1.net as well as the wp native xml-rpc functionality.
-Version: 3.5.1
+Version: 3.5.2
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
 
-Copyright 2010 eInnov8 Marketing  (email : timg@einnov8.com)
+Copyright 2010 Content XLerator  (email : timg@einnov8.com)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License, version 2, as
@@ -413,7 +413,7 @@ function ei8_xmlrpc_recorder_wrap($type, $vars='') {
     }
     if($doError){
         $showType = ucwords($type);
-        $html = "<p style='color: #ff0000; size: 13px; font-weight: bold;'>ERROR LOADING eInnov8 Tech $showType Recorder - please notify website administrator support@einnov8.com</p>";
+        $html = "<p style='color: #ff0000; size: 13px; font-weight: bold;'>ERROR LOADING Content XLerator $showType Recorder - please notify website administrator support@einnov8.com</p>";
     } elseif($type=="media") {
         parse_str($vars);
         $css = urlencode(ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_file_uploader_css'), ei8_plugins_url('/css/ei8-file-uploader.css')));
@@ -1187,7 +1187,7 @@ EOT;
 
         $showAffiliate =<<<EOT
     <div class='ei8-affiliate'>
-        <a href="http://einnov8.com">Powered by eInnov8 Marketing</a>
+        <a href="http://contentxlerator.com">Powered by Content XLerator</a>
     </div>
 EOT;
 

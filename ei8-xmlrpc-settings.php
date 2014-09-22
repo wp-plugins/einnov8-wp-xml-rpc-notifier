@@ -12,7 +12,7 @@ $customFolderSettings = array(
     'twitter'       => 'Twitter',
     'video'         => 'Video Repositories (YouTube, Dailymotion)',
     'webtv'         => 'WebTV',
-    'review'        => 'eInnov8 Review',
+    'review'        => 'CXL Review',
     'custom'        => 'Custom',
 );
 $customFolderDefault = 'floodgate';

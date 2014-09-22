@@ -801,7 +801,7 @@ function ei8_xmlrpc_admin_options() {
 ?>
             <!-- <tr><td><h3>Admin Specific Settings</h3></td></tr>-->
             <tr valign="top">
-                <th scope="row">Show eInnov8 Options:</th>
+                <th scope="row">Show Content XLerator Options:</th>
                 <td><select name='ei8_xmlrpc_hide_admin_options'>
                     <option value="" <?php if(empty($hideAdmin)) echo "SELECTED"; ?>>visible to ALL(Authors, Editors, & Administrators)</option>
                     <option value="admin" <?php if(!empty($hideAdmin)) echo "SELECTED"; ?>>visible only to Administrators</option>
@@ -1082,7 +1082,7 @@ function ei8_xmlrpc_legacy_settings() {
             <tr valign="top">
                 <th scope="row">Media uploader custom css:</th>
                 <td><?php echo ei8_xmlrpc_form_text($f_uploaderCSS,$v_uploaderCSS); ?><br>
-                    <small>ex. http://www.einnov8.com/css/media_uploader.css</small>
+                    <small>ex. http://www.contentxlerator.com/css/media_uploader.css</small>
                 </td>
             </tr>
 <!--            <tr valign="top">
@@ -1339,11 +1339,11 @@ function ei8_xmlrpc_get_message_defaults() {
         'message_post_status_publish'   => " has been published as a post on your website.",
         'message_post_status_unknown'   => " is available for review within your website administration area.",
 
-        'message_thank_you'           => "Thank you for being a customer of eInnov8 Marketing.",
+        'message_thank_you'           => "Thank you for being a customer of Content XLerator.",
         'message_quick_links_show'    => 1,
         'message_quick_links_intro'   => "Click on this link (and log in, if necessary) to review, edit and publish this submission:",
         'message_referral_show'       => 1,
-        'message_referral_text'       => "Learn more about us at http://einnov8.com."
+        'message_referral_text'       => "Learn more about us at http://contentxlerator.com."
     );
 
     return $defaults;
