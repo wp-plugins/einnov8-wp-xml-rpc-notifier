@@ -3,7 +3,7 @@
 Plugin Name: Content XLerator Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Content XLerator system at cxl1.net as well as the wp native xml-rpc functionality.
-Version: 3.5.2
+Version: 3.5.3
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -948,10 +948,12 @@ function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
 
         //get the jwplayer embed code
         //$jwplayer = file_get_contents($url_player);
-        $jwplayer = file_get_contents($url_playlist);
+        //$jwplayer = file_get_contents($url_playlist);
+        $jwplayer = ei8XmlrpcFloodgateAPI::load_remote($url_playlist);
 
         //get the jwplaylist xml code
-        $playlist_xml  = simplexml_load_file($url_playlistinfo);
+        //$playlist_xml  = simplexml_load_file($url_playlistinfo);
+        $playlist_xml = ei8XmlrpcFloodgateAPI::load_remote_xml($url_playlistinfo);
 
         //now start building the actual display and js
         $jwplaylist = $jwplaylist2 = $jwplaylist3 = "";
@@ -1225,7 +1227,8 @@ EOT;
 
         //distill what we actually need now...
         $myFinalValues = array(
-            'jwplayer'  => file_get_contents($url),
+            //'jwplayer'  => file_get_contents($url),
+            'jwplayer'  => ei8XmlrpcFloodgateAPI::load_remote($url),
             'class'     => $myValues['class'],
             'width'     => $myValues['width'],
         );
@@ -1317,7 +1320,8 @@ function ei8_xmlrpc_parse_embed_shortcode($content,$type='') {
 
         $final = sprintf("<div class='%s'>%s</div>",
                 $myValues['class'],
-                file_get_contents($myValues['embed'])
+                //file_get_contents($myValues['embed'])
+                ei8XmlrpcFloodgateAPI::load_remote($myValues['embed'])
         );
 
         $content .= $shortcode.$final.$other;
