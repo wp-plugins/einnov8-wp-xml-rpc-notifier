@@ -177,7 +177,7 @@ EOT;
         $form->src = $this->pluginUrl;
         if($form->status=='success') $this->redirect($this->floodgateUrl);
         //$form->body = $form->build_table($form_fields);
-        //$title  = "Please login";
+        $title  = ""; //"Please login";
         return array($title, $form->render());
     }
 
@@ -594,6 +594,7 @@ EOT;
 
     public function purge_wp_scripts() {
         global $wp_scripts;
+        if(!isset($wp_scripts) || !is_object($wp_scripts)) $wp_scripts = new WP_Scripts();
         $wp_scripts->registered = array();
         $wp_scripts->queue = array();
     }
