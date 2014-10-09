@@ -3,7 +3,7 @@
 Plugin Name: Content XLerator Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Content XLerator system at cxl1.net as well as the wp native xml-rpc functionality.
-Version: 3.5.7
+Version: 3.5.8
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -229,7 +229,7 @@ function ei8_autolink_safe($content) {
 }
 
 function ei8_autolink_no_shortcodes($content) {
-    $parts = explode('[cxl', $content);
+    $parts = ei8_xmlrpc_explode_string($content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     foreach($parts as $part) {
@@ -614,7 +614,7 @@ EOT;
 
     //do some prelimiunary string sanitizing
     $content = str_replace('[ei8', '[cxl', $content);
-    $content = str_replace('&nbsp;[cxl', ' [cxl', $content);
+    //$content = str_replace('&nbsp;[cxl', ' [cxl', $content);
 
     //actually do the parsing
     $content = str_replace('[cxl MiniRecorder]', $ei8tMiniRecorder, $content);
@@ -758,7 +758,7 @@ function ei8_xmlrpc_parse_expander_shortcode($content) {
 }
 
 function ei8_xmlrpc_parse_uploader_shortcode($content) {
-    $parts = explode('[cxl', $content);
+    $parts = ei8_xmlrpc_explode_string($content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     foreach($parts as $part) {
@@ -855,7 +855,7 @@ function ei8_xmlrpc_get_first_valid_element_from_array($array, $key) {
 
 
 function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
-    $parts = explode('[cxl Playlist', $content);
+    $parts = ei8_xmlrpc_explode_string($content, '[cxl Playlist');
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     $playList = array();
@@ -1144,7 +1144,7 @@ EOT;
 
 
 function ei8_xmlrpc_parse_shortcode($content,$type='') {
-    $parts = explode('[cxl', $content);
+    $parts = ei8_xmlrpc_explode_string($content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     $playlistBlockSkip = false;
@@ -1317,7 +1317,7 @@ EOT;
 }
 
 function ei8_xmlrpc_parse_embed_shortcode($content,$type='') {
-    $parts = explode('[cxl', $content);
+    $parts = ei8_xmlrpc_explode_string($content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     $skipFirst = false;
@@ -1390,17 +1390,23 @@ function ei8_xmlrpc_parse_embed_shortcode($content,$type='') {
     return $content;
 }
 
+function ei8_xmlrpc_explode_string($content,$needle='[cxl') {
+    if(strpos($content, $needle)===0) $content = "&nbsp;".$content;
+    $parts = explode($needle, $content);
+    return $parts;
+}
+
 
 function ei8_xmlrpc_parse_shortcodes($content) {
     $shortcodes = array();
-    $parts = explode('[cxl', $content);
+    $parts = ei8_xmlrpc_explode_string($content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     foreach($parts as $part) {
         $part = trim($part);
         //handle the first part that precedes the shortcode
         if(empty($shortcodes) && $part!='') {
-            $shortcodes[]['pre'] = $part;
+            $shortcodes[] = array('pre' => $part);
             //$content = $part;
             continue;
         }
