@@ -229,7 +229,7 @@ EOT;
 
     private function build_content_tweet() {
         $title  = "Submit a tweet";
-        $html   = ei8_xmlrpc_filter_tags("[ei8 Twitter Form]");
+        $html   = ei8_xmlrpc_filter_tags("[cxl Twitter Form]");
         return array($title, $html);
     }
 
@@ -303,7 +303,7 @@ EOT;
             </ol>
         </div>
         <div id='help_webrec_video' class='helpcontent'>
-            <h3>How To: Submit Audio</h3>
+            <h3>How To: Submit Video</h3>
             <ol>
                 <li>Click allow to enable the online recorder to access your microphone and webcam</li>
                 <li>Select <strong>Begin Recording</strong> to access the submission interface and record your video</li>

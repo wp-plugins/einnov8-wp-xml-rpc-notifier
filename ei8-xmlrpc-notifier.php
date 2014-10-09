@@ -3,7 +3,7 @@
 Plugin Name: Content XLerator Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Content XLerator system at cxl1.net as well as the wp native xml-rpc functionality.
-Version: 3.5.4
+Version: 3.5.5
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -229,7 +229,7 @@ function ei8_autolink_safe($content) {
 }
 
 function ei8_autolink_no_shortcodes($content) {
-    $parts = explode('[ei8', $content);
+    $parts = explode('[cxl', $content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     foreach($parts as $part) {
@@ -240,7 +240,7 @@ function ei8_autolink_no_shortcodes($content) {
         } else {
             //pull out the shortcode from the 'other' part of the content
             list($shortcode, $working) = explode("]", $part, 2);
-            $content .= '[ei8'.$shortcode.']'.ei8_autolink($working);
+            $content .= '[cxl'.$shortcode.']'.ei8_autolink($working);
         }
     }
     return $content;
@@ -612,15 +612,19 @@ EOT;
 EOT;
 
 
+    //do some prelimiunary string sanitizing
+    $content = str_replace('[ei8', '[cxl', $content);
+    $content = str_replace('&nbsp;[cxl', ' [cxl', $content);
+
     //actually do the parsing
-    $content = str_replace('[ei8 MiniRecorder]', $ei8tMiniRecorder, $content);
-    $content = str_replace('[ei8 WideRecorder]', $ei8tWideRecorder, $content);
-    $content = str_replace('[ei8 TallRecorder]', $ei8tTallRecorder, $content);
-    $content = str_replace('[ei8 Simple Submit Form]', $simpleSubmitForm, $content);
-    $content = str_replace('[ei8 Attachment Submit Form]', $attachmentSubmitForm, $content);
-    $content = str_replace('[ei8 Twitter Button]', $twitterButton, $content);
-    $content = str_replace('[ei8 Twitter Form]', $twitterForm, $content);
-    $content = str_replace('[ei8 MediaUploader]', $ei8tMediaUploader, $content);
+    $content = str_replace('[cxl MiniRecorder]', $ei8tMiniRecorder, $content);
+    $content = str_replace('[cxl WideRecorder]', $ei8tWideRecorder, $content);
+    $content = str_replace('[cxl TallRecorder]', $ei8tTallRecorder, $content);
+    $content = str_replace('[cxl Simple Submit Form]', $simpleSubmitForm, $content);
+    $content = str_replace('[cxl Attachment Submit Form]', $attachmentSubmitForm, $content);
+    $content = str_replace('[cxl Twitter Button]', $twitterButton, $content);
+    $content = str_replace('[cxl Twitter Form]', $twitterForm, $content);
+    $content = str_replace('[cxl MediaUploader]', $ei8tMediaUploader, $content);
 
     //handle any video shortcodes
     $content = ei8_xmlrpc_filter_shortcode($content);
@@ -706,6 +710,8 @@ function ei8_coalesce() {
 }
 
 function ei8_xmlrpc_filter_shortcode($content,$type='') {
+    //filter any deprecated shortcode references
+    $content = str_replace('[ei8', '[cxl', $content);
 
     //filter for upload folder overrides
     $content = ei8_xmlrpc_parse_uploader_shortcode($content);
@@ -732,27 +738,27 @@ function ei8_xmlrpc_parse_expander_shortcode($content) {
     $expanderBody      = '';
     $expanderBodyEnd   = '</div>';
 
-    //$content = str_replace('[ei8 Expander]', $expanderOpen, $content);
-    //$content = str_replace('[ei8 ExpanderEnd]', $expanderEnd, $content);
-    $content = str_replace('[ei8 ExpanderTitle]', $expanderTitle, $content);
-    $content = str_replace('[ei8 ExpanderTitleEnd]', $expanderTitleEnd, $content);
-    $content = str_replace('[ei8 ExpanderBody]', $expanderBody, $content);
-    $content = str_replace('[ei8 ExpanderBodyEnd]', $expanderBodyEnd, $content);
+    //$content = str_replace('[cxl Expander]', $expanderOpen, $content);
+    //$content = str_replace('[cxl ExpanderEnd]', $expanderEnd, $content);
+    $content = str_replace('[cxl ExpanderTitle]', $expanderTitle, $content);
+    $content = str_replace('[cxl ExpanderTitleEnd]', $expanderTitleEnd, $content);
+    $content = str_replace('[cxl ExpanderBody]', $expanderBody, $content);
+    $content = str_replace('[cxl ExpanderBodyEnd]', $expanderBodyEnd, $content);
 
     //filter deprecated tags
-    //$content = str_replace('[ei8 accordion]', $expanderOpen, $content);
-    //$content = str_replace('[ei8 accordionEnd]', $expanderEnd, $content);
-    $content = str_replace('[ei8 accordionTitle]', $expanderTitle, $content);
-    $content = str_replace('[ei8 accordionTitleEnd]', $expanderTitleEnd, $content);
-    $content = str_replace('[ei8 accordionBody]', $expanderBody, $content);
-    $content = str_replace('[ei8 accordionBodyEnd]', $expanderBodyEnd, $content);
+    //$content = str_replace('[cxl accordion]', $expanderOpen, $content);
+    //$content = str_replace('[cxl accordionEnd]', $expanderEnd, $content);
+    $content = str_replace('[cxl accordionTitle]', $expanderTitle, $content);
+    $content = str_replace('[cxl accordionTitleEnd]', $expanderTitleEnd, $content);
+    $content = str_replace('[cxl accordionBody]', $expanderBody, $content);
+    $content = str_replace('[cxl accordionBodyEnd]', $expanderBodyEnd, $content);
 
 
     return $content;
 }
 
 function ei8_xmlrpc_parse_uploader_shortcode($content) {
-    $parts = explode('[ei8', $content);
+    $parts = explode('[cxl', $content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     foreach($parts as $part) {
@@ -777,7 +783,7 @@ function ei8_xmlrpc_parse_uploader_shortcode($content) {
         //determine if this is a shortcode we are trying to parse...if not, skip it
         if (!preg_match('/(MiniRecorder|TallRecorder|WideRecorder|MediaUploader)/',$working)) {
             //echo "<p>Skipping this part</p>";
-            $content .= '[ei8'.$part;
+            $content .= '[cxl'.$part;
             continue;
         }
 
@@ -815,7 +821,7 @@ function ei8_xmlrpc_parse_uploader_shortcode($content) {
 }
 
 function ei8_xmlrpc_parse_commented_shortcode($content) {
-    $parts = explode('<!--[ei8', $content);
+    $parts = explode('<!--[cxl', $content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     foreach($parts as $part) {
@@ -828,7 +834,7 @@ function ei8_xmlrpc_parse_commented_shortcode($content) {
         //now pull out the shortcode from the 'other' part of the content
         list($working, $other) = explode("]-->", $part, 2);
 
-        $content .= "[ei8".$working."]".$other;
+        $content .= "[cxl".$working."]".$other;
     }
     return $content;
 }
@@ -849,7 +855,7 @@ function ei8_xmlrpc_get_first_valid_element_from_array($array, $key) {
 
 
 function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
-    $parts = explode('[ei8 Playlist', $content);
+    $parts = explode('[cxl Playlist', $content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     $playList = array();
@@ -898,9 +904,9 @@ function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
         if($playlistAlign!='') $playlistClass .= '-'.$playlistAlign;
 
         //now pull out the other shortcodes from 'the rest' of the content
-        //list($working, $other) = explode("[ei8 PlaylistEnd]", $theRest, 2);
+        //list($working, $other) = explode("[cxl PlaylistEnd]", $theRest, 2);
 
-        $shortcode_bak = "<!--[ei8 Playlist ".$pWorking."]".$working."[ei8 PlaylistEnd]-->";
+        $shortcode_bak = "<!--[cxl Playlist ".$pWorking."]".$working."[cxl PlaylistEnd]-->";
 
         $working_bak = $working;
 
@@ -1083,7 +1089,7 @@ EOT;
 
 
 function ei8_xmlrpc_parse_shortcode($content,$type='') {
-    $parts = explode('[ei8', $content);
+    $parts = explode('[cxl', $content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     $playlistBlockSkip = false;
@@ -1097,7 +1103,7 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
         //now pull out the shortcode from the 'other' part of the content
         list($working, $other) = explode("]", $part, 2);
 
-        $shortcode = "<!--[ei8".$working."]-->";
+        $shortcode = "<!--[cxl".$working."]-->";
 
         $working_bak = $working;
 
@@ -1113,26 +1119,26 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
 
         //skip expander stuff
         if(preg_match('/(Expander)/',$working)) {
-            $content .= '[ei8'.$part;
+            $content .= '[cxl'.$part;
             continue;
         }
 
         //skip embed stuff
         if(preg_match('/(embed)/',$working)) {
-            $content .= '[ei8'.$part;
-            //echo "<p>FOUND AN [ei8 embed] shortcode!!</p>";
+            $content .= '[cxl'.$part;
+            //echo "<p>FOUND AN [cxl embed] shortcode!!</p>";
             continue;
         }
 
         //skip playlist blocks and everything in them (because they have already been parsed)
         if(preg_match('/(PlaylistEnd)/',$working)) {
             $playlistBlockSkip = false;
-            $content .= '[ei8'.$part;
+            $content .= '[cxl'.$part;
             continue;
         }
         if($playlistBlockSkip==true || preg_match('/(Playlist)/',$working)) {
             $playlistBlockSkip = true;
-            $content .= '[ei8'.$part;
+            $content .= '[cxl'.$part;
             continue;
         }
 
@@ -1246,8 +1252,8 @@ EOT;
         $content .= $shortcode.$final.$other;
         /*
         $content .= "<small>";
-        $content .= "<br>orig:[ei8 $working_bak]";
-        $content .= "<br>final:[ei8 $working]";
+        $content .= "<br>orig:[cxl $working_bak]";
+        $content .= "<br>final:[cxl $working]";
         $content .= "<br>url: ".$myValues['url'];
         $content .= "</small>";
         */
@@ -1256,7 +1262,7 @@ EOT;
 }
 
 function ei8_xmlrpc_parse_embed_shortcode($content,$type='') {
-    $parts = explode('[ei8', $content);
+    $parts = explode('[cxl', $content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     $skipFirst = false;
@@ -1277,7 +1283,7 @@ function ei8_xmlrpc_parse_embed_shortcode($content,$type='') {
         //now pull out the shortcode from the 'other' part of the content
         list($working, $other) = explode("]", $part, 2);
 
-        $shortcode = "<!--[ei8".$working."]-->";
+        $shortcode = "<!--[cxl".$working."]-->";
 
         $working_bak = $working;
 
@@ -1289,8 +1295,8 @@ function ei8_xmlrpc_parse_embed_shortcode($content,$type='') {
 
         //skip anything other than embed stuff
         if(!preg_match('/(embed)/',$working)) {
-            $content .= '[ei8'.$part;
-            //echo "<p>FOUND AN [ei8 embed] shortcode!!</p>";
+            $content .= '[cxl'.$part;
+            //echo "<p>FOUND AN [cxl embed] shortcode!!</p>";
             continue;
         }
 
@@ -1332,7 +1338,7 @@ function ei8_xmlrpc_parse_embed_shortcode($content,$type='') {
 
 function ei8_xmlrpc_parse_shortcodes($content) {
     $shortcodes = array();
-    $parts = explode('[ei8', $content);
+    $parts = explode('[cxl', $content);
     $content_bak = $content; //make a copy before we start just in case we need to roll back
     $content = "";
     foreach($parts as $part) {
@@ -1347,7 +1353,7 @@ function ei8_xmlrpc_parse_shortcodes($content) {
         //now pull out the shortcode from the 'other' part of the content
         list($working, $other) = explode("]", $part, 2);
 
-        $shortcode = "<!--[ei8".$working."]-->";
+        $shortcode = "<!--[cxl".$working."]-->";
 
         $working_bak = $working;
 
@@ -1363,8 +1369,8 @@ function ei8_xmlrpc_parse_shortcodes($content) {
 
         //skip expander stuff
         if(preg_match('/(Expander)/',$working)) {
-            $shortcodes[]['pre'] = '[ei8'.$part;
-            //$content .= '[ei8'.$part;
+            $shortcodes[]['pre'] = '[cxl'.$part;
+            //$content .= '[cxl'.$part;
             continue;
         }
 
