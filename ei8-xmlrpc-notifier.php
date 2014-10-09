@@ -3,7 +3,7 @@
 Plugin Name: Content XLerator Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Content XLerator system at cxl1.net as well as the wp native xml-rpc functionality.
-Version: 3.5.5
+Version: 3.5.6
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -943,6 +943,10 @@ function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
             if($query_str!='') $query_str .= "&";
             $query_str .= "$key=$val";
         }
+        //$jwplayerEl = "Player".$myDefaults['guid'];
+        $jwplayerEl = "Player".uniqid();
+        $query_str .= "&playerid=".$jwplayerEl;
+
         $QS = $query_str;
         foreach($myShortcodes as $myValues) $QS .= "&guid[]=".$myValues['guid'];
         //add back in the other defaults so that they are recognized as the defaults
@@ -951,6 +955,7 @@ function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
         $url_playlistinfo .= urlencode($QS);
         //echo "<p>url_player:$url_player</p>";
         //echo "<p>url_playlist:$url_playlist</p>";
+        //echo "<p>url_playlistinfo:$url_playlistinfo</p>";
 
         //get the jwplayer embed code
         //$jwplayer = file_get_contents($url_player);
@@ -963,7 +968,7 @@ function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
 
         //now start building the actual display and js
         $jwplaylist = $jwplaylist2 = $jwplaylist3 = "";
-        $jwplayerEl = "Player".$myDefaults['guid'];
+        //$jwplayerEl = "Player".$myDefaults['guid']; //this was set earlier to allow for multiple players with playlists
         $jwplayerPlaylistEl = $jwplayerEl."Playlist";
         $jwplayerPlaylistIndex = 0;
         foreach($playlist_xml->media as $media) {
@@ -1000,6 +1005,28 @@ EOT;
             $jwplayerPlaylistIndex++;
         }
 
+        //build the final rendering components
+        $thePlayer =<<<EOT
+    <div class='ei8-playlist-player %playerClass%' style='%playerStyle%'>
+        <div class='%class%' style="%playerHeightWidth%">
+            %jwplayer%
+        </div>
+    </div>
+EOT;
+
+        $thePreview =<<<EOT
+    <div id="%jwplaylistID%" class="jThumbnailScroller %scrollerClass% %class%" style="%scrollerHeightWidth% %previewStyle%">
+        <div id="%jwplaylistID%ScrollerContainer" class="jTscrollerContainer">
+            <div id="%jwplaylistID%Scroller" class="jTscroller">
+                %jwplaylist3%
+            </div>
+        </div>
+        <a href="#" class="jTscrollerPrevButton %scrollerClass%"></a>
+        <a href="#" class="jTscrollerNextButton %scrollerClass%"></a>
+    </div>
+EOT;
+
+
         $final =<<<EOT
 <script type="text/javascript">
     if(!(typeof(ei8PlaylistLoad) == "function")) {
@@ -1025,7 +1052,7 @@ EOT;
         window.onload=function(){
             $("#%jwplaylistID%").thumbnailScroller({
                 scrollerType:"clickButtons",
-                scrollerOrientation:"horizontal",
+                scrollerOrientation:"%previewOrientation%",
                 scrollSpeed:2,
                 scrollEasing:"easeOutCirc",
                 scrollEasingAmount:600,
@@ -1042,37 +1069,65 @@ EOT;
     })(jQuery);
 </script>
 <div class='ei8-playlist-container'>
-    <div class='ei8-playlist-player'>
-        <div class='%class%' style="width:%width%px">
-            %jwplayer%
-        </div>
-    </div>
-    <div id="%jwplaylistID%" class="jThumbnailScroller %class%" style="width:%width%px">
-        <div id="%jwplaylistID%ScrollerContainer" class="jTscrollerContainer">
-            <div id="%jwplaylistID%Scroller" class="jTscroller">
-                %jwplaylist3%
-            </div>
-        </div>
-        <a href="#" class="jTscrollerPrevButton"></a>
-        <a href="#" class="jTscrollerNextButton"></a>
-    </div>
+    %finalPlayer%
 </div>
 <div style="clear: both;"></div>
 
 EOT;
 
-        //distill what we actually need now...
+        //determine what is being shown and in what order
+        $myPreview = $myDefaults['preview'];
+        if(empty($myPreview)) $myPreview = 'bottom';
+        $showPreview  = ($myPreview=='none') ? false : true ;
+        $showPlayer   = true; //for future manipulation
+
+        $previewFirst = (in_array($myPreview,array('left','top'))) ? true : false;
+
+        $previewOrientation  = (in_array($myPreview,array('left','right'))) ? 'vertical' : 'horizontal' ;
+
+        if ($previewOrientation=='vertical') {
+            $playerHeightWidth = $scrollerHeightWidth = 'height:%height%px;';
+            if($myDefaults['width']>300) {
+                $w = $myDefaults['width']-118;
+                $playerHeightWidth .= 'width:'.$w.'px;';
+            }
+        } else {
+            $playerHeightWidth = $scrollerHeightWidth = 'width:%width%px;' ;
+        }
+        //$previewStyle = ($previewOrientation=='vertical') ? 'width:100px;' : 'height:100px;';
+        //$previewMargins = array('left'=>'right', 'right'=>'left', 'top'=>'bottom', 'bottom'=>'top');
+        //$previewStyle .= 'margin-'.$previewMargins[$myPreview].':5px;';
+        $playerStyle = 'margin-'.$myPreview.':5px;';
+
+        if($showPreview && $showPlayer) {
+            $finalPlayer = ($previewFirst) ? $thePreview.$thePlayer : $thePlayer.$thePreview ;
+        } elseif($showPlayer) {
+            $finalPlayer = $thePlayer;
+        } else {
+            $finalPlayer = $thePreview;
+        }
+
+        //distill what we actually need now...(and in the right order)
         $myFinalValues = array(
-            'jwplayer'      => $jwplayer,
-            'jwplaylist'    => $jwplaylist,
-            'jwplaylist2'   => $jwplaylist2,
-            'jwplaylist3'   => $jwplaylist3,
-            'jwplayerID'    => $jwplayerEl,
-            'jwplaylistID'  => $jwplayerPlaylistEl,
-            //'jwplaylistjs'  => $jwplaylistJS,
-            //'class'         => $myDefaults['class'],
-            'class'         => $playlistClass,
-            'width'         => $myDefaults['width'],
+            'finalPlayer'         => $finalPlayer,
+            'jwplayer'            => $jwplayer,
+            'jwplaylist'          => $jwplaylist,
+            'jwplaylist2'         => $jwplaylist2,
+            'jwplaylist3'         => $jwplaylist3,
+            'jwplayerID'          => $jwplayerEl,
+            'jwplaylistID'        => $jwplayerPlaylistEl,
+            //'jwplaylistjs'        => $jwplaylistJS,
+            //'class'               => $myDefaults['class'],
+            'class'               => $playlistClass,
+            'playerClass'         => 'ei8-playlist-player-'.$previewOrientation,
+            'scrollerClass'       => 'jts-'.$previewOrientation.' jts-'.$myPreview,
+            'playerHeightWidth'   => $playerHeightWidth,
+            'scrollerHeightWidth' => $scrollerHeightWidth,
+            'previewStyle'        => '',//$previewStyle,
+            'previewOrientation'  => $previewOrientation,
+            'playerStyle'         => $playerStyle,
+            'width'               => $myDefaults['width'],
+            'height'              => $myDefaults['height'],
         );
 
         //swap out the place holders with the actual values

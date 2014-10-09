@@ -127,8 +127,16 @@ textarea {
     margin-bottom: 25px;
 }
 .ei8-playlist-player {
-    margin-bottom: 5px;
 }
+.ei8-playlist-player-horizontal, .jts-horizontal {
+    margin: 0 5px;
+}
+.ei8-playlist-player-vertical, .jts-vertical {
+    margin: 5px 0;
+    float:left;
+    display: inline-block;
+}
+
 #content .ei8-playlist ul {
     padding-left: 0px;
     margin-left: 0px;
@@ -194,8 +202,8 @@ textarea {
 
 .jThumbnailScroller {
     position: relative;
-    height: 90px;
-    /*margin: 0px auto 0 auto;*/
+    /*height: 100px;
+    margin: 0px auto 0 auto;*/
     border: 5px solid #eee;
     background: #bbb;
     padding: 0;
@@ -205,18 +213,37 @@ textarea {
     border-radius: 5px;
 }
 
+.jts-horizontal {
+    height: 100px;
+}
+
+.jts-vertical {
+    width: 108px;
+}
+
+.jts-right {
+    margin-left: 118px;
+}
+
 .jThumbnailScroller .jTscrollerContainer {
     position: absolute;
 }
 
 .jThumbnailScroller .jTscroller {
     position: relative;
-    height: 100%;
     margin: 0;
     left: 0;
     top: 0;
     display: inline-block;
     *display: inline;
+}
+
+.jts-horizontal .jTscroller {
+    height: 100%;
+}
+
+.jts-vertical .jTscroller {
+    width: 100%;
 }
 
 .jThumbnailScroller .jTscrollerNextButton, .jThumbnailScroller .jTscrollerPrevButton {
@@ -230,14 +257,6 @@ textarea {
     opacity: 0.7;
 }
 
-.jThumbnailScroller .jTscrollerNextButton {
-    background: #000 url(../images/nextArrow.png) center center;
-}
-
-.jThumbnailScroller .jTscrollerPrevButton {
-    background: #000 url(../images/prevArrow.png) center center;
-}
-
 .jThumbnailScroller .jTscrollerNextButton:hover, .jThumbnailScroller .jTscrollerPrevButton:hover {
     /*background-color: #d56916;*/
     background-color: #536CA5;
@@ -248,7 +267,6 @@ textarea {
     display: block;
     float: left;
     border: 5px solid #ddd;
-    margin: 6px 10px 6px 0;
     background: #fff;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
@@ -260,8 +278,20 @@ textarea {
     border-color: #fff;
 }
 
-.jThumbnailScroller .jTscroller a:first-child {
+.jts-horizontal .jTscroller a {
+    margin: 6px 10px 6px 0;
+}
+
+.jts-vertical .jTscroller a {
+    margin: 10px 6px 0 6px;
+}
+
+.jts-horizontal .jTscroller a:first-child {
     margin-left: 10px;
+}
+
+.jts-vertical .jTscroller a:first-child {
+    margin-top: 10px;
 }
 
 
@@ -284,16 +314,32 @@ textarea {
     opacity: 1;
 }
 
-.jThumbnailScroller .jTscrollerNextButton {
+.jts-horizontal .jTscrollerNextButton {
     margin: -20px 10px 0 10px;
     right: 0;
     top: 50%;
+    background: #000 url(../images/nextArrow.png) center center;
 }
 
-.jThumbnailScroller .jTscrollerPrevButton {
+.jts-horizontal .jTscrollerPrevButton {
     margin: -20px 10px 0 10px;
     left: 0;
     top: 50%;
+    background: #000 url(../images/prevArrow.png) center center;
+}
+
+.jts-vertical .jTscrollerNextButton {
+    margin: 10px 0 10px -20px;
+    left: 50%;
+    bottom: 0;
+    background: #000 url(../images/downArrow.png) center center;
+}
+
+.jts-vertical .jTscrollerPrevButton {
+    margin: 10px 0 10px -20px;
+    left: 50%;
+    top: 0;
+    background: #000 url(../images/upArrow.png) center center;
 }
 
 .jThumbnailScroller#tS1 {

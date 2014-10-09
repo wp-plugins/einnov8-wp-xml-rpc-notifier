@@ -216,12 +216,39 @@ function ei8_xmlrpc_shortcode_options() {
             <td>
                 <span>
                     <ul style='list-style: disc;'>The following are variables you can set within the [cxl Playlist] tag
-                        <li style="margin-left: 40px"><strong>align</strong> [options: left, right, center] <i>(overrides default playlist alignment)</i></li>
-                        <li style="margin-left: 40px"><strong>width</strong> [any numeric pixel width]</li>
-                        <li style="margin-left: 40px"><strong>autoplay</strong> [options: true, false] <i>(default: true)</i></li>
+                        <li style="margin-left: 40px"><strong>preview</strong>
+                            <ul>
+                                <li style="margin-left: 30px">[options: bottom, top, left, right, none] </li>
+                                <li style="margin-left: 30px"><i>(default: bottom)</i></li>
+                            </ul>
+                        </li>
+                        <li style="margin-left: 40px"><strong>align</strong>
+                            <ul>
+                                <li style="margin-left: 30px">[options: left, right, center] </li>
+                                <li style="margin-left: 30px"><i>(overrides default playlist alignment)</i></li>
+                            </ul>
+                        </li>
+                        <li style="margin-left: 40px"><strong>width</strong>
+                            <ul>
+                                <li style="margin-left: 30px">[options: any numeric pixel width] </li>
+                                <li style="margin-left: 30px"><i>(overrides individual media width settings)</i></li>
+                            </ul>
+                        </li>
+                        <li style="margin-left: 40px"><strong>height</strong>
+                            <ul>
+                                <li style="margin-left: 30px">[options: any numeric pixel height] </li>
+                                <li style="margin-left: 30px"><i>(overrides individual media height settings)</i></li>
+                            </ul>
+                        </li>
+                        <li style="margin-left: 40px"><strong>autoplay</strong>
+                            <ul>
+                                <li style="margin-left: 30px">[options: true, false] </li>
+                                <li style="margin-left: 30px"><i>(default: true)</i></li>
+                            </ul>
+                        </li>
                     </ul>
                 </span>
-                [cxl Playlist <strong>align=right width=600 autoplay=false</strong>]<br>
+                [cxl Playlist <strong>preview=right align=right width=600 autoplay=false</strong>]<br>
                 ...[cxl shortcodes go here]...<br>
                 [cxl PlaylistEnd]
             </td>
