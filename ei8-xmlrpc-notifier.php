@@ -3,7 +3,7 @@
 Plugin Name: Content XLerator Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Content XLerator system at cxl1.net as well as the wp native xml-rpc functionality.
-Version: 3.5.8
+Version: 3.5.9
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -668,11 +668,15 @@ function ei8_enqueue_scripts() {
 
     //jwplayer
     wp_register_script( 'ei8-xmlrpc-jwplayer', 'http://p.jwpcdn.com/6/4/jwplayer.js?ver=3.5.1' );
+    //wp_register_script( 'ei8-xmlrpc-jwplayer', ei8_plugins_url('/lib/js/jwplayer-3.5.1.js') );
     wp_enqueue_script( 'ei8-xmlrpc-jwplayer' );
 
     //thumbnail scroller
     wp_register_script( 'ei8-jquery-custom', ei8_plugins_url('/lib/js/jquery-ui-1.8.13.custom.min.js'), array('jquery') );
     wp_enqueue_script( 'ei8-jquery-custom' );
+
+    //qtip for scroller title/description rollovers
+    wp_enqueue_script('qtip', ei8_plugins_url('/lib/js/jquery.qtip.min.js'), array('jquery'), false, true);
 
     //thumbnail scroller
     wp_register_script( 'ei8-thumbnail_scroller', ei8_plugins_url('/lib/js/jquery.thumbnailScroller.js'), array('jquery') );
@@ -688,6 +692,9 @@ function ei8_register_head() {
 
     //$url = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css';
     //echo "<link rel='stylesheet' type='text/css' href='$url' />\n";
+
+    //qtip for scroller title/description rollovers
+    wp_enqueue_style('qtip', ei8_plugins_url('/css/jquery.qtip.min.css'), null, false, false);
 
     echo '<script type="text/javascript">jwplayer.key="CrmSh4fiXjB2MrwBht0Q3pjOqppvu+U+as8bcQ==";</script>';
 }
@@ -897,7 +904,10 @@ function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
         foreach($values as $statement) {
             list($name,$val) = explode("=",$statement,2);
             if($name=="align") $name = 'class';
-            $myDefaults[trim($name)] = trim($val);
+            $val = trim($val);
+            $qArr = array("'", '"');
+            if(in_array(substr($val, -1),$qArr) && in_array(substr($val,0,1),$qArr)) $val = substr($val,1,-1);
+            $myDefaults[trim($name)] = $val;
         }
         
         $playlistAlign      = ei8_coalesce($myDefaults['class'], ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_align'), 'left');
@@ -967,10 +977,14 @@ function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
         $playlist_xml = ei8XmlrpcFloodgateAPI::load_remote_xml($url_playlistinfo);
 
         //now start building the actual display and js
-        $jwplaylist = $jwplaylist2 = $jwplaylist3 = "";
+        $jwplaylist = $jwplaylist2 = $jwplaylist3 = $jwplaylist4 = "";
         //$jwplayerEl = "Player".$myDefaults['guid']; //this was set earlier to allow for multiple players with playlists
         $jwplayerPlaylistEl = $jwplayerEl."Playlist";
         $jwplayerPlaylistIndex = 0;
+        $qTipTitle = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_show_title');
+        $qTipDesc = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_show_description');
+        $showQTipTitle = (isset($myDefaults['show_title'])) ? ($myDefaults['show_title']=='true') : ($qTipTitle==1);
+        $showQTipDesc = (isset($myDefaults['show_description'])) ? ($myDefaults['show_description']=='true') : ($qTipDesc==1);
         foreach($playlist_xml->media as $media) {
 ///ADD IN PREFERENCES HERE??
             $myFile1 = $media->sources->source[0]->file;
@@ -979,6 +993,8 @@ function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
             $myTitle = $media->title;
             $myDesc  = $media->description;
             $myTitleSafe = addslashes($myTitle);
+            $myDescSafe = addslashes($myDesc);
+            $myElId  = $jwplayerEl.$jwplayerPlaylistIndex;
             $jwplaylist .=<<<EOT
 
             <li>
@@ -998,10 +1014,49 @@ EOT;
                 <a href="javascript:ei8PlaylistLoad('$jwplayerEl','$myFile1','$myFile2','$myImage');" title="$myTitleSafe"><img src='$myImage' border='0'></a>
 EOT;
 
+/*            $jwplaylist3 .=<<<EOT
+
+                <a href="javascript:ei8PlaylistItem('$jwplayerEl','$jwplayerPlaylistIndex');" title="$myTitleSafe"><img src='$myImage' alt="$myTitleSafe"></a>
+EOT;*/
+
             $jwplaylist3 .=<<<EOT
 
-                <a href="javascript:ei8PlaylistItem('$jwplayerEl','$jwplayerPlaylistIndex');"><img src='$myImage' alt="$myTitleSafe"></a>
+                <a href="javascript:ei8PlaylistItem('$jwplayerEl','$jwplayerPlaylistIndex');"><img src='$myImage' id='$myElId'></a>
 EOT;
+
+            //build qtip content
+            //show nothing
+            if(!$showQTipTitle && !$showQTipDesc) {
+                $jwplaylist4 .= '';
+
+            //show both title and description
+            } elseif($showQTipTitle && $showQTipDesc) {
+                $jwplaylist4 .=<<<EOT
+                    $('#$myElId').qtip({
+                        content: {
+                            title: '$myTitleSafe',
+                            text: '$myDescSafe'
+                        },
+                        style: { classes: 'qtip-light qtip-rounded ei8t-qtip' }
+                    });
+
+EOT;
+            //show only the description area of the qtip and put the relevant content type in there
+            } else {
+                $myContentSafe = ($showQTipDesc) ? $myDescSafe : $myTitleSafe ;
+
+                $jwplaylist4 .=<<<EOT
+                    $('#$myElId').qtip({
+                        content: {
+                            text: '$myContentSafe'
+                        },
+                        style: { classes: 'qtip-light qtip-rounded ei8t-qtip' }
+                    });
+
+EOT;
+
+            }
+
             $jwplayerPlaylistIndex++;
         }
 
@@ -1065,6 +1120,9 @@ EOT;
                 autoScrollingDelay:500
             });
             $("#%jwplaylistID%ScrollerContainer").width($("#%jwplaylistID%ScrollerContainer").width()+2);
+                // Grab all elements with the class "hasTooltip"
+            %jwplaylist4%
+
         }
     })(jQuery);
 </script>
@@ -1072,6 +1130,8 @@ EOT;
     %finalPlayer%
 </div>
 <div style="clear: both;"></div>
+<script>
+</script>
 
 EOT;
 
@@ -1114,6 +1174,7 @@ EOT;
             'jwplaylist'          => $jwplaylist,
             'jwplaylist2'         => $jwplaylist2,
             'jwplaylist3'         => $jwplaylist3,
+            'jwplaylist4'         => $jwplaylist4,
             'jwplayerID'          => $jwplayerEl,
             'jwplaylistID'        => $jwplayerPlaylistEl,
             //'jwplaylistjs'        => $jwplaylistJS,

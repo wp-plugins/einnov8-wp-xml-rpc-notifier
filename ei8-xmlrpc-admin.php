@@ -219,7 +219,7 @@ function ei8_xmlrpc_shortcode_options() {
                         <li style="margin-left: 40px"><strong>preview</strong>
                             <ul>
                                 <li style="margin-left: 30px">[options: bottom, top, left, right, none] </li>
-                                <li style="margin-left: 30px"><i>(default: bottom)</i></li>
+                                <li style="margin-left: 30px"><i>(overrides default playlist layout)</i></li>
                             </ul>
                         </li>
                         <li style="margin-left: 40px"><strong>align</strong>
@@ -244,6 +244,18 @@ function ei8_xmlrpc_shortcode_options() {
                             <ul>
                                 <li style="margin-left: 30px">[options: true, false] </li>
                                 <li style="margin-left: 30px"><i>(default: true)</i></li>
+                            </ul>
+                        </li>
+                        <li style="margin-left: 40px"><strong>show_title</strong>
+                            <ul>
+                                <li style="margin-left: 30px">[options: true,false] </li>
+                                <li style="margin-left: 30px"><i>(overrides default playlist show title)</i></li>
+                            </ul>
+                        </li>
+                        <li style="margin-left: 40px"><strong>show_description</strong>
+                            <ul>
+                                <li style="margin-left: 30px">[options: true,false] </li>
+                                <li style="margin-left: 30px"><i>(overrides default playlist show description)</i></li>
                             </ul>
                         </li>
                     </ul>
@@ -681,6 +693,7 @@ function ei8_xmlrpc_admin_options() {
     //$postType        = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
     //$mediaAlign      = ei8_xmlrpc_get_option('ei8_xmlrpc_media_align');
     $ei8AdminUrl     = "admin.php?page=".$optionP;
+    $formVarPre = ei8XmlrpcFloodgateFormField::VAR_PRE; //TODO This is half implemented...where the old form methods are now using the new form class
 
     if($_POST['action']=="update") {
         //print_r($_POST);
@@ -702,6 +715,18 @@ function ei8_xmlrpc_admin_options() {
 
             $var = 'ei8_xmlrpc_media_align';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
+
+            $var = 'ei8_xmlrpc_playlist_align';
+            ei8_xmlrpc_update_option($var, $_POST[$var]);
+
+            $var = 'ei8_xmlrpc_playlist_layout';
+            ei8_xmlrpc_update_option($var, $_POST[$var]);
+
+            $var = 'ei8_xmlrpc_playlist_show_title';
+            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
+
+            $var = 'ei8_xmlrpc_playlist_show_description';
+            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
 
 /*            $var = 'ei8_xmlrpc_site_type';
             ei8_xmlrpc_update_option($var, $_POST[$var]);
@@ -756,7 +781,8 @@ function ei8_xmlrpc_admin_options() {
     $playlistAlign   = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_align');
     $playlistLayout  = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_layout');
     $align_options   = array('left','center','right');
-    $playlist_layout_options    = array('horizontal','vertical','list');
+    //$playlist_layout_options    = array('horizontal','vertical','list');
+    $playlist_layout_options    = array('bottom','right','top','left','none'/*,'list'*/);
     $playlist_show_title        = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_show_title');
     $playlist_show_description  = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_show_description');
 
@@ -856,7 +882,7 @@ function ei8_xmlrpc_admin_options() {
 ?>
                     </select></td>
             </tr>
-<!--            <tr valign="top">
+            <tr valign="top">
                 <th scope="row">Default playlist layout:</th>
                 <td><select name='ei8_xmlrpc_playlist_layout'>
 <?php
@@ -868,14 +894,13 @@ function ei8_xmlrpc_admin_options() {
                     </select></td>
             </tr>
                 <tr valign="top">
-                <th scope="row">Playlist show title:</th>
+                <th scope="row">Default playlist show title:</th>
                 <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_playlist_show_title',$playlist_show_title); ?></td>
             </tr>
             <tr valign="top">
-                <th scope="row">Playlist show description:</th>
+                <th scope="row">Default playlist show description:</th>
                 <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_playlist_show_description',$playlist_show_description); ?></td>
             </tr>
--->
 <?php
             } //end admin only options
 ?>
@@ -907,21 +932,6 @@ function ei8_xmlrpc_legacy_settings() {
             //ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
 
             $var = 'ei8_xmlrpc_file_uploader_css';
-            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
-
-            $var = 'ei8_xmlrpc_media_align';
-            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
-
-            $var = 'ei8_xmlrpc_playlist_align';
-            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
-
-            $var = 'ei8_xmlrpc_playlist_layout';
-            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
-
-            $var = 'ei8_xmlrpc_playlist_show_title';
-            ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
-
-            $var = 'ei8_xmlrpc_playlist_show_description';
             ei8_xmlrpc_update_option($var, $_POST[$formVarPre.$var]);
 
             //update the custom folders values
@@ -963,8 +973,11 @@ function ei8_xmlrpc_legacy_settings() {
     <p></p>
     <form method="post" action="<?php echo $ei8AdminUrl; ?>">
         <?php wp_nonce_field('update-options'); ?>
+        <input type="hidden" name="action" value="update">
+        <input type="hidden" name="page_options" value="ei8_xmlrpc_post_status,ei8_xmlrpc_email_notify,ei8_xmlrpc_ping" />
+        <p class="submit"><input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p>
         <table class="form-table">
-<?php
+            <?php
             if (current_user_can('edit_others_posts')) {
                 //$useCaptcha         = ei8_xmlrpc_get_option('ei8_xmlrpc_use_captcha');
                 $f_submitForm       = 'ei8_xmlrpc_submit_form';
@@ -990,23 +1003,18 @@ function ei8_xmlrpc_legacy_settings() {
                 //$f_defaultHeightVideo   = 'ei8_xmlrpc_default_height_video';
                 //$v_defaultHeightVideo   = ei8_coalesce(ei8_xmlrpc_get_option($f_defaultHeightVideo), 260);
 
-                $align_options   = array('left','center','right');
-                $playlist_layout_options    = array('horizontal','vertical','list');
-                $playlist_show_title        = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_show_title');
-                $playlist_show_description  = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_show_description');
-
-?>
-            <tr valign="top">
-                <th scope="row">Form-Submit redirect URL:</th>
-                <td><?php echo ei8_xmlrpc_form_text($f_submitForm,$v_submitForm); ?><!-- <br>
+                ?>
+                <tr valign="top">
+                    <th scope="row">Form-Submit redirect URL:</th>
+                    <td><?php echo ei8_xmlrpc_form_text($f_submitForm,$v_submitForm); ?><!-- <br>
             <small>This is where the user is sent after a form has been successfully submitted. <br>This CAN but does NOT HAVE TO be the original submit form location<br>
                 ex. /submit/ OR http://domain.com/subfolder/submit/ OR http://domain.com/confirmation/</small> -->
-                </td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><a name="ei8xmlrpctwittersettings"></a>Twitter Account:</th>
-                <td>
-<?php
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row"><a name="ei8xmlrpctwittersettings"></a>Twitter Account:</th>
+                    <td>
+                        <?php
                         //handle twitter authentication
                         $twitterToken  = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_token');
                         $twitterSecret = ei8_xmlrpc_get_option('ei8_xmlrpc_twitter_secret');
@@ -1026,7 +1034,7 @@ function ei8_xmlrpc_legacy_settings() {
                             ei8_xmlrpc_update_option('ei8_xmlrpc_twitter_secret', "");
                             echo ei8_xmlrpc_conf_message(true,$title='Success',$text="Twitter connection reset");
 
-                        //got a response from Twitter, means the user has authenticated, now we authenticate the app
+                            //got a response from Twitter, means the user has authenticated, now we authenticate the app
                         } elseif($_GET['oauth_verifier']) {
                             //$twitterObj->setOAuth($_GET['oauth_token']);
                             //$twitterObj->setAccessToken($_GET['oauth_token']);
@@ -1072,7 +1080,7 @@ function ei8_xmlrpc_legacy_settings() {
                             //$url .= "oauth_callback=".urlencode($ei8AdminUrl);
                             echo "<a href='$url'>Authorize an account with Twitter</a>";
 
-                        //make sure the user is valid
+                            //make sure the user is valid
                         } else {
 
                             //do the user validate here
@@ -1099,55 +1107,35 @@ function ei8_xmlrpc_legacy_settings() {
                                 echo "<img src='$profilepic' align='left' style='padding-right:10px;'> Screen name: $username <br><small><a href='$resetUrl'>Reset Twitter Credentials</a></small>";
                             }
                         }
-?>
-                </td>
-            </tr>
-            <!--<tr valign="top">
+                        ?>
+                    </td>
+                </tr>
+                <!--<tr valign="top">
                 <th scope="row">Require CAPTCHA on submit forms: </th>
                 <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_use_captcha',$useCaptcha); ?></td>
             </tr>-->
-            <tr valign="top">
-                <th scope="row">Media uploader custom css:</th>
-                <td><?php echo ei8_xmlrpc_form_text($f_uploaderCSS,$v_uploaderCSS); ?><br>
-                    <small>ex. http://www.contentxlerator.com/css/media_uploader.css</small>
-                </td>
-            </tr>
-<!--            <tr valign="top">
-                <th scope="row">Default playlist layout:</th>
-                <td><select name='ei8_xmlrpc_playlist_layout'>
-<?php
-                        foreach ($playlist_layout_options as $layout ) {
-                            $selected = ($layout==$playlistLayout || (empty($playlistLayout) && $layout=="horizontal")) ? "SELECTED" : "" ;
-                            echo "<option value=\"$layout\" $selected>$layout</option>";
-                        }
-?>
-                    </select></td>
-            </tr>
--->
                 <tr valign="top">
-                <th scope="row">Playlist show title:</th>
-                <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_playlist_show_title',$playlist_show_title); ?></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row">Playlist show description:</th>
-                <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_playlist_show_description',$playlist_show_description); ?></td>
-            </tr>
-            <tr>
-                <td><h3>Web Recorder Settings</h3></td>
-                <td style="vertical-align: middle;"><small>ex. http://www.cxl1.net/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small></td>
-            </tr>
-<?php
-    $customFolders = ei8_xmlrpc_getCustomFolders();
-    foreach($customFolders as $folder => $info) {
-?>
-            <tr valign="top">
-                <th scope="row"><?php echo $info['title']; ?>:</th>
-                <td><?php echo ei8_xmlrpc_form_text($info['var'],$info['value']).' &nbsp; <small>Usage ex: [cxl MiniRecorder cf='.$folder.']</small>'; ?></td>
-            </tr>
-<?php
-    }
-?>
-            <!--<tr valign="top">
+                    <th scope="row">Media uploader custom css:</th>
+                    <td><?php echo ei8_xmlrpc_form_text($f_uploaderCSS,$v_uploaderCSS); ?><br>
+                        <small>ex. http://www.contentxlerator.com/css/media_uploader.css</small>
+                    </td>
+                </tr>
+                <tr>
+                    <td><h3>Web Recorder Settings</h3></td>
+                    <td style="vertical-align: middle;"><small>ex. http://www.cxl1.net/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small></td>
+                </tr>
+                <?php
+                $customFolders = ei8_xmlrpc_getCustomFolders();
+                foreach($customFolders as $folder => $info) {
+                    ?>
+                    <tr valign="top">
+                        <th scope="row"><?php echo $info['title']; ?>:</th>
+                        <td><?php echo ei8_xmlrpc_form_text($info['var'],$info['value']).' &nbsp; <small>Usage ex: [cxl MiniRecorder cf='.$folder.']</small>'; ?></td>
+                    </tr>
+                <?php
+                }
+                ?>
+                <!--<tr valign="top">
                 <th scope="row">Default shortcode video width:</th>
                 <td><?php echo ei8_xmlrpc_form_text($f_defaultWidthVideo,$v_defaultWidthVideo); ?></td>
             </tr>
@@ -1155,13 +1143,10 @@ function ei8_xmlrpc_legacy_settings() {
                 <th scope="row">Default shortcode audio width:</th>
                 <td><?php echo ei8_xmlrpc_form_text($f_defaultWidthAudio,$v_defaultWidthAudio); ?></td>
             </tr>-->
-<?php
+            <?php
             } //end admin only options
-?>
+            ?>
         </table>
-        <input type="hidden" name="action" value="update">
-        <input type="hidden" name="page_options" value="ei8_xmlrpc_post_status,ei8_xmlrpc_email_notify,ei8_xmlrpc_ping" />
-        <p class="submit"><input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p>
     </form>
 </div>
 <?php

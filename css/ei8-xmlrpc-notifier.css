@@ -516,3 +516,9 @@ textarea {
     font-weight: bold;
 }
 
+
+/* for the playlist thumbnail contextual rollovers */
+.ei8t-qtip {
+    z-index: 1000;
+
+}

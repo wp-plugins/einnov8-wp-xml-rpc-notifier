@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 3.4
 Tested up to: 4.0
-Stable tag: 3.5.8
+Stable tag: 3.5.9
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com, Content XLerator, CXL, cxl1.net
 
 Custom integration with cxl1.net
@@ -37,10 +37,11 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
-	3.5.8   2014/10/09  UPDATE  Updated [cxl shortcode] handling
-	3.5.7   2014/10/09  UPDATE  Updated playlist rendering options
-	3.5.5   2014/10/08  UPDATE  Updated [cxl shortcode] handling
-	3.5.4   2014/10/06  UPDATE  Squash php warning when rendering floodgate
+	3.5.9   2014/10/16  UPDATE  Create option to show playlist titles and descriptions on rollover
+	3.5.8   2014/10/09  BUG-FIX Updated [cxl shortcode] handling
+	3.5.7   2014/10/09  BUG-FIX Updated playlist rendering options
+	3.5.5   2014/10/08  BUG-FIX Updated [cxl shortcode] handling
+	3.5.4   2014/10/06  BUG-FIX Squash php warning when rendering floodgate
 	3.5.3   2014/10/02  UPDATE  Use wp_remote_xxx methods for all remote page loads
 	3.5.2   2014/09/22  UPDATE  Rebranded eInnov8->Content XLerator
 	3.5.1   2014/09/04  UPDATE  Tested in wp v4
@@ -178,6 +179,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.5.9 =
+Create option to show playlist titles and descriptions on rollover
 
 = 3.5.8 =
 Updated [cxl shortcode] handling
