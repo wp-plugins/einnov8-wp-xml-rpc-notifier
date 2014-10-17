@@ -3,7 +3,7 @@
 Plugin Name: Content XLerator Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Content XLerator system at cxl1.net as well as the wp native xml-rpc functionality.
-Version: 3.5.9
+Version: 3.6.0
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -414,11 +414,14 @@ function ei8_xmlrpc_recorder_wrap($type, $vars='') {
     if($doError){
         $showType = ucwords($type);
         $html = "<p style='color: #ff0000; size: 13px; font-weight: bold;'>ERROR LOADING Content XLerator $showType Recorder - please notify website administrator support@einnov8.com</p>";
-    } elseif($type=="media") {
+    /*} elseif($type=="media") {
         parse_str($vars);
         $css = urlencode(ei8_coalesce(ei8_xmlrpc_get_option('ei8_xmlrpc_file_uploader_css'), ei8_plugins_url('/css/ei8-file-uploader.css')));
         $url = "{$service}{$folder}/{$a}/{$v}/?externcss={$css}";
         $html = "<iframe src ='$url' class='ei8-form-iframe' frameborder='0'><p>Your browser does not support iframes.</p></iframe>";
+    */} elseif($type=="media") {
+        $uploader = new ei8XmlrpcUploader($vars);
+        $html = $uploader->render();
     } else {
         $url = "{$service}{$folder}/{$vars}";
         $html = "<div class='ei8-shortcode-wrapper'><div class='ei8-web-recorder ei8-web-recorder-$type'>".ei8_xmlrpc_swf_wrap($url,$height,$width)."</div></div>";
@@ -657,29 +660,40 @@ function ei8_enqueue_scripts() {
     wp_enqueue_script( 'jquery' );
     wp_enqueue_script( 'swfobject' );
 
+    //wp_register_script( $handle, $src, $deps, $ver, $in_footer );
 
     //now load the local js
-    wp_register_script( 'ei8-tweet-script', ei8_plugins_url('/lib/js/ei8-xmlrpc-tweet.js'), array('jquery') );
+    wp_register_script( 'ei8-tweet-script', ei8_plugins_url('/lib/js/ei8-xmlrpc-tweet.js'), array('jquery'), false, true );
     wp_enqueue_script( 'ei8-tweet-script' );
 
     //wp_register_script( 'ei8-xmlrpc-notifier', ei8_plugins_url('/ei8-xmlrpc-notifier.js') , array('jquery', 'jquery-ui-core','jquery-effects-core','jquery-effects-fade','jquery-effects-slide','jquery-ui-slider') );
-    wp_register_script( 'ei8-xmlrpc-notifier', ei8_plugins_url('/lib/js/ei8-xmlrpc-notifier.js') , array('jquery') );
+    wp_register_script( 'ei8-xmlrpc-notifier', ei8_plugins_url('/lib/js/ei8-xmlrpc-notifier.js') , array('jquery'), false, true );
     wp_enqueue_script( 'ei8-xmlrpc-notifier' );
 
     //jwplayer
     wp_register_script( 'ei8-xmlrpc-jwplayer', 'http://p.jwpcdn.com/6/4/jwplayer.js?ver=3.5.1' );
     //wp_register_script( 'ei8-xmlrpc-jwplayer', ei8_plugins_url('/lib/js/jwplayer-3.5.1.js') );
     wp_enqueue_script( 'ei8-xmlrpc-jwplayer' );
+    wp_enqueue_script('ei8-xmlrpc-jwplayer-key',ei8_plugins_url('/lib/js/jwplayer.key.js'));
 
     //thumbnail scroller
-    wp_register_script( 'ei8-jquery-custom', ei8_plugins_url('/lib/js/jquery-ui-1.8.13.custom.min.js'), array('jquery') );
+    wp_register_script( 'ei8-jquery-custom', ei8_plugins_url('/lib/js/jquery-ui-1.8.13.custom.min.js'), array('jquery'), false, true );
     wp_enqueue_script( 'ei8-jquery-custom' );
 
     //qtip for scroller title/description rollovers
-    wp_enqueue_script('qtip', ei8_plugins_url('/lib/js/jquery.qtip.min.js'), array('jquery'), false, true);
+    wp_register_script('jquery-qtip', ei8_plugins_url('/lib/js/jquery.qtip.min.js'), array('jquery'), false, true);
+    wp_enqueue_script( 'jquery-qtip' );
+
+    //uploadfile for the media uploader
+    wp_register_script('jquery-uploadfile', ei8_plugins_url('/lib/js/jquery.uploadfile.min.js'), array('jquery'), false, true);
+    //wp_enqueue_script( 'jquery-uploadfile' ); //only include this when needed
+
+    //specific floodgate js
+    wp_register_script('floodgate', ei8_plugins_url('/lib/js/floodgate.js'), array('jquery'), false, true);
+    //wp_enqueue_script( 'floodgate' ); //only include this when needed
 
     //thumbnail scroller
-    wp_register_script( 'ei8-thumbnail_scroller', ei8_plugins_url('/lib/js/jquery.thumbnailScroller.js'), array('jquery') );
+    wp_register_script( 'ei8-thumbnail_scroller', ei8_plugins_url('/lib/js/jquery.thumbnailScroller.js'), array('jquery'), false, true );
     wp_enqueue_script( 'ei8-thumbnail_scroller' );
 
 }
@@ -687,8 +701,9 @@ add_action('wp_enqueue_scripts', 'ei8_enqueue_scripts');
 
 //add styles to admin
 function ei8_register_head() {
-    $url = ei8_plugins_url('/css/ei8-xmlrpc-notifier.css');
-    echo "<link rel='stylesheet' type='text/css' href='$url' />\n";
+    //$url = ei8_plugins_url('/css/ei8-xmlrpc-notifier.css');
+    //echo "<link rel='stylesheet' type='text/css' href='$url' />\n";
+    wp_enqueue_style('ei8-xmlrpc-notifier', ei8_plugins_url('/css/ei8-xmlrpc-notifier.css'), null, false, false);
 
     //$url = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css';
     //echo "<link rel='stylesheet' type='text/css' href='$url' />\n";
@@ -696,7 +711,7 @@ function ei8_register_head() {
     //qtip for scroller title/description rollovers
     wp_enqueue_style('qtip', ei8_plugins_url('/css/jquery.qtip.min.css'), null, false, false);
 
-    echo '<script type="text/javascript">jwplayer.key="CrmSh4fiXjB2MrwBht0Q3pjOqppvu+U+as8bcQ==";</script>';
+    //echo '<script type="text/javascript">jwplayer.key="CrmSh4fiXjB2MrwBht0Q3pjOqppvu+U+as8bcQ==";</script>';
 }
 //add_action('admin_head', 'ei8_register_head');
 add_action('wp_head', 'ei8_register_head');

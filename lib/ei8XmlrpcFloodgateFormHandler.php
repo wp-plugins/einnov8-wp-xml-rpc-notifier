@@ -299,26 +299,23 @@ class ei8XmlrpcFloodgateFormUploader extends ei8XmlrpcFloodgateFormHandler
     public $src;
     public $type;
     public $guid;
+    public $url;
 
     public function __construct($type,$guid,$src) {
         parent::__construct();
         $this->type = $type;
         $this->guid = $guid;
         $this->src  = $src;
-
-        //temp...until the API uploader is functioning
-        $parts = explode("&",$this->guid);
-        foreach($parts as $part) {
-            list($type,$guid) = explode("=",$part);
-            $name = $type.'fguid';
-            $this->$name = $guid;
-        }
     }
 
     public function render() {
-        //$uploadifyJS = ei8_plugins_url('uploadify.js');
-        $xsid = json_encode(session_id());
-        //$guids = ($this->type=='audio') ? "{$this->guid}/default" : "default/{$this->guid}";
+        //work with appropriate jQuery noConflict settings
+        $jQueryInvoke = ($this->type=='multi') ? 'jQuery(document).ready(function($)' : '$(document).ready(function()' ;
+
+        //Make sure this is connecting to the correct dev/live API
+        $domain = ('localwp'==$_SERVER['HTTP_HOST']) ? 'www.dev.cxl1.net' : 'www.cxl1.net' ;
+        $url = "http://$domain/api/upload/{$this->type}/{$this->guid}/";
+
         $html =<<<EOT
         <div class="uploader">
             <div class="content">
@@ -346,13 +343,11 @@ class ei8XmlrpcFloodgateFormUploader extends ei8XmlrpcFloodgateFormHandler
             </div>
         </div>
         <script type="text/javascript">
-            $(document).ready(function()
+            $jQueryInvoke
             {
                 $("#startUpload").hide();
                 var uploadObj = $("#mediauploader").uploadFile({
-                    //TODO Make sure this is connecting to the correct dev/live API
-                    url:"http://www.cxl1.net/api/upload/{$this->type}/{$this->guid}/",
-                    //url:"http://www.ei8t.com/api/upload/{$this->type}/{$this->guid}/",
+                    url:"$url",
                     //allowedTypes:"png,gif,jpg,jpeg",
                     autoSubmit:false,
                     fileName:"myfile",

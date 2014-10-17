@@ -1,8 +1,8 @@
 === Content XLerator Plugin ===
 Contributors: yipeecaiey, jimesten
-Requires at least: 3.4
+Requires at least: 4.0
 Tested up to: 4.0
-Stable tag: 3.5.9
+Stable tag: 3.6.0
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com, Content XLerator, CXL, cxl1.net
 
 Custom integration with cxl1.net
@@ -37,6 +37,8 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	3.6.0   2014/10/17  UPDATE  Update [cxl MediaUploader] shortcode to use mobile friendly html5 uploader and the new cxl API
+	                            NOTE: Requires WP 4.0 or greater!!
 	3.5.9   2014/10/16  UPDATE  Create option to show playlist titles and descriptions on rollover
 	3.5.8   2014/10/09  BUG-FIX Updated [cxl shortcode] handling
 	3.5.7   2014/10/09  BUG-FIX Updated playlist rendering options
@@ -179,6 +181,10 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.6.0 =
+Update [cxl MediaUploader shortcode] to use mobile friendly html5 uploader and the new cxl API
+NOTE: Requires WP 4.0 or greater!!
 
 = 3.5.9 =
 Create option to show playlist titles and descriptions on rollover

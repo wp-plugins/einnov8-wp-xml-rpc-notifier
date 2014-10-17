@@ -456,7 +456,7 @@ EOT;
 
     <!-- Javascript -->
     <script src="{$this->pluginUrl}/lib/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="http://www.cxl1.net/js/swfobject/swfobject.js"></script>
+    <script type="text/javascript" src="{$this->pluginUrl}/lib/js/swfobject.js"></script>
 
 </head>
 
@@ -500,7 +500,7 @@ EOT;
     <!-- Javascript -->
     <script src="{$this->pluginUrl}/lib/js/jquery.uploadfile.min.js"></script>
     <script type="text/javascript" src="{$this->pluginUrl}/colorbox/jquery.colorbox.js"></script>
-    <script type="text/javascript" src="{$this->pluginUrl}/lib/js//responsive-menu.js"></script>
+    <script type="text/javascript" src="{$this->pluginUrl}/lib/js/responsive-menu.js"></script>
     <script type="text/javascript">
         $(document).ready(function($){
             //setup helpinfo
@@ -544,28 +544,16 @@ EOT;
                 $("header .container").css("padding","7px 0");
             }
         });
-        function floodgate_response(status,title,msg) {
-            var showSuccess = '$showSuccess';
-            var showError   = '$showError';
-            var response    = "";
-            if ('true'==status) {
-                if (title == "")    title = '$successDefaults[0]';
-                if (msg == "")      msg = '$successDefaults[1]';
-                response = showSuccess;
-            } else {
-                if (title == "")    title = '$errorDefaults[0]';
-                if (msg == "")      msg = '$errorDefaults[1]';
-                response = showError;
-            }
-            response        = response.replace("%title%", title);
-            response        = response.replace("%msg%", msg);
 
-            return response;
-        }
-        function floodgate_response_hide() {
-            $("#ei8-confirmation").delay(7000).fadeOut(3000);
-        }
+        //set some things up for the floodgate.js
+        var showSuccess         = '$showSuccess';
+        var showError           = '$showError';
+        var successDefaultTitle = '$successDefaults[0]';
+        var successDefaultMsg   = '$successDefaults[1]';
+        var errorDefaultTitle   = '$errorDefaults[0]';
+        var errorDefaultMsg     = '$errorDefaults[1]';
     </script>
+    <script type="text/javascript" src="{$this->pluginUrl}/lib/js/floodgate.js"></script>
 </body>
 </html>
 EOT;
