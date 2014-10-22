@@ -5,6 +5,7 @@
 }
 .ei8-embedded-content-center {
     margin:auto;
+    clear: both;
 }
 .ei8-embedded-content-left {
     margin-right:auto;
@@ -128,10 +129,12 @@ textarea {
 .ei8-playlist-player {
 }
 .ei8-playlist-player-horizontal, .jts-horizontal {
-    margin: 0 5px;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 .ei8-playlist-player-vertical, .jts-vertical {
-    margin: 5px 0;
+    margin-top: 0;
+    margin-bottom: 0;
     float:left;
     display: inline-block;
 }
@@ -196,7 +199,7 @@ textarea {
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
-
+    min-height: 30px;
 }
 
 .jThumbnailScroller {
@@ -221,7 +224,7 @@ textarea {
 }
 
 .jts-right {
-    margin-left: 118px;
+    /*margin-left: 118px;*/
 }
 
 .jThumbnailScroller .jTscrollerContainer {

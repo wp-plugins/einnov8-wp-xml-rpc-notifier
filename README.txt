@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 4.0
 Tested up to: 4.0
-Stable tag: 3.6.0
+Stable tag: 3.6.1
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com, Content XLerator, CXL, cxl1.net
 
 Custom integration with cxl1.net
@@ -11,9 +11,7 @@ Custom forms for submitting content to the wp xmlrpc server.
 
 == Description ==
 
- * A wordpress plugin to support integration with cxl1.net API for content submission
- * Manage email notifications when posts are received.
- * Short tags for custom form inclusion within posts
+ A wordpress plugin to support integration with the cxl1.net API for content submission, distribution, and playback
 
 
 == Supported Languages ==
@@ -37,6 +35,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	3.6.1   2014/10/22  BUG-FIX Updated playlist to fix layout and alignment issues
 	3.6.0   2014/10/17  UPDATE  Update [cxl MediaUploader] shortcode to use mobile friendly html5 uploader and the new cxl API
 	                            NOTE: Requires WP 4.0 or greater!!
 	3.5.9   2014/10/16  UPDATE  Create option to show playlist titles and descriptions on rollover
@@ -181,6 +180,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.6.1 =
+Updated playlist to fix layout and alignment issues
 
 = 3.6.0 =
 Update [cxl MediaUploader shortcode] to use mobile friendly html5 uploader and the new cxl API

@@ -3,7 +3,7 @@
 Plugin Name: Content XLerator Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Content XLerator system at cxl1.net as well as the wp native xml-rpc functionality.
-Version: 3.6.0
+Version: 3.6.1
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -650,6 +650,12 @@ EOT;
 }
 
 add_filter( 'the_content', 'ei8_xmlrpc_filter_tags', 11111 );
+//add_filter('the_excerpt', 'ei8_xmlrpc_filter_tags', 11111);
+
+function remove_shortcode_from_excerpt($content) {
+    $content = strip_shortcodes( $content );
+    return $content;//always return $content
+}
 
 //load js
 function ei8_enqueue_scripts() {
@@ -924,6 +930,7 @@ function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
             if(in_array(substr($val, -1),$qArr) && in_array(substr($val,0,1),$qArr)) $val = substr($val,1,-1);
             $myDefaults[trim($name)] = $val;
         }
+        //echo "<p>myDefaults<pre>"; print_r($myDefaults); echo "</pre></p>";
         
         $playlistAlign      = ei8_coalesce($myDefaults['class'], ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_align'), 'left');
         if($playlistAlign!='') $playlistClass .= '-'.$playlistAlign;
@@ -1085,7 +1092,7 @@ EOT;
 EOT;
 
         $thePreview =<<<EOT
-    <div id="%jwplaylistID%" class="jThumbnailScroller %scrollerClass% %class%" style="%scrollerHeightWidth% %previewStyle%">
+    <div id="%jwplaylistID%" class="jThumbnailScroller %scrollerClass%" style="%scrollerHeightWidth% %previewStyle%">
         <div id="%jwplaylistID%ScrollerContainer" class="jTscrollerContainer">
             <div id="%jwplaylistID%Scroller" class="jTscroller">
                 %jwplaylist3%
@@ -1141,7 +1148,7 @@ EOT;
         }
     })(jQuery);
 </script>
-<div class='ei8-playlist-container'>
+<div class='ei8-playlist-container %containerClass%' style='%containerStyle%'>
     %finalPlayer%
 </div>
 <div style="clear: both;"></div>
@@ -1162,13 +1169,19 @@ EOT;
 
         if ($previewOrientation=='vertical') {
             $playerHeightWidth = $scrollerHeightWidth = 'height:%height%px;';
-            if($myDefaults['width']>300) {
+            //below was an attempt to limit the overall height o
+            /*if($myDefaults['width']>300) {
                 $w = $myDefaults['width']-118;
                 $playerHeightWidth .= 'width:'.$w.'px;';
-            }
+            }*/
+            $scrollerHeightWidth .= 'width:108px;' ;
+            $w = $myDefaults['width']+113;
         } else {
             $playerHeightWidth = $scrollerHeightWidth = 'width:%width%px;' ;
+            $w = $myDefaults['width'];
         }
+        $containerStyle = "width:{$w}px";
+
         //$previewStyle = ($previewOrientation=='vertical') ? 'width:100px;' : 'height:100px;';
         //$previewMargins = array('left'=>'right', 'right'=>'left', 'top'=>'bottom', 'bottom'=>'top');
         //$previewStyle .= 'margin-'.$previewMargins[$myPreview].':5px;';
@@ -1181,6 +1194,12 @@ EOT;
         } else {
             $finalPlayer = $thePreview;
         }
+
+        $scrollerClassArray = array(
+            'jts-'.$previewOrientation,
+            'jts-'.$myPreview
+        );
+        if($playlistAlign!='center') $scrollerClassArray[] = $playlistClass;
 
         //distill what we actually need now...(and in the right order)
         $myFinalValues = array(
@@ -1195,13 +1214,15 @@ EOT;
             //'jwplaylistjs'        => $jwplaylistJS,
             //'class'               => $myDefaults['class'],
             'class'               => $playlistClass,
+            'containerClass'      => $playlistClass,
             'playerClass'         => 'ei8-playlist-player-'.$previewOrientation,
-            'scrollerClass'       => 'jts-'.$previewOrientation.' jts-'.$myPreview,
+            'scrollerClass'       => implode(' ',$scrollerClassArray),
             'playerHeightWidth'   => $playerHeightWidth,
             'scrollerHeightWidth' => $scrollerHeightWidth,
             'previewStyle'        => '',//$previewStyle,
             'previewOrientation'  => $previewOrientation,
             'playerStyle'         => $playerStyle,
+            'containerStyle'      => $containerStyle,
             'width'               => $myDefaults['width'],
             'height'              => $myDefaults['height'],
         );
