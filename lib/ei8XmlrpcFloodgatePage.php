@@ -571,6 +571,28 @@ EOT;
         echo $this->build_page();
     }
 
+    public static function get_rlimitmem_url() {
+        $self = new ei8XmlrpcFloodgatePage();
+        $url = $self->pluginUrl."/rlimitmem.php";
+        return $url;
+    }
+
+    public static function get_rlimitmem_status() {
+        $rlimitmemString = 'RLimitMem max';
+        $file = ABSPATH."wp-admin/.htaccess";
+        if(file_exists($file)) {
+            $contents = file_get_contents($file);
+            if(strstr($contents,$rlimitmemString)) return true;
+        }
+        return false;
+    }
+
+    public static function get_rlimitmem_show_status() {
+        $status = self::get_rlimitmem_status();
+        $showStatus = ($status) ? 'Enabled' : 'Disabled' ;
+        return $showStatus;
+    }
+
     public function handle() {
         if(strstr($this->currentType,'logout') || strstr($this->currentTarget,'logout') || strstr($this->queryString,'logout')) {
             $this->session->do_logout();

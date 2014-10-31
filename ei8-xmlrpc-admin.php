@@ -12,9 +12,9 @@ foreach($libFiles as $libFile) if(strstr($libFile,'ei8Xmlrpc')) {
 //validate data
 add_action('admin_notices', 'ei8_xmlrpc_validate_data' );
 
-function ei8_xmlrpc_validate_data($input) {
+function ei8_xmlrpc_validate_data() {
     global $optionP, $optionE;
-    $form = new ei8XmlrpcFloodgateFormHandler();
+    new ei8XmlrpcFloodgateFormHandler();
 
     //validate the email
     $tEmail = ei8_xmlrpc_get_option('ei8_xmlrpc_email_notify');
@@ -272,7 +272,7 @@ function ei8_xmlrpc_shortcode_options() {
 
 function ei8_xmlrpc_floodgate_get_tab($currentTab='') {
     list($fgTabs,$fgTabUrl) = ei8_xmlrpc_floodgate_get_tab_settings();
-    if($currentTab=='') $currentTab = $_GET['fgTab'];
+    if($currentTab=='' && isset($_GET['fgTab'])) $currentTab = $_GET['fgTab'];
     if($currentTab=='') $currentTab = 'settings';
 
     $currentTitle   = $fgTabs[$currentTab];
@@ -457,7 +457,7 @@ function ei8_xmlrpc_floodgate_render_settings() {
         $val = $op->value;
         //$var = ei8_xmlrpc_build_floodgate_option_name($name);
         $title = $vals[0];
-        $extra = $vals[2];
+        $extra = @$vals[2];
         //$val = ei8_xmlrpc_get_floodgate_option($var);
         $val = htmlentities($val);
 
@@ -504,7 +504,7 @@ function ei8_xmlrpc_floodgate_render_settings() {
         foreach($fgT->targets as $target) {
             if($target->media_type!=$type) continue;
             $targetVarPre = $floodgateTargetVarPre.$target->id.'_';
-            $remoteTitle = $fgT->remoteTargets[$target->target]->title;
+            $remoteTitle = @$fgT->remoteTargets[$target->target]->title;
             if(empty($remoteTitle)) {
                 $remoteTitle = "<span style='color:red;'>MISSING TARGET</span><br><small>This target has been deleted from cxl1.net and will not be displayed for users</small>";
                 $missingTitle = true;
@@ -695,7 +695,7 @@ function ei8_xmlrpc_admin_options() {
     $ei8AdminUrl     = "admin.php?page=".$optionP;
     $formVarPre = ei8XmlrpcFloodgateFormField::VAR_PRE; //TODO This is half implemented...where the old form methods are now using the new form class
 
-    if($_POST['action']=="update") {
+    if(isset($_POST['action']) && $_POST['action']=="update") {
         //print_r($_POST);
         $var = 'ei8_xmlrpc_post_status';
         ei8_xmlrpc_update_option($var, $_POST[$var]);
@@ -785,6 +785,7 @@ function ei8_xmlrpc_admin_options() {
     $playlist_layout_options    = array('bottom','right','top','left','none'/*,'list'*/);
     $playlist_show_title        = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_show_title');
     $playlist_show_description  = ei8_xmlrpc_get_option('ei8_xmlrpc_playlist_show_description');
+    $rlimitmemUrl   = ei8XmlrpcFloodgatePage::get_rlimitmem_url();
 
 ?>
 <div class="wrap">
@@ -901,6 +902,13 @@ function ei8_xmlrpc_admin_options() {
                 <th scope="row">Default playlist show description:</th>
                 <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_playlist_show_description',$playlist_show_description); ?></td>
             </tr>
+            <tr valign="top">
+                <th scope="row">RLimitMem Hack:</th>
+                <td>Current status: <?php echo ei8XmlrpcFloodgatePage::get_rlimitmem_show_status(); ?><br>
+                    <a href="<?php echo ei8XmlrpcFloodgatePage::get_rlimitmem_url(); ?>" target="_blank">Click here if you this site is hosted on a HostGator server and you wish to manage the RLimitMem Hack</a><br>
+                    <strong>WARNING:</strong> Enabling this on a server that does not have the Apache RLimit Module installed will break your site.
+                </td>
+            </tr>
 <?php
             } //end admin only options
 ?>
@@ -918,7 +926,7 @@ function ei8_xmlrpc_legacy_settings() {
     $formVarPre = ei8XmlrpcFloodgateFormField::VAR_PRE; //TODO This is half implemented...where the old form methods are now using the new form class
     $ei8AdminUrl     = "admin.php?page=".$optionL;
 
-    if($_POST['action']=="update") {
+    if(isset($_POST['action']) && $_POST['action']=="update") {
 
         if (current_user_can('edit_others_posts')) {
 
@@ -1112,7 +1120,7 @@ function ei8_xmlrpc_legacy_settings() {
                 </tr>
                 <!--<tr valign="top">
                 <th scope="row">Require CAPTCHA on submit forms: </th>
-                <td><?php echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_use_captcha',$useCaptcha); ?></td>
+                <td><?php /*echo ei8_xmlrpc_form_boolean('ei8_xmlrpc_use_captcha',$useCaptcha);*/ ?></td>
             </tr>-->
                 <tr valign="top">
                     <th scope="row">Media uploader custom css:</th>
@@ -1157,7 +1165,7 @@ function ei8_xmlrpc_email_options() {
     $formVarPre = ei8XmlrpcFloodgateFormField::VAR_PRE;
     $ei8AdminUrl     = "admin.php?page=".$optionE;
 
-    if($_POST['action']=="update") {
+    if(isset($_POST['action']) && $_POST['action']=="update") {
 
         if($_POST['ei8_xmlrpc_reset_to_defaults']==1) {
             $defaults = ei8_xmlrpc_get_message_defaults();
@@ -1634,6 +1642,7 @@ function ei8_xmlrpc_admin_query($sql, $errCt=0) {
 //retrieve and display logMsg if it exists
 function ei8_xmlrpc_admin_notices() {
     //$title = "<p><strong>Testiboonials XMLRPC notifier has been updated.</strong></p>";
+    $title = '';
     $msg   = ei8_xmlrpc_get_blog_option('ei8_xmlrpc_admin_log');
     if(!empty($msg)) {
         echo "<div id='akismet-warning' class='updated fade'>" . $title . $msg . "</div>";

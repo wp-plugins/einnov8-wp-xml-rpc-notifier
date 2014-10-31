@@ -105,7 +105,7 @@ function ei8_xmlrpc_get_floodgate_option($name) {
     $value = $option->get($name);
     //$value = ei8_xmlrpc_get_option(ei8_xmlrpc_build_floodgate_option_name($name));
     //see if we need to force the default value...buy default we do :)
-    if (empty($value) && ($admin==false || $name=='name')) $value = $floodgateOptionDefaults[$name];
+    if (empty($value) && (empty($admin) || $name=='name')) $value = $floodgateOptionDefaults[$name];
     //echo "<p>ei8_xmlrpc_get_floodgate_option ( $name ) :: ".ei8_xmlrpc_build_floodgate_option_name($name)." ($value)</p>";
     return stripslashes($value);
 }

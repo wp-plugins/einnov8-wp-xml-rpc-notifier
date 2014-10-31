@@ -25,8 +25,8 @@ class ei8XmlrpcFloodgateAPI
 
     public function getInfo($type,$guid='',$flush='') {
         //$flush=true;
-        //echo "<p>Running ei8XmlrpcFloodgateAPI::getInfo() for type: $type, guid: $guid</p>";
         if(empty($guid)) $guid = $this->guid;
+        //echo "<p>Running ei8XmlrpcFloodgateAPI::getInfo() for type: $type, guid: $guid</p>";
         $key = 'list/'.$type.'/'.$guid.'/';
         //first check to see if this key is cached
         $cache = new ei8XmlrpcFloodgateCache($key,$flush);
@@ -36,7 +36,7 @@ class ei8XmlrpcFloodgateAPI
             //data exists...load into object
             //$xml = simplexml_load_string($data);
             $xml = $this->load_xml($data);
-        } elseif ( is_multisite() || !is_admin() ) {
+        } else/*if ( is_multisite() || !is_admin() )*/ {
             //echo "<p>NO cache...loading from remote</p>";
             //data doesn't exist...load from url
             $url = $this->baseUrl.$key;
@@ -44,12 +44,12 @@ class ei8XmlrpcFloodgateAPI
             $xml = $this->load_remote_xml($url);
             //cache the data for later retrieval
             $cache->set($xml->asXML());
-        } else {
+        } /*else {
             //echo "<p>NO cache...loading from remote</p>";
             //first make sure the RLimit max is set
             //echo "<p>ABSPATH: ".ABSPATH."</p>";
             $externalDomain = false;
-            $externalDomains = array('historicalhighlands.net','localwp');
+            $externalDomains = array('historicalhighlands.net','localwp','einnov8.info');
             foreach($externalDomains as $dom) if(strstr($_SERVER['HTTP_HOST'],$dom)) {
                 $externalDomain = $dom;
                 break;
@@ -88,7 +88,7 @@ class ei8XmlrpcFloodgateAPI
             //should we reload the page here if admin?
             //echo "<p>LOADED NEW DATA FROM CXL1.NET</p>";
 
-        }
+        }*/
         //parse the xml
         return $xml;
     }
@@ -114,15 +114,20 @@ class ei8XmlrpcFloodgateAPI
     public static function load_remote($url) {
         //echo "<p>Remote load of url: $url</p>";
         $response = wp_remote_get($url);
+        self::memcheck("wp_remote_get",$response);
         //echo "<p>response:<pre>"; print_r($response); echo "</pre></p>";
         $body     = wp_remote_retrieve_body($response);
+        self::memcheck("wp_remote_retrieve_body",$body);
         //echo "<p>body:<pre>"; print_r($body); echo "</pre></p>";
         return $body;
     }
 
     public static function load_remote_xml($url) {
+        self::memcheck("load_remote_xml",$url);
         $body = self::load_remote($url);
+        self::memcheck("after load_remote()",$body);
         $xml  = self::load_xml($body);
+        self::memcheck("after load_xml()",$xml);
         return $xml;
     }
 
@@ -131,6 +136,13 @@ class ei8XmlrpcFloodgateAPI
         $xml = simplexml_load_string($string);
         //echo "<p>xml:<pre>"; print_r($xml); echo "</pre></p>";
         return $xml;
+    }
+
+    public static function memcheck($msg='',$obj='') {
+        if($obj=='') $obj = 'nothing to report sir';
+        echo "<p>Memcheck: $msg<pre>"; print_r($obj); echo "</pre></p>";
+        echo "<p>current memory usage: ".memory_get_usage(true)."</p>";
+        echo "<p>peak memory usage: ".memory_get_peak_usage(true)."</p>";
     }
 
 

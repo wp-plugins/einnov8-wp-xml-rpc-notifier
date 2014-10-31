@@ -73,7 +73,7 @@ class ei8XmlrpcFloodgateDbTableOptions extends ei8XmlrpcFloodgateDbTable
     }
 
     public function get_option($name) {
-        $this->db->flush();
+        //$this->db->flush();
         $sql     = "SELECT option_value FROM {$this->table_name} WHERE option_name='$name' LIMIT 1";
         $results = $this->db->get_results($sql);
         if(!$results) return '';
@@ -83,24 +83,24 @@ class ei8XmlrpcFloodgateDbTableOptions extends ei8XmlrpcFloodgateDbTable
 
     public function update_option($name,$value) {
         //check first to see if the option already exists
-        $sql = "SELECT ID FROM {$this->table_name} WHERE option_name='$name'";
-        $results = $this->db->get_results($sql);
-        $option_id = $results[0]->ID;
+        //$sql = "SELECT ID FROM {$this->table_name} WHERE option_name='$name'";
+        //$results = $this->db->get_results($sql);
+        //$option_id = $results[0]->ID;
         $value = addslashes($value);
-        if(!empty($option_id)) {
-            $sql = $this->db->prepare(
-                "UPDATE {$this->table_name} SET option_value='%s' WHERE ID='%s'",
-                $value,
-                $option_id
-            );
-        } else {
+        //if(!empty($option_id)) {
+        //    $sql = $this->db->prepare(
+        //        "UPDATE {$this->table_name} SET option_value='%s' WHERE ID='%s'",
+        //        $value,
+        //        $option_id
+        //    );
+        //} else {
             $sql = $this->db->prepare(
                 "INSERT INTO {$this->table_name} SET option_name='%s', option_value='%s' ON DUPLICATE KEY UPDATE option_value='%s'",
                 $name,
                 $value,
                 $value
             );
-        }
+        //}
         ei8_xmlrpc_admin_query($sql);
         $this->db->flush();
         return true;
