@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 4.0
 Tested up to: 4.0
-Stable tag: 3.6.1
+Stable tag: 3.6.2
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com, Content XLerator, CXL, cxl1.net
 
 Custom integration with cxl1.net
