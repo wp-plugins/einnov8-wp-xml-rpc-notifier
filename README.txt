@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 4.0
 Tested up to: 4.0
-Stable tag: 3.6.2
+Stable tag: 3.6.3
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com, Content XLerator, CXL, cxl1.net
 
 Custom integration with cxl1.net
@@ -35,6 +35,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	3.6.3   2014/10/31  BUG-FIX Cleanup unneeded debugging text
 	3.6.2   2014/10/30  UPDATE  Updated management for the RLimitMem Hack
 	3.6.1   2014/10/22  BUG-FIX Updated playlist to fix layout and alignment issues
 	3.6.0   2014/10/17  UPDATE  Update [cxl MediaUploader] shortcode to use mobile friendly html5 uploader and the new cxl API
@@ -181,6 +182,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.6.3 =
+Cleanup unneeded debugging text
 
 = 3.6.2 =
 Updated management for the RLimitMem Hack
