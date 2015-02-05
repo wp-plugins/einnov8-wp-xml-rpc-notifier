@@ -801,7 +801,7 @@ function ei8_xmlrpc_admin_options() {
                     <option value="" <?php if(empty($postStatus)) echo "SELECTED"; ?>>system default</option>
                     <option value="draft" <?php if('draft'==$postStatus) echo "SELECTED"; ?>>Draft</option>
                     <option value="publish" <?php if('publish'==$postStatus) echo "SELECTED"; ?>>Publish</option>
-                </select></td>
+                </select><br><small><strong>NOTE: This setting can be over-ridden by post information submitted from CXL</strong></small></td>
             </tr>
             <tr valign="top">
                 <th scope="row">Post type to use: </th>
@@ -812,7 +812,7 @@ function ei8_xmlrpc_admin_options() {
                         echo "<option value=\"$post_type\" $selected>$post_type</option>";
                     }
                     ?>
-                </select></td>
+                </select><br><small><strong>NOTE: This setting can be over-ridden by post information submitted from CXL</strong></small></td>
             </tr>
             <tr valign="top">
                 <th scope="row">Post-notification email address:</th>

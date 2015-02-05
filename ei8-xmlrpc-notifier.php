@@ -3,7 +3,7 @@
 Plugin Name: Content XLerator Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Content XLerator system at cxl1.net as well as the wp native xml-rpc functionality.
-Version: 3.6.4
+Version: 3.6.5
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -35,45 +35,66 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     include_once( dirname(__FILE__) . '/ei8-xmlrpc-floodgate-controller.php' );
 //}
 
-//process new posts
-function ei8_xmlrpc_publish_post($post_id) {
-    //load the post object
-    $post = get_post($post_id);
+//filter all post transitions to see if they are new xmlrpc posts
+//and if so...handle pings and emails accordingly
+function ei8_filter_xmlrpc_new_post( $new_status, $old_status, $post ) {
+    //check for the xmlrpc flag
+    $xmlrpcNewPost = ei8_xmlrpc_get_option('ei8_xmlrpc_new_post');
+    if(!empty($xmlrpcNewPost)) {
+        //check if email should be sent
+        $tEmail = ei8_xmlrpc_get_option('ei8_xmlrpc_email_notify');
+        if(!empty($tEmail)) ei8_email_notify($post->ID, $tEmail);
+
+        //check if ping should be sent
+        $tPing = ei8_xmlrpc_get_option('ei8_xmlrpc_ping');
+        if(!empty($tPing)) ei8_add_ping($post->ID, $tPing);
+
+        //debugging to know what happened
+        ei8_xmlrpc_update_option('ei8_xmlrpc_new_post_last_processed', date('m/d/Y H:i:s'));
+
+        //clear flag for xmlrpc post handling
+        ei8_xmlrpc_update_option('ei8_xmlrpc_new_post', '');
+    }
+}
+add_action('transition_post_status',  'ei8_filter_xmlrpc_new_post', 10, 3 );
+
+//pre-filter all xmlrpc new posts before they are added.
+//THESE SETTINGS DO NOT OVERRIDE the xmlrpc source
+function ei8_xmlrpc_new_post($post, $raw_post) {
 
     //update post type
     $postType = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
-    if(!empty($postType)) set_post_type($post_id, $postType);
-
-    //check if email should be sent
-    $tEmail = ei8_xmlrpc_get_option('ei8_xmlrpc_email_notify');
-    if(!empty($tEmail)) ei8_email_notify($post_id, $tEmail);
+    if(!empty($postType) && empty($raw_post['post_type'])) $post['post_type'] = $postType;
 
     //force status update
     $tStatus = ei8_xmlrpc_get_option('ei8_xmlrpc_post_status');
-    if(!empty($tStatus)) ei8_update_post_status($post_id, $tStatus);
+    //TODO: When CXL option to set post_status is reinstated, change this line
+    //if(!empty($tStatus) && empty($raw_post['post_status'])) $post['post_status'] = $tStatus;
+    if(!empty($tStatus)) $post['post_status'] = $tStatus;
 
-    //check if ping should be sent
-    $tPing = ei8_xmlrpc_get_option('ei8_xmlrpc_ping');
-    if(!empty($tPing)) ei8_add_ping($post_id, $tPing);
+    //filter the post content
+    if(!empty($post['post_content'])) $post['post_content'] = ei8_autolink_safe($post['post_content']);
 
-    //get the post content
-    $tContent = $post->post_content;
-    //decode the html characters
-    // IMPORTANT SECURITY NOTE: VERY DANGEROUS!!! TAGGED OUT PENDING FURTHER DISCUSSION
-    // THIS WOULD BE USED TO ALLOW HTML SUBMISSIONS VIA XMLRPC
-    //if(!empty($tContent)) $tContent = htmlspecialchars_decode($tContent);
-    //autolink urls found in post
-    if(!empty($tContent)) $tContent = ei8_autolink_safe($tContent);
-    if(!empty($tContent)) ei8_update_post_content($post_id, $tContent);
+    //$post['post_content'] .= "POST:<pre>".print_r($post,true)."</pre><br>RAW POST:<pre>".print_r($raw_post,true);
 
-    //exit quietly
-    die();
+    //add flag for xmlrpc post handling
+    ei8_xmlrpc_update_option('ei8_xmlrpc_new_post', 'true');
+
+    return $post;
 }
-add_action('xmlrpc_publish_post', 'ei8_xmlrpc_publish_post');
+add_filter('xmlrpc_wp_insert_post_data', 'ei8_xmlrpc_new_post', 99, 2);
 
 function ei8_update_post_status($post_id, $tStatus) {
-    global $wpdb;
-    $wpdb->query( "UPDATE $wpdb->posts SET post_status = '$tStatus' WHERE ID = '$post_id'" );
+    //global $wpdb;
+    //$wpdb->query( "UPDATE $wpdb->posts SET post_status = '$tStatus' WHERE ID = '$post_id'" );
+
+    // Update post
+      $my_post = array();
+      $my_post['ID'] = $post_id;
+      $my_post['post_status'] = $tStatus;
+
+    // Update the post into the database
+      wp_update_post( $my_post );
 }
 
 function ei8_update_post_content($post_id, $tContent) {
@@ -198,6 +219,9 @@ function ei8_email_notify($post_id, $tEmail) {
         $tEmails = explode(',',$tEmail);
         foreach($tEmails as $tEmail) @wp_mail(trim($tEmail), $subject, $message, $message_headers);
     } else @wp_mail($tEmail, $subject, $message, $message_headers);
+
+    //debugging to know what happened
+    ei8_xmlrpc_update_option('ei8_email_last_sent', $tEmail." - ".date('m/d/Y H:i:s'));
 }
 
 function ei8_add_ping($post_id, $tPing) {
