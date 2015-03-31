@@ -105,8 +105,6 @@ function ei8_update_post_content($post_id, $tContent) {
             $post_id
         )
     );
-    //$wpdb->query( "UPDATE $wpdb->posts SET post_content = '$tContent' WHERE ID = '$post_id'" );
-    //$wpdb->query($sql);
 }
 /*add_action( 'init', 'ei8_create_post_types' );
 function ei8_create_post_types() {
@@ -344,7 +342,7 @@ EOT;*/
     $html =<<<EOT
     <div id="{$id}"><p><object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="$width" height="$height" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="allowFullScreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="wmode" value="transparent" /><param name="src" value="$url" /><param name="allowfullscreen" value="true" /><embed type="application/x-shockwave-flash" width="$width" height="$height" src="$url" wmode="transparent" allowscriptaccess="always" allowfullscreen="true"></embed></object></p></div>
 <script type="text/javascript">
-    swfobject.embedSWF("$url", "$id", $width, $height, "6");
+    swfobject.embedSWF("$url", "$id", $width, $height, "9");
 </script>
 EOT;
     return $html;
@@ -397,7 +395,9 @@ function ei8_xmlrpc_parse_recorder_vars($defaultVars='',$overrideVars='') {
 }
 
 function ei8_xmlrpc_recorder_wrap($type, $vars='') {
-    $service = "http://www.ei8t.com/";
+    //$service = "http://www.cxl1.net/";
+    $domain = (strstr($_SERVER['HTTP_HOST'],'localwp') || strstr($_SERVER['HTTP_HOST'],'1dev1')) ? 'dev.cxl1.net' : 'www.cxl1.net' ;
+    $service = "http://$domain/";
     $doError = false;
     if(empty($vars)) $doError = true;
     switch($type) {
@@ -448,6 +448,7 @@ function ei8_xmlrpc_recorder_wrap($type, $vars='') {
         $html = $uploader->render();
     } else {
         $url = "{$service}{$folder}/{$vars}";
+        //if (strstr($_SERVER['HTTP_HOST'],'localwp')) $url = 'http://localwp/flash/webrecmv_new/webrec.swf?'.$vars;
         $html = "<div class='ei8-shortcode-wrapper'><div class='ei8-web-recorder ei8-web-recorder-$type'>".ei8_xmlrpc_swf_wrap($url,$height,$width)."</div></div>";
     }
     return $html;

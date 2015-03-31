@@ -151,7 +151,9 @@ class ei8TwitterObj {
 
     function outputError() {
         echo 'Error: ' . $this->obj->response['response'] . PHP_EOL;
+        echo '<!--';
         tmhUtilities::pr($this->obj);
+        echo '-->';
     }
 
 }
