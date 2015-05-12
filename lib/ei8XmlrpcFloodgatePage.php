@@ -256,6 +256,7 @@ EOT;
     private function build_content_welcome() {
         $title  = "";//"How To Use FLOODtech";
         $html   = ei8_xmlrpc_get_option('ei8_xmlrpc_floodgate_text_'.$this->currentType);
+        $html   = stripslashes($html);
         return array($title, $html);
     }
 
