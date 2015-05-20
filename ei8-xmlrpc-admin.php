@@ -176,19 +176,19 @@ function ei8_xmlrpc_shortcode_options() {
         <tr valign="top">
             <th scope="row">Video example: </th>
             <td>
-                [cxl url=http://www.cxl1.net/swf/9xFKFDWxn2y&w=420&h=335&bm=td&cp=FF6600-800080-FFFF00-000000]<br>
+                [cxl url=https://www.cxl1.net/swf/9xFKFDWxn2y&w=420&h=335&bm=td&cp=FF6600-800080-FFFF00-000000]<br>
             </td>
         </tr>
         <tr valign="top">
             <th scope="row">Audio example: (with affiliate link) </th>
             <td>
-                [cxl url=http://www.dev.cxl1.net/swf/wq3HXt4Jz&w=500&h=20&bm=td&cp=000000-FFFFFF-000000-000000 affiliate=1]
+                [cxl url=https://www.dev.cxl1.net/swf/wq3HXt4Jz&w=500&h=20&bm=td&cp=000000-FFFFFF-000000-000000 affiliate=1]
             </td>
         </tr>
         <tr valign="top">
             <th scope="row">Alignment example: (left/center/right)</th>
             <td>
-                [cxl url=http://www.dev.cxl1.net/swf/wq3HXt4Jz&w=500&h=20&bm=td&cp=000000-FFFFFF-000000-000000 align=left]
+                [cxl url=https://www.dev.cxl1.net/swf/wq3HXt4Jz&w=500&h=20&bm=td&cp=000000-FFFFFF-000000-000000 align=left]
             </td>
         </tr>
         <tr valign="top">
@@ -204,10 +204,10 @@ function ei8_xmlrpc_shortcode_options() {
                     </ul>
                 </span>
                 [cxl Playlist]<br>
-                [cxl url=http://www.dev.cxl1.net/swf/d3tRs77ffYq width=352 height=284 skin=black]<br>
-                [cxl url=http://www.dev.cxl1.net/swf/fj4Wskcpq8J width=320 height=260 skin=black]<br>
-                [cxl url=http://www.dev.cxl1.net/swf/bMZNkrjWQ38 width=320 height=260 skin=black]<br>
-                [cxl url=http://www.dev.cxl1.net/swf/3gVsJFwcxHN width=320 height=260 skin=black]<br>
+                [cxl url=https://www.dev.cxl1.net/swf/d3tRs77ffYq width=352 height=284 skin=black]<br>
+                [cxl url=https://www.dev.cxl1.net/swf/fj4Wskcpq8J width=320 height=260 skin=black]<br>
+                [cxl url=https://www.dev.cxl1.net/swf/bMZNkrjWQ38 width=320 height=260 skin=black]<br>
+                [cxl url=https://www.dev.cxl1.net/swf/3gVsJFwcxHN width=320 height=260 skin=black]<br>
                 [cxl PlaylistEnd]
             </td>
         </tr>
@@ -1130,7 +1130,7 @@ function ei8_xmlrpc_legacy_settings() {
                 </tr>
                 <tr>
                     <td><h3>Web Recorder Settings</h3></td>
-                    <td style="vertical-align: middle;"><small>ex. http://www.cxl1.net/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small></td>
+                    <td style="vertical-align: middle;"><small>ex. https://www.cxl1.net/swfmini/<span style="color: red;">v=8mGCvmv3X&amp;a=d3hQHKcR8DR</span></small></td>
                 </tr>
                 <?php
                 $customFolders = ei8_xmlrpc_getCustomFolders();
