@@ -314,7 +314,7 @@ class ei8XmlrpcFloodgateFormUploader extends ei8XmlrpcFloodgateFormHandler
 
         //Make sure this is connecting to the correct dev/live API
         $domain = ('localwp'==$_SERVER['HTTP_HOST']) ? 'www.dev.cxl1.net' : 'www.cxl1.net' ;
-        $url = "http://$domain/api/upload/{$this->type}/{$this->guid}/";
+        $url = "https://$domain/api/upload/{$this->type}/{$this->guid}/";
 
         $html =<<<EOT
         <div class="uploader">

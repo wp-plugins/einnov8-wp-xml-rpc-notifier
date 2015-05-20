@@ -3,7 +3,7 @@
 Plugin Name: Content XLerator Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Content XLerator system at cxl1.net as well as the wp native xml-rpc functionality.
-Version: 3.6.7
+Version: 3.6.8
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -397,7 +397,7 @@ function ei8_xmlrpc_parse_recorder_vars($defaultVars='',$overrideVars='') {
 function ei8_xmlrpc_recorder_wrap($type, $vars='') {
     //$service = "http://www.cxl1.net/";
     $domain = (strstr($_SERVER['HTTP_HOST'],'localwp') || strstr($_SERVER['HTTP_HOST'],'1dev1')) ? 'dev.cxl1.net' : 'www.cxl1.net' ;
-    $service = "http://$domain/";
+    $service = "https://$domain/";
     $doError = false;
     if(empty($vars)) $doError = true;
     switch($type) {
@@ -702,7 +702,7 @@ function ei8_enqueue_scripts() {
     wp_enqueue_script( 'ei8-xmlrpc-notifier' );
 
     //jwplayer
-    wp_register_script( 'ei8-xmlrpc-jwplayer', 'http://p.jwpcdn.com/6/4/jwplayer.js?ver=3.5.1' );
+    wp_register_script( 'ei8-xmlrpc-jwplayer', 'https://ssl.p.jwpcdn.com/6/12/jwplayer.js' );
     //wp_register_script( 'ei8-xmlrpc-jwplayer', ei8_plugins_url('/lib/js/jwplayer-3.5.1.js') );
     wp_enqueue_script( 'ei8-xmlrpc-jwplayer' );
     wp_enqueue_script('ei8-xmlrpc-jwplayer-key',ei8_plugins_url('/lib/js/jwplayer.key.js'));
@@ -980,7 +980,7 @@ function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
         //set the important defaults
         $url = ei8_xmlrpc_get_first_valid_element_from_array($myShortcodes,'url');
         $urlParts = parse_url($url);
-        $host = "http://".$urlParts['host'];
+        $host = "https://".$urlParts['host'];
         $url_player = $host."/jw6player/";
         $url_playlist = $host."/jw6playlist/";
         $url_playlistinfo = $host."/jw6playlistinfo/";
@@ -1394,7 +1394,7 @@ EOT;
         //get the jwplayer embed code
         $guid = ei8_xmlrpc_get_guid_from_url($myValues['url']);
         $urlParts = parse_url($myValues['url']);
-        $url = "http://".$urlParts['host']."/jw6player/".$guid;
+        $url = "https://".$urlParts['host']."/jw6player/".$guid;
         $QS = "";
         foreach($myValues as $key=>$val) {
             if($key=='url') continue;
