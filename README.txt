@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 4.0
 Tested up to: 4.2.2
-Stable tag: 3.6.8
+Stable tag: 3.6.9
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com, Content XLerator, CXL, cxl1.net
 
 Custom integration with cxl1.net
@@ -35,6 +35,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	3.6.9   2015/05/26  BUG-FIX Filter/rewrite all urls being called by shortcodes (to avoid SSL redirect errors)
 	3.6.8   2015/05/20  BUG-FIX Load cxl1.net content over https
 	3.6.7   2015/05/12  BUG-FIX Render 'Welcome Text' correctly
 	3.6.6   2015/03/30  UPDATE  Update CXL branding within floodgate
@@ -187,6 +188,15 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.6.9 =
+Filter/rewrite all urls being called by shortcodes (to avoid SSL redirect errors)
+Rewrite vam1.com -> cxl1.net
+Rewrite ei8t.com -> cxl1.net
+Rewrite cxl1.net -> www.cxl1.net
+
+= 3.6.8 =
+Load cxl1.net content over https
 
 = 3.6.7 =
 Render 'Welcome Text' correctly

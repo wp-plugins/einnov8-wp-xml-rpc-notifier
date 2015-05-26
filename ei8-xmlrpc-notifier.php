@@ -3,7 +3,7 @@
 Plugin Name: Content XLerator Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Content XLerator system at cxl1.net as well as the wp native xml-rpc functionality.
-Version: 3.6.8
+Version: 3.6.9
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -396,7 +396,7 @@ function ei8_xmlrpc_parse_recorder_vars($defaultVars='',$overrideVars='') {
 
 function ei8_xmlrpc_recorder_wrap($type, $vars='') {
     //$service = "http://www.cxl1.net/";
-    $domain = (strstr($_SERVER['HTTP_HOST'],'localwp') || strstr($_SERVER['HTTP_HOST'],'1dev1')) ? 'dev.cxl1.net' : 'www.cxl1.net' ;
+    $domain = (strstr($_SERVER['HTTP_HOST'],'localwp') || strstr($_SERVER['HTTP_HOST'],'1dev1')) ? 'www.dev.cxl1.net' : 'www.cxl1.net' ;
     $service = "https://$domain/";
     $doError = false;
     if(empty($vars)) $doError = true;
@@ -906,6 +906,24 @@ function ei8_xmlrpc_get_first_valid_element_from_array($array, $key) {
     return "";
 }
 
+function ei8_xmlrpc_filter_url($url) {
+    $parsed = parse_url($url);
+    $oldHost = $parsed['host'];
+    $newHost = ei8_xmlrpc_filter_host($oldHost);
+    if($oldHost!=$newHost) $url = str_replace($oldHost,$newHost,$url);
+    return $url;
+}
+
+function ei8_xmlrpc_filter_host($host) {
+    $host = str_replace('vam1.com','cxl1.net',$host);
+    $host = str_replace('ei8t.com','cxl1.net',$host);
+    if(strstr($host,'cxl1.net')) {
+        $host = 'www.'.$host;
+        $host = str_replace('www.www', 'www', $host);
+    }
+    return $host;
+}
+
 
 function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
     $parts = ei8_xmlrpc_explode_string($content, '[cxl Playlist');
@@ -980,7 +998,7 @@ function ei8_xmlrpc_parse_playlist_shortcode($content,$type='') {
         //set the important defaults
         $url = ei8_xmlrpc_get_first_valid_element_from_array($myShortcodes,'url');
         $urlParts = parse_url($url);
-        $host = "https://".$urlParts['host'];
+        $host = "https://".ei8_xmlrpc_filter_host($urlParts['host']);
         $url_player = $host."/jw6player/";
         $url_playlist = $host."/jw6playlist/";
         $url_playlistinfo = $host."/jw6playlistinfo/";
@@ -1334,14 +1352,11 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
         $myAlign = '';
         foreach($values as $statement) {
             //handle the first part that is the video url
-            //if(empty($myValues)) {
-            //    $myValues['url'] = $statement;
-            //    continue;
-            //}
             if(!strstr($statement,"=")) {
                 if(!isset($myValues['url']));
-                $name = 'url';
-            } //continue; //malformed expression
+                $statement = 'url='.$statement;
+            }
+
             list($name,$val) = explode("=",$statement,2);
             if($name=='audio') $type='audio';
             if($name=="audio" | $name=="video") $name = 'url';
@@ -1351,18 +1366,6 @@ function ei8_xmlrpc_parse_shortcode($content,$type='') {
             else $myValues[trim($name)] = trim($val);
         }
 
-        //set up the code with placeholders
-/*        $final =<<<EOT
-<div class='%class%' style="width:%width%px">
-    <object width="%width%" height="%height%">
-        <param name="movie" value="%url%"></param>
-        <param name="allowFullScreen" value="true"></param>
-        <param name="allowscriptaccess" value="always"></param>
-        <embed src="%url%" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="%width%" height="%height%"></embed>
-    </object>
-    %affiliate%
-</div>
-EOT;*/
         $id = "Player".time();
         $final =<<<EOT
 <div class='%class%' style="width:%width%px">
@@ -1394,7 +1397,7 @@ EOT;
         //get the jwplayer embed code
         $guid = ei8_xmlrpc_get_guid_from_url($myValues['url']);
         $urlParts = parse_url($myValues['url']);
-        $url = "https://".$urlParts['host']."/jw6player/".$guid;
+        $url = "https://".ei8_xmlrpc_filter_host($urlParts['host'])."/jw6player/".$guid;
         $QS = "";
         foreach($myValues as $key=>$val) {
             if($key=='url') continue;
@@ -1419,10 +1422,6 @@ EOT;
         );
 
         //swap out the place holders with the actual values
-        /*foreach($myValues as $key=>$val) {
-            $replace = "%".$key."%";
-            $final = str_replace($replace, $val, $final);
-        }*/
         foreach($myFinalValues as $key=>$val) {
             $replace = "%".$key."%";
             $final = str_replace($replace, $val, $final);

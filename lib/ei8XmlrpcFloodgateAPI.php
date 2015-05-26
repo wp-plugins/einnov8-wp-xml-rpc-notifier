@@ -112,6 +112,7 @@ class ei8XmlrpcFloodgateAPI
     }
 
     public static function load_remote($url) {
+        $url = ei8_xmlrpc_filter_url($url);
         //echo "<p>Remote load of url: $url</p>";
         $response = wp_remote_get($url);
         //self::memcheck("wp_remote_get",$response);
@@ -123,6 +124,7 @@ class ei8XmlrpcFloodgateAPI
     }
 
     public static function load_remote_xml($url) {
+        $url = ei8_xmlrpc_filter_url($url);
         //self::memcheck("load_remote_xml",$url);
         $body = self::load_remote($url);
         //self::memcheck("after load_remote()",$body);
