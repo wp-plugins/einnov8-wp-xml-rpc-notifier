@@ -87,6 +87,7 @@ function ei8_xmlrpc_options_menu() {
         add_submenu_page( $optionP, 'CXL Embed Settings', 'Embed Settings', 'edit_others_posts', $optionL, 'ei8_xmlrpc_legacy_settings');
         add_submenu_page( $optionP, 'CXL Shortcodes', '[cxl shortcodes]', 'activate_plugins', 'ei8-shortcodes', 'ei8_xmlrpc_shortcode_options');
         add_submenu_page( $optionP, 'CXL CSS', '[cxl css]', 'activate_plugins', 'ei8-css', 'ei8_xmlrpc_css_options');
+        add_submenu_page( $optionP, 'Compatibility Test', 'Compatibility Test', 'activate_plugins', 'ei8-compatibility', 'ei8_xmlrpc_compatibility_settings');
     }
 
     //add_menu_page(THEMENAME . ' Theme Options', THEMENAME . ' Options', 'manage_options', THEMESLUG . 'options', array( &$this, 'engipress_do_overpage' ) );
@@ -682,6 +683,86 @@ function ei8_xmlrpc_css_options() {
             <strong>but please note that your new external file will replace this default file entirely</strong><br>
             <a href="<?php echo ei8_plugins_url('/css/ei8-file-uploader.css'); ?>" target="_blank">Click here to access the default media uploader css.</a></strong></td>
         </tr>
+    </table>
+</div>
+<?php
+}
+
+function ei8_xmlrpc_compatibility_get_tests() {
+    return array(
+        'curl'      => 'Curl',
+        'gd'        => 'GD Image Library',
+        //'imagick'   => 'ImageMagick Library',
+        'simplexml' => 'SimpleXML',
+        'json'      => 'JSON Module',
+        'write'     => 'Necessary write permissions',
+        'fopen'     => 'Remote file open',
+        'php_v'     => 'Minimum PHP version'
+    );
+}
+
+function ei8_xmlrpc_compatibility_test_result_image($result) {
+    $img = ($result) ? 'success.png' : 'error.png' ;
+    $image = ei8_plugins_url('/images/'.$img);
+    return "<img src='$image' border=0 width='32px'>";
+}
+
+function ei8_xmlrpc_compatibility_test($type='all') {
+    if($type=='all') {
+        $types = array_keys(ei8_xmlrpc_compatibility_get_tests());
+        foreach($types as $cType) if (!ei8_xmlrpc_compatibility_test($cType)) return false;
+        return true;
+    }
+    switch($type) {
+        case 'curl':
+            return (extension_loaded('curl') && function_exists('curl_version'));
+        case 'gd':
+            return (extension_loaded('gd') && function_exists('gd_info'));
+        case 'imagick':
+            return ( extension_loaded('imagick') || class_exists("Imagick") );
+        case 'simplexml':
+            return (extension_loaded('simplexml'));
+        case 'json':
+            return (extension_loaded('json'));
+        case 'write':
+            return (is_writable(ei8_xmlrpc_get_upload_dir()));
+        case 'fopen':
+            return (ini_get('allow_url_fopen'));
+        case 'php_v':
+            return (phpversion()>=4);
+        default:
+            return (extension_loaded($type));
+    }
+
+}
+
+function ei8_xmlrpc_compatibility_settings() {
+    //test for settings
+    $types = ei8_xmlrpc_compatibility_get_tests();
+    $result = ei8_xmlrpc_compatibility_test('all');
+
+?>
+<div class="wrap">
+
+    <?php ei8_screen_icon(); ?>
+
+    <h2>Compatibility Test Results:</h2>
+    <table class="form-table">
+<?php
+
+    $msg = ($result) ? 'Congratulations, this web server looks to be able to support this plugin!' :
+        'Uh oh! We have detected that certain settings on this web server are not configured correctly to support this plugin.<br>Please contact your ContentXLerator service agent.' ;
+    echo "<tr><td colspan='2'><strong>$msg</strong><br><hr></td></tr>";
+
+    foreach($types as $type=>$title) {
+        echo sprintf('<tr><td style="%s">%s</td><td style="%s">%s</td></tr>',
+            'width:45px;',
+            ei8_xmlrpc_compatibility_test_result_image(ei8_xmlrpc_compatibility_test($type)),
+            'padding-top:22px;',
+            $title
+        );
+    }
+?>
     </table>
 </div>
 <?php
