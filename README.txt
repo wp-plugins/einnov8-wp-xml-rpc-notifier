@@ -2,7 +2,7 @@
 Contributors: yipeecaiey, jimesten
 Requires at least: 4.0
 Tested up to: 4.2.2
-Stable tag: 3.7.1
+Stable tag: 3.7.2
 Tags: eInnov8, xmlrpc, ei8t, ei8t.com, Content XLerator, CXL, cxl1.net
 
 Custom integration with cxl1.net
@@ -35,6 +35,7 @@ None, yet!
 ****
 
     VERSION DATE        TYPE    CHANGES
+	3.7.2   2015/07/14  UPDATE  Update CXL Branding
 	3.7.1   2015/07/10  UPDATE  Update CXL Branding
 	3.6.10  2015/05/29  UPDATE  Create plugin compatibility test and report
 	3.6.9   2015/05/26  BUG-FIX Filter/rewrite all urls being called by shortcodes (to avoid SSL redirect errors)
@@ -190,6 +191,9 @@ None, yet!
 
 
 == Upgrade Notice ==
+
+= 3.7.2 =
+Update CXL Branding
 
 = 3.7.1 =
 Update CXL Branding
