@@ -3,7 +3,7 @@
 Plugin Name: Content XLerator Plugin
 Plugin URI: http://wordpress.org/extend/plugins/einnov8-wp-xml-rpc-notifier/
 Plugin Description: This plugin provides integration with eInnov8's Content XLerator system at cxl1.net as well as the wp native xml-rpc functionality.
-Version: 3.7.2
+Version: 3.7.3
 Author: Tim Gallaugher
 Author URI: http://wordpress.org/extend/plugins/profile/yipeecaiey
 License: GPL2
@@ -52,6 +52,9 @@ function ei8_filter_xmlrpc_new_post( $new_status, $old_status, $post ) {
         //debugging to know what happened
         ei8_xmlrpc_update_option('ei8_xmlrpc_new_post_last_processed', date('m/d/Y H:i:s'));
 
+        //turn back on html filtering
+        kses_init_filters();
+
         //clear flag for xmlrpc post handling
         ei8_xmlrpc_update_option('ei8_xmlrpc_new_post', '');
     }
@@ -61,6 +64,9 @@ add_action('transition_post_status',  'ei8_filter_xmlrpc_new_post', 10, 3 );
 //pre-filter all xmlrpc new posts before they are added.
 //THESE SETTINGS DO NOT OVERRIDE the xmlrpc source
 function ei8_xmlrpc_new_post($post, $raw_post) {
+
+    //disable html filtering
+    kses_remove_filters();
 
     //update post type
     $postType = ei8_xmlrpc_get_option('ei8_xmlrpc_post_type');
